@@ -8,7 +8,7 @@ name: Moodle Plugin CI
 #   - pull_request (trước khi merge): FULL 11 combo, phủ Moodle 4.0→5.2 × PHP 7.4→8.3.
 #
 # Gating: phplint / validate / savepoints / mustache / phpunit / behat = HARD (đỏ nếu lỗi).
-#         phpcs / phpmd / phpdoc / grunt = ADVISORY (continue-on-error) vì plugin còn style cũ.
+#         phpcs / phpmd = GATING (đã sạch 0, siết để chặn regression); phpdoc / grunt = ADVISORY.
 #         phpstan = GATING nhưng chỉ trên combo 8.2×4.2 (xem step bên dưới).
 
 on:
@@ -146,23 +146,26 @@ jobs:
           } > "$M/phpstan-ci.neon"
           phpstan analyse -c "$M/phpstan-ci.neon" --no-progress --memory-limit=1G
 
-      # ---- ADVISORY (continue-on-error: chưa siết vì plugin còn style cũ) ----
+      # ---- GATING style: phpcs + phpmd (đã sạch 0, siết để chặn regression) ----
       # timeout-minutes: chặn hang. phpcs khỏe ~2s; nếu vượt 5 phút là treo (đã thấy
-      # 40-68 phút) -> cho timeout, continue-on-error trung hòa để job vẫn chạy tiếp.
+      # 40-68 phút) -> timeout làm step đỏ (đúng: hang là sự cố cần biết).
       - name: Moodle Code Checker (phpcs)
         if: ${{ !cancelled() }}
-        continue-on-error: true
         timeout-minutes: 5
         run: moodle-plugin-ci phpcs
 
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
-        continue-on-error: true
         timeout-minutes: 5
+        # Ưu tiên ruleset ở bản checkout gốc (plugin/) — luôn tồn tại. moodle-plugin-ci
+        # KHÔNG copy nhất quán dotfile .phpmd.xml vào moodle/enrol/sepay giữa các bản
+        # Moodle (5.01/5.02 từng thiếu), nên fallback về bản copy nếu vì lý do nào đó mất.
         run: |
-          M="$(cd moodle && pwd)"
-          moodle-plugin-ci phpmd --rules "$M/enrol/sepay/.phpmd.xml"
+          RULES="$GITHUB_WORKSPACE/plugin/.phpmd.xml"
+          [ -f "$RULES" ] || RULES="$(cd moodle && pwd)/enrol/sepay/.phpmd.xml"
+          moodle-plugin-ci phpmd --rules "$RULES"
 
+      # ---- ADVISORY (continue-on-error: chưa siết vì plugin còn style cũ) ----
       - name: PHPDoc Checker
         if: ${{ !cancelled() }}
         continue-on-error: true

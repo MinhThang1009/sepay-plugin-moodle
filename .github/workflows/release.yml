@@ -1,0 +1,41 @@
+name: Release
+
+# Tạo GitHub Release + đính kèm zip plugin khi push git tag dạng v* (vd v1.0.0).
+# Zip đóng gói trong thư mục 'sepay' đúng chuẩn cài Moodle (giải nén vào enrol/sepay),
+# loại bỏ file dev/CI không thuộc plugin runtime (.git, .github, phpstan, .phpmd.xml...).
+#
+# Cách phát hành: bump $plugin->version (+ nên thêm $plugin->release) trong version.php,
+# commit, rồi `git tag v1.0.0 && git push origin v1.0.0`.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Build plugin zip (thư mục sepay theo chuẩn Moodle)
+        run: |
+          mkdir -p build/sepay
+          rsync -a \
+            --exclude='.git' --exclude='.github' --exclude='build' \
+            --exclude='.gitignore' --exclude='.phpmd.xml' \
+            --exclude='.phpcs.xml.dist' --exclude='phpstan*' \
+            ./ build/sepay/
+          (cd build && zip -rq "../enrol_sepay-${GITHUB_REF_NAME}.zip" sepay)
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            "enrol_sepay-${GITHUB_REF_NAME}.zip" \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes
