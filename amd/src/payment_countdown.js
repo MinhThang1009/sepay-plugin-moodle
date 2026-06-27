@@ -20,7 +20,7 @@
  * @copyright  2026 Quiz Van Lang <quizvanlang@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function($) {
+define([], function() {
     return {
         init: function(courseId, enrolUrl) {
             const storageKey = "sepay_processed_countdown_" + courseId;
