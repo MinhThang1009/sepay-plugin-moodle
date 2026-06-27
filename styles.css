@@ -1,0 +1,824 @@
+/* Kế thừa font chữ chuẩn của Moodle 4.2.11 */
+.enrol-sepay-wrapper .bank-card,
+.enrol-sepay-wrapper .bank-card * {
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.enrol-sepay-wrapper .bank-card {
+  max-width: 680px;
+  width: 100%;
+  margin: 30px auto;
+  /* Nền siêu trong suốt để hiển thị khối màu Aurora bồng bềnh */
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: 24px;
+  /* Hiệu ứng bóng 3D mềm mại, cao cấp */
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.08),
+    0 4px 15px rgba(0, 0, 0, 0.03),
+    inset 0 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -2px 0 rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  position: relative;
+  /* Hiệu ứng nổi bồng bềnh mượt mà khi tương tác */
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease;
+  will-change: transform;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Khối Mesh Gradient (Aurora Effect) bồng bềnh siêu thực dưới lớp kính */
+.enrol-sepay-wrapper .bank-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(215, 33, 52, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 70% 70%, rgba(56, 189, 248, 0.15) 0%, transparent 40%);
+  animation: rotateAurora 15s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@keyframes rotateAurora {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Quáng sáng vạch kính (Glass Shimmer) chạy lấp lánh qua mặt thẻ */
+.enrol-sepay-wrapper .bank-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.45) 50%, rgba(255, 255, 255, 0) 100%);
+  transform: skewX(-25deg);
+  animation: shimmerGlow 6s ease-in-out infinite;
+  z-index: 10;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@keyframes shimmerGlow {
+  0% {
+    left: -150%;
+  }
+
+  20% {
+    left: 200%;
+  }
+
+  100% {
+    left: 200%;
+  }
+}
+
+/* Hiệu ứng 3D nhấc thẻ tĩnh lên khi hover */
+.enrol-sepay-wrapper .bank-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.12),
+    0 8px 20px rgba(0, 0, 0, 0.05),
+    inset 0 2px 0 rgba(255, 255, 255, 1);
+}
+
+/* Header màu gradient sang trọng */
+.enrol-sepay-wrapper .card-header {
+  background: linear-gradient(270deg, #d72134, #ff4b5c, #d72134);
+  background-size: 200% 200%;
+  animation: animateHeader 6s ease infinite;
+  color: #ffffff;
+  padding: 22px 28px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 4px 15px rgba(215, 33, 52, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes animateHeader {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Phần nội dung chia 2 cột thoáng đãng */
+.enrol-sepay-wrapper .card-body {
+  display: flex;
+  flex-direction: row;
+  padding: 36px 32px;
+  gap: 36px;
+  background: rgba(250, 251, 252, 0.4);
+  align-items: stretch;
+}
+
+/* Khối QR nổi khối 3D */
+.enrol-sepay-wrapper .qr-section {
+  flex: 0 0 42%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.enrol-sepay-wrapper .qr-image-wrapper {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 16px;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  /* Bóng đổ đa tầng tạo khối nổi (Neumorphism / 3D) */
+  box-shadow:
+    8px 8px 18px rgba(0, 0, 0, 0.06),
+    -8px -8px 18px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+  width: 100%;
+  max-width: 260px;
+  display: flex;
+  justify-content: center;
+}
+
+.enrol-sepay-wrapper .qr-image-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  bottom: -50%;
+  left: -50%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 80%);
+  transform: rotateZ(-45deg) translateY(-100%);
+  animation: qrShine 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@keyframes qrShine {
+  0% {
+    transform: rotateZ(-45deg) translateY(-100%);
+  }
+
+  20% {
+    transform: rotateZ(-45deg) translateY(100%);
+  }
+
+  100% {
+    transform: rotateZ(-45deg) translateY(100%);
+  }
+}
+
+.enrol-sepay-wrapper .qr-image-wrapper:hover {
+  transform: scale(1.06) rotateZ(1deg);
+  box-shadow:
+    12px 12px 24px rgba(0, 0, 0, 0.08),
+    -12px -12px 24px rgba(255, 255, 255, 1);
+}
+
+.enrol-sepay-wrapper .qr-image-wrapper img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+}
+
+/* Nút bấm tải QR 3D */
+.enrol-sepay-wrapper .download-qr-btn {
+  margin-top: 28px;
+  padding: 12px 28px;
+  background: #ffffff;
+  color: #d72134;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  /* Nút bấm nổi khối 3D nhẹ nhàng */
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.enrol-sepay-wrapper .download-qr-btn:hover {
+  background: #d72134;
+  color: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(215, 33, 52, 0.25);
+  border-color: #d72134;
+  text-decoration: none;
+}
+
+.enrol-sepay-wrapper .download-qr-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.enrol-sepay-wrapper .download-qr-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  transition: transform 0.3s ease;
+}
+
+.enrol-sepay-wrapper .download-qr-btn:hover svg {
+  transform: translateY(-2px);
+}
+
+/* Thông tin chuyển khoản */
+.enrol-sepay-wrapper .info-section {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.enrol-sepay-wrapper .info-section h4 {
+  margin: 0 0 24px 0;
+  color: #d72134;
+  /* Chữ màu đỏ nổi bật cực kỳ đồng bộ tông thẻ */
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(215, 33, 52, 0.15);
+  /* Bóng hồng phớt nhẹ tạo độ sâu */
+}
+
+/* Khối row thông tin giao diện thẻ 3D chìm/nổi có điểm nhấn vạch đỏ đồng bộ */
+.enrol-sepay-wrapper .info-row {
+  /* Nền Glass kết hợp dải gradient mây hồng cực nhạt đắt tiền */
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.65), rgba(255, 241, 242, 0.45));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 14px 20px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Vạch điểm nhấn đỏ bọc kính ở viền trái */
+  border-left: 4px solid #d72134;
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  /* Khối nổi nhẹ, viền highlight 3D */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.enrol-sepay-wrapper .info-row:hover {
+  transform: translateX(6px) scale(1.01);
+  box-shadow: 0 10px 25px rgba(215, 33, 52, 0.1);
+  border-color: rgba(215, 33, 52, 0.3);
+  border-left-color: #d72134;
+  /* Chống phai nhạt vạch đỏ chính */
+}
+
+/* Đồng bộ hoàn toàn kiểu dáng, chỉ bỏ khoảng cách dưới cho đẹp */
+.enrol-sepay-wrapper .info-row:last-child {
+  margin-bottom: 0;
+}
+
+.enrol-sepay-wrapper .info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.enrol-sepay-wrapper .info-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.enrol-sepay-wrapper .info-value {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 1.1rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+}
+
+/* Nút copy 3D / Cyber style */
+.enrol-sepay-wrapper .copy-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  position: relative;
+  flex-shrink: 0;
+  margin-left: 12px;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow:
+    2px 2px 5px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.enrol-sepay-wrapper .copy-btn:hover {
+  background: #ffffff;
+  color: #d72134;
+  border-color: #d72134;
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 6px 15px rgba(215, 33, 52, 0.15);
+}
+
+.enrol-sepay-wrapper .copy-btn:active {
+  transform: scale(0.9) rotate(0deg);
+}
+
+.enrol-sepay-wrapper .copy-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  transition: transform 0.2s ease;
+}
+
+.enrol-sepay-wrapper .copy-btn .checkmark {
+  display: none;
+  color: #10b981;
+}
+
+/* Trạng thái đã copy (Thành công) */
+.enrol-sepay-wrapper .copy-btn.copied {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+  transform: scale(1.1);
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* Khối chữ "Đã copy!" nhô lên bồng bềnh */
+.enrol-sepay-wrapper .copy-btn.copied::after {
+  content: "Đã copy!";
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #10b981;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  animation: tooltipFloat 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Mũi tên nhọn trỏ xuống Nút Copy */
+.enrol-sepay-wrapper .copy-btn.copied::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #10b981;
+  pointer-events: none;
+  margin-bottom: 2px;
+  animation: tooltipFloat 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tooltipFloat {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) scale(0.85);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.enrol-sepay-wrapper .copy-btn.copied .copy-icon {
+  display: none;
+}
+
+.enrol-sepay-wrapper .copy-btn.copied .checkmark {
+  display: block;
+  fill: #ffffff;
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive mượt mà */
+@media (max-width: 768px) {
+  .enrol-sepay-wrapper .bank-card {
+    margin: 15px auto;
+    border-radius: 20px;
+  }
+
+  .enrol-sepay-wrapper .card-body {
+    flex-direction: column;
+    padding: 24px;
+    gap: 28px;
+  }
+
+  .enrol-sepay-wrapper .info-row:hover {
+    transform: translateX(3px);
+  }
+
+  .enrol-sepay-wrapper .qr-section,
+  .enrol-sepay-wrapper .info-section {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .enrol-sepay-wrapper .info-section h4 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .enrol-sepay-wrapper .info-value {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .enrol-sepay-wrapper .bank-card {
+    margin: 10px auto;
+    border-radius: 16px;
+  }
+
+  .enrol-sepay-wrapper .card-header {
+    padding: 14px 16px;
+    font-size: 0.95rem;
+  }
+
+  .enrol-sepay-wrapper .card-body {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .enrol-sepay-wrapper .qr-image-wrapper {
+    max-width: 200px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .enrol-sepay-wrapper .download-qr-btn {
+    margin-top: 16px;
+    padding: 10px 20px;
+    font-size: 0.85rem;
+  }
+
+  .enrol-sepay-wrapper .info-section h4 {
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+  }
+
+  .enrol-sepay-wrapper .info-row {
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+  }
+
+  .enrol-sepay-wrapper .info-label {
+    font-size: 0.8rem;
+  }
+
+  .enrol-sepay-wrapper .info-value {
+    font-size: 0.95rem;
+  }
+
+  .enrol-sepay-wrapper .copy-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  .enrol-sepay-wrapper .copy-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .enrol-sepay-wrapper #payment-status-indicator {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    gap: 8px;
+    border-radius: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .enrol-sepay-wrapper #payment-status-indicator .spinner-border {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+  }
+}
+
+/* Chỉ báo trạng thái Loading 3D chìm */
+.enrol-sepay-wrapper #payment-status-indicator {
+  max-width: 680px;
+  margin: 24px auto 0;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 16px;
+  color: #15803d;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 1);
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.enrol-sepay-wrapper #payment-status-indicator:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.enrol-sepay-wrapper .spinner-border {
+  width: 20px;
+  height: 20px;
+  border: 3px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dots {
+  0% {
+    content: "";
+  }
+
+  25% {
+    content: ".";
+  }
+
+  50% {
+    content: "..";
+  }
+
+  75% {
+    content: "...";
+  }
+}
+
+.enrol-sepay-wrapper #checking-dots {
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+}
+
+.enrol-sepay-wrapper #checking-dots::after {
+  content: "";
+  animation: dots 1.2s steps(1) infinite;
+}
+
+/* Nút Thanh toán lại trong alert-danger — chuyển từ inline style của lib.php vào đây */
+.sepay-danger-btn {
+  border-color: #721c24 !important;
+  color: #721c24 !important;
+  background-color: transparent !important;
+  font-weight: normal !important;
+}
+
+.sepay-danger-btn:hover {
+  background-color: #bd2130 !important;
+  border-color: #bd2130 !important;
+  color: white !important;
+}
+
+/* Màu stat card tổng và tab lọc của transactions.php */
+.sepay-stat-total {
+  color: #007bff !important;
+}
+
+.sepay-stat-total-border {
+  border-color: #007bff !important;
+}
+
+.nav-link.active.sepay-tab-all {
+  background-color: #007bff !important;
+  color: #fff !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nav-link.active.bg-warning {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nav-link.active.bg-success {
+  background-color: #28a745 !important;
+  color: #fff !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nav-link.active.bg-danger {
+  background-color: #dc3545 !important;
+  color: #fff !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nav-link.active.bg-dark {
+  background-color: #343a40 !important;
+  color: #fff !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nav-link.sepay-tab-outline-all {
+  border: 1px solid #007bff !important;
+  color: #007bff !important;
+  background-color: transparent !important;
+}
+
+.nav-link.sepay-tab-outline-warning {
+  border: 1px solid #ffc107 !important;
+  color: #d39e00 !important;
+  background-color: transparent !important;
+}
+
+.nav-link.sepay-tab-outline-success {
+  border: 1px solid #28a745 !important;
+  color: #28a745 !important;
+  background-color: transparent !important;
+}
+
+.nav-link.sepay-tab-outline-danger {
+  border: 1px solid #dc3545 !important;
+  color: #dc3545 !important;
+  background-color: transparent !important;
+}
+
+.nav-link.sepay-tab-outline-dark {
+  border: 1px solid #343a40 !important;
+  color: #343a40 !important;
+  background-color: transparent !important;
+}
+
+.nav-link.sepay-tab-outline-all:hover {
+  background-color: #007bff !important;
+  color: #fff !important;
+}
+
+.nav-link.sepay-tab-outline-warning:hover {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+.nav-link.sepay-tab-outline-success:hover {
+  background-color: #28a745 !important;
+  color: #fff !important;
+}
+
+.nav-link.sepay-tab-outline-danger:hover {
+  background-color: #dc3545 !important;
+  color: #fff !important;
+}
+
+.nav-link.sepay-tab-outline-dark:hover {
+  background-color: #343a40 !important;
+  color: #fff !important;
+}
+
+.nav-link.sepay-tab-outline-all:focus,
+.nav-link.sepay-tab-outline-all:active,
+.nav-link.sepay-tab-outline-warning:focus,
+.nav-link.sepay-tab-outline-warning:active,
+.nav-link.sepay-tab-outline-success:focus,
+.nav-link.sepay-tab-outline-success:active,
+.nav-link.sepay-tab-outline-danger:focus,
+.nav-link.sepay-tab-outline-danger:active,
+.nav-link.sepay-tab-outline-dark:focus,
+.nav-link.sepay-tab-outline-dark:active,
+.nav-link.active.sepay-tab-all:focus,
+.nav-link.active.sepay-tab-all:active,
+.nav-link.active.bg-warning:focus,
+.nav-link.active.bg-warning:active,
+.nav-link.active.bg-success:focus,
+.nav-link.active.bg-success:active,
+.nav-link.active.bg-danger:focus,
+.nav-link.active.bg-danger:active,
+.nav-link.active.bg-dark:focus,
+.nav-link.active.bg-dark:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Alert căn giữa — thay thế inline style="text-align: center;" trong lib.php */
+.sepay-alert-center {
+  text-align: center;
+}
+
+/* Input giới hạn chiều rộng — thay thế inline style="width:120px;" trong mass_email.php */
+.sepay-limit-input {
+  width: 120px;
+}
+
+/* Khoảng cách trên bảng — thay thế inline style="margin-top: 1rem;" trong transactions.php */
+.sepay-table-margin-top {
+  margin-top: 1rem;
+}
+
+/* Icon trạng thái thanh toán to — thay thế 3 inline styles trong lib.php */
+.sepay-status-icon {
+  font-size: 64px;
+  margin-bottom: 15px;
+  display: block;
+}
+.sepay-icon-info    { color: #31708f; }
+.sepay-icon-success { color: #3c763d; }
+.sepay-icon-danger  { color: #a94442; }
+
+/* Số tổng giao dịch trong stat card */
+.sepay-stat-number {
+  font-size: 2.5rem;
+}
+
+/* Input lọc với chiều rộng tối thiểu — thay thế inline style="min-width:180px;" */
+.sepay-filter-input {
+  min-width: 180px;
+}
+
+/* Select với width tự động — thay thế inline style="width: auto;" trong notification_settings.php */
+.sepay-select-auto {
+  width: auto;
+}
+
+/* Text gạch dưới — thay thế inline style="text-decoration: underline;" trên link perpage */
+.sepay-underline {
+  text-decoration: underline;
+}

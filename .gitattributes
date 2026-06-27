@@ -1,0 +1,10 @@
+# Chuẩn hóa line-ending về LF (Moodle yêu cầu LF; moodle-cs cảnh báo CRLF).
+* text=auto eol=lf
+
+# File nhị phân — không đụng tới.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.zip  binary

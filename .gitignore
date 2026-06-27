@@ -1,0 +1,28 @@
+# Dependencies
+/vendor/
+node_modules/
+
+# Backups / archives (server backup riêng, không version trong repo)
+*.tgz
+*.tar.gz
+*.zip
+
+# Logs
+error_log
+*.log
+
+# Caches
+.phpunit.result.cache
+
+# Artifact lạ không thuộc plugin
+romfile.cfg
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+
+# Tài liệu nội bộ — KHÔNG publish (chứa audit lỗ hổng + ngữ cảnh server)
+.claude/
+CLAUDE.md
+PLAN.md

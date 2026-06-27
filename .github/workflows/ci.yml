@@ -1,0 +1,164 @@
+name: Moodle Plugin CI
+
+# Chạy moodle-plugin-ci (Moodle-aware) trên runner GitHub: Moodle sạch + test DB riêng,
+# KHÔNG đụng production. Khớp môi trường thật: Moodle 4.2 (MOODLE_402_STABLE) + PHP 8.2 + MariaDB.
+#
+# Gating: phplint / validate / savepoints / mustache / phpunit / behat = HARD (đỏ nếu lỗi).
+#         phpcs / phpmd / phpdoc / phpstan / grunt = ADVISORY (continue-on-error) vì plugin
+#         còn nhiều style cũ — siết dần sau, đừng để CI đỏ vĩnh viễn.
+
+on:
+  push:
+    paths-ignore: ['**.md', '.github/ISSUE_TEMPLATE/**', '.github/PULL_REQUEST_TEMPLATE.md']
+  pull_request:
+    paths-ignore: ['**.md']
+
+# Hủy run cũ còn chạy khi push mới cùng branch/PR (đỡ tốn runner, feedback nhanh hơn).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    strategy:
+      fail-fast: false
+      # Pair Moodle×PHP phải HỢP LỆ (mỗi bản Moodle chỉ hỗ trợ 1 dải PHP nhất định).
+      # Phủ trọn dải hỗ trợ: Moodle 4.0→5.2 × PHP 7.4→8.3 (floor 4.0/PHP7.4 ... ceiling 5.2/PHP8.3).
+      matrix:
+        include:
+          - php: '7.4'
+            moodle-branch: 'MOODLE_400_STABLE'
+            database: 'mariadb'
+          - php: '8.1'
+            moodle-branch: 'MOODLE_401_STABLE'
+            database: 'mariadb'
+          - php: '8.0'
+            moodle-branch: 'MOODLE_402_STABLE'
+            database: 'mariadb'
+          - php: '8.1'
+            moodle-branch: 'MOODLE_402_STABLE'
+            database: 'mariadb'
+          - php: '8.2'
+            moodle-branch: 'MOODLE_402_STABLE'
+            database: 'mariadb'
+          - php: '8.2'
+            moodle-branch: 'MOODLE_403_STABLE'
+            database: 'mariadb'
+          - php: '8.3'
+            moodle-branch: 'MOODLE_404_STABLE'
+            database: 'mariadb'
+          - php: '8.3'
+            moodle-branch: 'MOODLE_405_STABLE'
+            database: 'mariadb'
+          - php: '8.3'
+            moodle-branch: 'MOODLE_500_STABLE'
+            database: 'mariadb'
+          - php: '8.3'
+            moodle-branch: 'MOODLE_501_STABLE'
+            database: 'mariadb'
+          - php: '8.3'
+            moodle-branch: 'MOODLE_502_STABLE'
+            database: 'mariadb'
+
+    steps:
+      - name: Checkout plugin
+        uses: actions/checkout@v7
+        with:
+          path: plugin
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          ini-values: max_input_vars=5000
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-php${{ matrix.php }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Initialise moodle-plugin-ci
+        run: |
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          echo $(cd ci/bin; pwd) >> $GITHUB_PATH
+          echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
+          sudo locale-gen en_AU.UTF-8
+          echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
+
+      - name: Install Moodle + plugin
+        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
+        env:
+          DB: ${{ matrix.database }}
+          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+
+      # ---- HARD gates ----
+      - name: PHP Lint
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phplint
+
+      - name: Validate
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci validate
+
+      - name: Check upgrade savepoints
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci savepoints
+
+      - name: Mustache Lint
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci mustache
+
+      - name: PHPUnit
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpunit --fail-on-warning
+
+      - name: Behat
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci behat --profile chrome
+
+      # ---- ADVISORY (continue-on-error: chưa siết vì plugin còn style cũ) ----
+      - name: Moodle Code Checker (phpcs)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: moodle-plugin-ci phpcs
+
+      - name: PHP Mess Detector
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: moodle-plugin-ci phpmd
+
+      - name: PHPDoc Checker
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: moodle-plugin-ci phpdoc
+
+      - name: PHPStan
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: moodle-plugin-ci phpstan
+
+      - name: Grunt
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: moodle-plugin-ci grunt

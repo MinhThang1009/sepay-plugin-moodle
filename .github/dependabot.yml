@@ -1,0 +1,15 @@
+# Dependabot — tự động kiểm tra + mở PR khi có version mới.
+# Tài liệu: https://docs.github.com/code-security/dependabot/dependabot-version-updates
+version: 2
+updates:
+  # Theo dõi các action trong .github/workflows/ (actions/checkout, setup-php, cache...).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+    # Gom tất cả bump action vào 1 PR cho đỡ nhiễu.
+    groups:
+      github-actions:
+        patterns: ["*"]
