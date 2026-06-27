@@ -157,9 +157,13 @@ jobs:
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
         timeout-minutes: 5
+        # Ưu tiên ruleset ở bản checkout gốc (plugin/) — luôn tồn tại. moodle-plugin-ci
+        # KHÔNG copy nhất quán dotfile .phpmd.xml vào moodle/enrol/sepay giữa các bản
+        # Moodle (5.01/5.02 từng thiếu), nên fallback về bản copy nếu vì lý do nào đó mất.
         run: |
-          M="$(cd moodle && pwd)"
-          moodle-plugin-ci phpmd --rules "$M/enrol/sepay/.phpmd.xml"
+          RULES="$GITHUB_WORKSPACE/plugin/.phpmd.xml"
+          [ -f "$RULES" ] || RULES="$(cd moodle && pwd)/enrol/sepay/.phpmd.xml"
+          moodle-plugin-ci phpmd --rules "$RULES"
 
       # ---- ADVISORY (continue-on-error: chưa siết vì plugin còn style cũ) ----
       - name: PHPDoc Checker
