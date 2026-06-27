@@ -75,7 +75,7 @@ class cleanup_transactions extends \core\task\scheduled_task {
         if ($pendingretentiondays < 1) {
             $pendingretentiondays = 30;
         }
-        // Đảm bảo retention >= pending_retention: nếu admin cấu hình nghịch, pending vừa bị
+        // Bảo đảm retention >= pending_retention: nếu admin cấu hình nghịch, pending vừa bị
         // reject (vẫn giữ timecreated cũ) sẽ bị dọn ngay trong cùng run → mất bản ghi sớm.
         if ($retentiondays < $pendingretentiondays) {
             $retentiondays = $pendingretentiondays;
