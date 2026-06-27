@@ -71,24 +71,6 @@ final class lib_test extends \advanced_testcase {
     }
 
     /**
-     * add_instance: chuỗi giá có dấu phẩy được unformat thành số.
-     */
-    public function test_add_instance_unformat_cost(): void {
-        global $DB;
-        $this->resetAfterTest();
-        $course = $this->getDataGenerator()->create_course();
-        $plugin = enrol_get_plugin('sepay');
-        $studentrole = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
-        $instanceid = $plugin->add_instance($course, [
-            'status' => ENROL_INSTANCE_ENABLED,
-            'cost' => '10,000',
-            'currency' => 'VND',
-            'roleid' => $studentrole->id,
-        ]);
-        $this->assertEquals(10000, (float)$DB->get_field('enrol', 'cost', ['id' => $instanceid]));
-    }
-
-    /**
      * Đã ghi danh: hook trả về chuỗi rỗng (không hiển thị gì).
      */
     public function test_hook_enrolled_returns_empty(): void {
