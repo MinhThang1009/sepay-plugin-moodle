@@ -3,6 +3,9 @@
 # symlink vào cây Moodle (moodle/enrol/sepay -> plugin) nên path tương đối resolve sai.
 parameters:
     level: 4
+    # Không coi type từ PHPDoc là chắc chắn (core Moodle có @return/@var không chính xác,
+    # gây false-positive "always true/false" và "missing return").
+    treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
     # Bỏ qua identifier là false-positive do PHPStan không hiểu hết magic Moodle.
     ignoreErrors:

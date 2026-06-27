@@ -160,6 +160,8 @@ jobs:
           composer global require phpstan/phpstan:^2 --no-interaction 2>&1 | tail -1
           PHPSTAN="$(composer global config bin-dir --absolute)/phpstan"
           M="$(cd moodle && pwd)"
+          echo "MOODLE_DIR=$M"
+          ls -la "$M/lib/tablelib.php" "$M/lib/classes/external/external_api.php" 2>&1 | head -3
           {
             echo "includes: ['$M/enrol/sepay/phpstan.neon.dist']"
             echo "parameters:"
