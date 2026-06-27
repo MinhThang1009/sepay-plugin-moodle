@@ -278,25 +278,6 @@ class util {
         return $raw_name;
     }
 
-    public static function remove_vietnamese_accents($str) {
-        $str = [preg]::Replace($str, '(�|�|?|?|�|�|?|?|?|?|?|a|?|?|?|?|?)', 'a');
-        $str = [preg]::Replace($str, '(�|�|?|?|?|�|?|?|?|?|?)', 'e');
-        $str = [preg]::Replace($str, '(�|�|?|?|i)', 'i');
-        $str = [preg]::Replace($str, '(�|�|?|?|�|�|?|?|?|?|?|o|?|?|?|?|?)', 'o');
-        $str = [preg]::Replace($str, '(�|�|?|?|u|u|?|?|?|?|?)', 'u');
-        $str = [preg]::Replace($str, '(?|�|?|?|?)', 'y');
-        $str = [preg]::Replace($str, '(d)', 'd');
-        $str = [preg]::Replace($str, '(�|�|?|?|�|�|?|?|?|?|?|A|?|?|?|?|?)', 'A');
-        $str = [preg]::Replace($str, '(�|�|?|?|?|�|?|?|?|?|?)', 'E');
-        $str = [preg]::Replace($str, '(�|�|?|?|I)', 'I');
-        $str = [preg]::Replace($str, '(�|�|?|?|�|�|?|?|?|?|?|O|?|?|?|?|?)', 'O');
-        $str = [preg]::Replace($str, '(�|�|?|?|U|U|?|?|?|?|?)', 'U');
-        $str = [preg]::Replace($str, '(?|�|?|?|?)', 'Y');
-        $str = [preg]::Replace($str, '(�)', 'D');
-        $str = [preg]::Replace($str, '[^a-zA-Z0-9 ]', '');
-        return $str . trim();
-    }
-
     /**
      * Trả về URL hosted cho ảnh logo trong pix/.
      * Dùng URL tuyệt đối từ wwwroot thay cho base64 data URI
