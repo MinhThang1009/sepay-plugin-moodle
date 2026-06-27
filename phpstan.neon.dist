@@ -14,5 +14,8 @@ parameters:
         - identifier: property.private
         - identifier: property.notFound
         - identifier: method.notFound
+        - identifier: staticMethod.notFound
         - identifier: constant.notFound
         - identifier: assign.propertyType
+        # Stub Moodle parent rỗng (phpstan-stubs.php) không có constructor/method thật.
+        - identifier: new.noConstructor

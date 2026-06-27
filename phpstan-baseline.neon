@@ -1,0 +1,14 @@
+# PHPStan baseline — grandfather finding FP/intentional hiện có; chỉ gate issue MỚI.
+# Path tương đối so với file baseline này (= thư mục plugin).
+parameters:
+    ignoreErrors:
+        -
+            message: '#^Strict comparison using \!\=\= between '''' and '''' will always evaluate to false\.$#'
+            identifier: notIdentical.alwaysFalse
+            count: 1
+            path: classes/table/transactions_table.php
+        -
+            message: '#^Strict comparison using \=\=\= between ''pending'' and ''processed'' will always evaluate to false\.$#'
+            identifier: identical.alwaysFalse
+            count: 1
+            path: webhook.php

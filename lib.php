@@ -481,7 +481,7 @@ class enrol_sepay_plugin extends enrol_plugin {
      * @param stdClass $instance
      * @param MoodleQuickForm $mform
      * @param context $context
-     * @return bool
+     * @return void
      */
     public function edit_instance_form($instance, MoodleQuickForm $mform, $context) {
         // Tên instance có chỉnh sửa (giống PayPal).

@@ -153,21 +153,24 @@ jobs:
         continue-on-error: true
         run: moodle-plugin-ci phpdoc
 
-      - name: PHPStan
-        if: ${{ !cancelled() }}
-        continue-on-error: true
+      # PHPStan GATING chỉ trên 1 combo (Moodle 4.2 + PHP 8.2): residual khác nhau theo
+      # Moodle version nên không gate được cả matrix; gate 1 version + baseline là đủ.
+      - name: PHPStan (gating, Moodle 4.2)
+        if: ${{ !cancelled() && matrix.php == '8.2' && matrix.moodle-branch == 'MOODLE_402_STABLE' }}
         run: |
           composer global require phpstan/phpstan:^2 --no-interaction 2>&1 | tail -1
           PHPSTAN="$(composer global config bin-dir --absolute)/phpstan"
           M="$(cd moodle && pwd)"
-          echo "MOODLE_DIR=$M"
-          ls -la "$M/lib/tablelib.php" "$M/lib/classes/external/external_api.php" 2>&1 | head -3
           {
-            echo "includes: ['$M/enrol/sepay/phpstan.neon.dist']"
+            echo "includes:"
+            echo "    - '$M/enrol/sepay/phpstan.neon.dist'"
+            echo "    - '$M/enrol/sepay/phpstan-baseline.neon'"
             echo "parameters:"
             echo "    paths: ['$M/enrol/sepay']"
             echo "    scanDirectories: ['$M/lib', '$M/enrol']"
             echo "    bootstrapFiles: ['$M/enrol/sepay/phpstan-bootstrap.php']"
+            echo "    stubFiles: ['$M/enrol/sepay/phpstan-stubs.php']"
+            echo "    excludePaths: { analyse: ['$M/enrol/sepay/phpstan-bootstrap.php', '$M/enrol/sepay/phpstan-stubs.php', '$M/enrol/sepay/amd'] }"
           } > "$M/phpstan-ci.neon"
           php "$PHPSTAN" analyse -c "$M/phpstan-ci.neon" --no-progress --memory-limit=1G
 
