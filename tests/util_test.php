@@ -88,6 +88,13 @@ final class util_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $user = $this->getDataGenerator()->create_user();
 
-        $this->assertTrue(util::send_welcome_messages($course, $user, new \stdClass()));
+        // Chặn message + email (tránh side-effect và debugging() do messaging chưa cấu hình trong test).
+        $msink = $this->redirectMessages();
+        $esink = $this->redirectEmails();
+        $result = util::send_welcome_messages($course, $user, new \stdClass());
+        $esink->close();
+        $msink->close();
+
+        $this->assertTrue($result);
     }
 }
