@@ -43,12 +43,12 @@ $a->coursename = 'Ôn thi THPTQG - Toán Nâng Cao 2026';
 $a->courseurl  = (new moodle_url('/course/view.php', ['id' => 1]))->out(false);
 $a->profileurl = (new moodle_url('/user/view.php', ['id' => $USER->id]))->out(false);
 
-require_once($CFG->dirroot . '/enrol/sepay/classes/util.php');
+require_once($CFG->dirroot . '/enrol/sepay/classes/email_templates.php');
 
 if ($type === 'admin') {
-    $html = \enrol_sepay\util::get_admin_email_html($a);
+    $html = \enrol_sepay\email_templates::get_admin_email_html($a);
 } else {
-    $html = \enrol_sepay\util::get_student_email_html($a);
+    $html = \enrol_sepay\email_templates::get_student_email_html($a);
 }
 
 echo $OUTPUT->header();

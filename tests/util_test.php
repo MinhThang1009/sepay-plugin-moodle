@@ -45,6 +45,8 @@ final class util_test extends \advanced_testcase {
 
     /**
      * 4 builder email trả về HTML chứa các marker chính (tên khóa, email, link khóa).
+     *
+     * @covers \enrol_sepay\email_templates
      */
     public function test_email_builders_contain_markers(): void {
         $this->resetAfterTest();
@@ -56,7 +58,7 @@ final class util_test extends \advanced_testcase {
             'get_unenrolment_email_html',
         ];
         foreach ($builders as $method) {
-            $html = util::$method($a);
+            $html = email_templates::$method($a);
             $this->assertNotEmpty($html, "$method trả rỗng");
             $this->assertStringContainsString('Khoa hoc Mau ABC', $html, "$method thiếu tên khóa học");
             $this->assertStringContainsString('<', $html, "$method không phải HTML");
