@@ -1,3 +1,4 @@
+/* stylelint-disable declaration-no-important -- Widget QR cần !important để override theme Moodle. */
 /* Kế thừa font chữ chuẩn của Moodle 4.2.11 */
 .enrol-sepay-wrapper .bank-card,
 .enrol-sepay-wrapper .bank-card * {
@@ -37,7 +38,8 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle at 30% 30%, rgba(215, 33, 52, 0.15) 0%, transparent 40%),
+    background:
+        radial-gradient(circle at 30% 30%, rgba(215, 33, 52, 0.15) 0%, transparent 40%),
         radial-gradient(circle at 70% 70%, rgba(56, 189, 248, 0.15) 0%, transparent 40%);
     animation: rotateAurora 15s linear infinite;
     z-index: -1;
@@ -99,7 +101,7 @@
     background: linear-gradient(270deg, #d72134, #ff4b5c, #d72134);
     background-size: 200% 200%;
     animation: animateHeader 6s ease infinite;
-    color: #ffffff;
+    color: #fff;
     padding: 22px 28px;
     text-align: center;
     font-weight: 600;
@@ -214,7 +216,7 @@
 .enrol-sepay-wrapper .download-qr-btn {
     margin-top: 28px;
     padding: 12px 28px;
-    background: #ffffff;
+    background: #fff;
     color: #d72134;
     border-radius: 100px;
     font-weight: 600;
@@ -233,7 +235,7 @@
 
 .enrol-sepay-wrapper .download-qr-btn:hover {
     background: #d72134;
-    color: #ffffff;
+    color: #fff;
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(215, 33, 52, 0.25);
     border-color: #d72134;
@@ -358,7 +360,7 @@
 }
 
 .enrol-sepay-wrapper .copy-btn:hover {
-    background: #ffffff;
+    background: #fff;
     color: #d72134;
     border-color: #d72134;
     transform: scale(1.15) rotate(5deg);
@@ -384,7 +386,7 @@
 /* Trạng thái đã copy (Thành công) */
 .enrol-sepay-wrapper .copy-btn.copied {
     background: #10b981;
-    color: #ffffff;
+    color: #fff;
     border-color: #10b981;
     transform: scale(1.1);
     box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
@@ -398,7 +400,7 @@
     left: 50%;
     transform: translateX(-50%);
     background: #10b981;
-    color: #ffffff;
+    color: #fff;
     padding: 6px 14px;
     border-radius: 8px;
     font-size: 0.8rem;
@@ -441,7 +443,7 @@
 
 .enrol-sepay-wrapper .copy-btn.copied .checkmark {
     display: block;
-    fill: #ffffff;
+    fill: #fff;
     animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -570,7 +572,7 @@
     max-width: 680px;
     margin: 24px auto 0;
     padding: 16px 24px;
-    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+    background: linear-gradient(135deg, #f0fdf4 0%, #fff 100%);
     border: 1px solid #bbf7d0;
     border-radius: 16px;
     color: #15803d;
@@ -799,9 +801,15 @@
     margin-bottom: 15px;
     display: block;
 }
-.sepay-icon-info    { color: #31708f; }
-.sepay-icon-success { color: #3c763d; }
-.sepay-icon-danger  { color: #a94442; }
+.sepay-icon-info {
+    color: #31708f;
+}
+.sepay-icon-success {
+    color: #3c763d;
+}
+.sepay-icon-danger {
+    color: #a94442;
+}
 
 /* Số tổng giao dịch trong stat card */
 .sepay-stat-number {
