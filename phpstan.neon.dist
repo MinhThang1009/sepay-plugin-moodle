@@ -1,21 +1,10 @@
-# PHPStan config cho enrol_sepay (Moodle-aware tối giản).
-# Chạy: phpstan analyse -c phpstan.neon.dist (từ thư mục plugin, trong cây Moodle đã cài).
-# Paths tương đối so với file này: . = plugin, ../../lib + ../../enrol = Moodle core.
+# PHPStan config base cho enrol_sepay (level + bỏ qua FP framework Moodle).
+# paths/scanDirectories/bootstrapFiles được CI cấp dạng TUYỆT ĐỐI, vì plugin được
+# symlink vào cây Moodle (moodle/enrol/sepay -> plugin) nên path tương đối resolve sai.
 parameters:
     level: 4
-    paths:
-        - .
-    excludePaths:
-        analyse:
-            - phpstan-bootstrap.php
-    scanDirectories:
-        - ../../lib
-        - ../../enrol
-    bootstrapFiles:
-        - phpstan-bootstrap.php
     reportUnmatchedIgnoredErrors: false
-    # Bỏ qua các identifier là false-positive do PHPStan không hiểu hết magic của Moodle
-    # (class autoload, magic property, global $CFG/$DB...). Phần còn lại là lỗi logic thật.
+    # Bỏ qua identifier là false-positive do PHPStan không hiểu hết magic Moodle.
     ignoreErrors:
         - identifier: variable.undefined
         - identifier: class.notFound

@@ -159,8 +159,15 @@ jobs:
         run: |
           composer global require phpstan/phpstan:^2 --no-interaction 2>&1 | tail -1
           PHPSTAN="$(composer global config bin-dir --absolute)/phpstan"
-          cd moodle/enrol/sepay
-          php "$PHPSTAN" analyse -c phpstan.neon.dist --no-progress --memory-limit=1G
+          M="$(cd moodle && pwd)"
+          {
+            echo "includes: ['$M/enrol/sepay/phpstan.neon.dist']"
+            echo "parameters:"
+            echo "    paths: ['$M/enrol/sepay']"
+            echo "    scanDirectories: ['$M/lib', '$M/enrol']"
+            echo "    bootstrapFiles: ['$M/enrol/sepay/phpstan-bootstrap.php']"
+          } > "$M/phpstan-ci.neon"
+          php "$PHPSTAN" analyse -c "$M/phpstan-ci.neon" --no-progress --memory-limit=1G
 
       - name: Grunt
         if: ${{ !cancelled() }}
