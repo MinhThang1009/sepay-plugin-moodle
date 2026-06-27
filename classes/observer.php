@@ -26,6 +26,9 @@ namespace enrol_sepay;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Observer xử lý sự kiện ghi danh của plugin enrol_sepay.
+ */
 class observer {
     /**
      * Xử lý sự kiện khi một user bị unenrol khỏi khóa học.

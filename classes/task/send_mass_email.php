@@ -26,7 +26,15 @@ namespace enrol_sepay\task;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Ad-hoc task: gửi email chào mừng hàng loạt cho học viên chưa nhận.
+ */
 class send_mass_email extends \core\task\adhoc_task {
+    /**
+     * Gửi email chào mừng cho lô học viên trong custom data.
+     *
+     * @return void
+     */
     public function execute() {
         global $CFG, $DB;
 

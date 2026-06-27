@@ -162,6 +162,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */
@@ -170,6 +172,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */
@@ -181,6 +185,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */
@@ -206,6 +212,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */
@@ -217,6 +225,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */
@@ -225,6 +235,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */
@@ -233,6 +245,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */
@@ -265,6 +279,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */
@@ -273,6 +289,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */
@@ -281,6 +299,8 @@ class transactions_table extends table_sql {
     }
 
     /**
+     * Định dạng giá trị hiển thị cho ô của cột này.
+     *
      * @param \stdClass $row
      * @return string
      */

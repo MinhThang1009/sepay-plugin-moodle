@@ -30,6 +30,9 @@ namespace enrol_sepay\task;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Scheduled task: ghi danh các giao dịch đã duyệt nhưng chưa enrol (vd user đóng tab).
+ */
 class process_enrolments extends \core\task\scheduled_task {
     /**
      * Lấy tên mô tả của khối tác vụ này.

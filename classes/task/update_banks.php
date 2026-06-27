@@ -26,6 +26,9 @@ namespace enrol_sepay\task;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Scheduled task: cập nhật danh sách ngân hàng hỗ trợ từ SePay.
+ */
 class update_banks extends \core\task\scheduled_task {
     /**
      * Lấy tên mô tả của khối tác vụ này.

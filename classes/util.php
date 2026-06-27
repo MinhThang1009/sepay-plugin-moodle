@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Lớp tiện ích cho plugin enrol_sepay.
- * Lớp tiện ích cho plugin enrol_sepay, dùng để log lỗi webhook giống kiểu enrol_paypal.
+ * Lớp tiện ích cho plugin enrol_sepay: log lỗi webhook + gửi email/thông báo.
  *
  * @package    enrol_sepay
  * @copyright  2026 Quiz Van Lang <quizvanlang@gmail.com>
