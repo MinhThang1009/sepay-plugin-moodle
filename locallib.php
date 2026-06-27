@@ -67,13 +67,41 @@ class enrol_sepay_editselectedusers_operation extends enrol_bulk_enrolment_opera
      * @return bool
      */
     public function process(course_enrolment_manager $manager, array $users, stdClass $properties) {
-        global $DB, $USER;
+        global $DB;
 
         if (!has_capability("enrol/sepay:manage", $manager->get_context())) {
             return false;
         }
 
-        // Gom toàn bộ user_enrolment id cần cập nhật.
+        [$ueids, $instances] = $this->collect_enrolment_ids($users);
+
+        // Kiểm tra từng instance có cho phép user hiện tại quản lý không.
+        foreach ($instances as $instance) {
+            if (!$this->plugin->allow_manage($instance)) {
+                return false;
+            }
+        }
+
+        $sqlbits = $this->build_update_sql($ueids, $properties);
+        if ($sqlbits === null) {
+            return true; // Không có trường nào để cập nhật.
+        }
+
+        if (!$DB->execute($sqlbits[0], $sqlbits[1])) {
+            return false;
+        }
+
+        $this->trigger_update_events($users, $manager);
+        return true;
+    }
+
+    /**
+     * Gom danh sách user_enrolment id + instance đại diện từ danh sách user.
+     *
+     * @param array $users
+     * @return array [ueids[], instances theo enrolment id]
+     */
+    private function collect_enrolment_ids(array $users): array {
         $ueids = [];
         $instances = [];
         foreach ($users as $user) {
@@ -84,76 +112,77 @@ class enrol_sepay_editselectedusers_operation extends enrol_bulk_enrolment_opera
                 }
             }
         }
+        return [$ueids, $instances];
+    }
 
-        // Kiểm tra từng instance có cho phép user hiện tại quản lý không.
-        foreach ($instances as $instance) {
-            if (!$this->plugin->allow_manage($instance)) {
-                return false;
-            }
-        }
-
-        // Lấy các thuộc tính đã biết.
-        $status = $properties->status;
-        $timestart = $properties->timestart;
-        $timeend = $properties->timeend;
+    /**
+     * Dựng câu UPDATE user_enrolments theo thuộc tính form. Trả null nếu không có gì để sửa.
+     *
+     * @param array $ueids
+     * @param stdClass $properties Dữ liệu form (status, timestart, timeend)
+     * @return array|null [sql, params] hoặc null
+     */
+    private function build_update_sql(array $ueids, stdClass $properties) {
+        global $DB, $USER;
 
         [$ueidsql, $params] = $DB->get_in_or_equal($ueids, SQL_PARAMS_NAMED);
 
         $updatesql = [];
-        if ($status == ENROL_USER_ACTIVE || $status == ENROL_USER_SUSPENDED) {
+        if ($properties->status == ENROL_USER_ACTIVE || $properties->status == ENROL_USER_SUSPENDED) {
             $updatesql[] = 'status = :status';
-            $params['status'] = (int)$status;
+            $params['status'] = (int)$properties->status;
         }
-        if (!empty($timestart)) {
+        if (!empty($properties->timestart)) {
             $updatesql[] = 'timestart = :timestart';
-            $params['timestart'] = (int)$timestart;
+            $params['timestart'] = (int)$properties->timestart;
         }
-        if (!empty($timeend)) {
+        if (!empty($properties->timeend)) {
             $updatesql[] = 'timeend = :timeend';
-            $params['timeend'] = (int)$timeend;
+            $params['timeend'] = (int)$properties->timeend;
         }
         if (empty($updatesql)) {
-            return true;
+            return null;
         }
 
-        // Cập nhật người sửa.
+        // Cập nhật người sửa + thời điểm sửa.
         $updatesql[] = 'modifierid = :modifierid';
         $params['modifierid'] = (int)$USER->id;
-
-        // Cập nhật thời điểm sửa.
         $updatesql[] = 'timemodified = :timemodified';
         $params['timemodified'] = time();
 
-        // Dựng câu lệnh SQL.
-        $updatesql = join(', ', $updatesql);
         $sql = "UPDATE {user_enrolments}
-                   SET $updatesql
+                   SET " . join(', ', $updatesql) . "
                  WHERE id $ueidsql";
+        return [$sql, $params];
+    }
 
-        if ($DB->execute($sql, $params)) {
-            foreach ($users as $user) {
-                foreach ($user->enrolments as $enrolment) {
-                    $enrolment->courseid = $enrolment->enrolmentinstance->courseid;
-                    $enrolment->enrol = 'sepay';
-                    // Bắn event.
-                    $event = \core\event\user_enrolment_updated::create(
-                        [
-                                'objectid' => $enrolment->id,
-                                'courseid' => $enrolment->courseid,
-                                'context' => context_course::instance($enrolment->courseid),
-                                'relateduserid' => $user->id,
-                                'other' => ['enrol' => 'sepay'],
-                                ]
-                    );
-                    $event->trigger();
-                }
+    /**
+     * Bắn event user_enrolment_updated cho từng enrolment + xóa cache course contacts.
+     *
+     * @param array $users
+     * @param course_enrolment_manager $manager
+     * @return void
+     */
+    private function trigger_update_events(array $users, course_enrolment_manager $manager): void {
+        foreach ($users as $user) {
+            foreach ($user->enrolments as $enrolment) {
+                $enrolment->courseid = $enrolment->enrolmentinstance->courseid;
+                $enrolment->enrol = 'sepay';
+                // Bắn event.
+                $event = \core\event\user_enrolment_updated::create(
+                    [
+                            'objectid' => $enrolment->id,
+                            'courseid' => $enrolment->courseid,
+                            'context' => context_course::instance($enrolment->courseid),
+                            'relateduserid' => $user->id,
+                            'other' => ['enrol' => 'sepay'],
+                            ]
+                );
+                $event->trigger();
             }
-            // Xóa cache course contacts vì có thể bị ảnh hưởng.
-            cache::make('core', 'coursecontacts')->delete($manager->get_context()->instanceid);
-            return true;
         }
-
-        return false;
+        // Xóa cache course contacts vì có thể bị ảnh hưởng.
+        cache::make('core', 'coursecontacts')->delete($manager->get_context()->instanceid);
     }
 
     /**
