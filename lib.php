@@ -273,8 +273,8 @@ class enrol_sepay_plugin extends enrol_plugin {
         // Kiểm tra giá có quá nhỏ không (gần như miễn phí).
         // Nếu giá = 0 và cài đặt toàn cục cũng rỗng/null thì trả về trống — tránh vô tình cho học viên vào học miễn phí.
         if ($cost < 1) {
-            if ($cost <= 0 && $this->get_config('cost') === null) {
-                return ob_get_clean(); // Chưa cấu hình giá — không hiển thị gì.
+            if ($cost <= 0 && (float)$this->get_config('cost') <= 0) {
+                return ob_get_clean(); // Chưa cấu hình giá (cả instance lẫn global) — không hiển thị gì.
             }
             // Không cấu hình giá hoặc giá quá nhỏ thì không hiển thị form thanh toán.
             echo '<p>' . get_string('nocost', 'enrol_sepay') . '</p>'; // Thông báo không cần thanh toán.

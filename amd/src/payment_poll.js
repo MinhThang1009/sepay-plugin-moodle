@@ -24,12 +24,14 @@ define(['jquery', 'core/ajax', 'core/log'], function($, ajax, Log) {
     return {
         init: function(courseId, currentState) {
             let isChecking = false;
+            let pollinterval;
 
             /**
              * Gọi webservice kiểm tra trạng thái giao dịch; reload trang khi trạng thái đổi.
              */
             function checkStatusChange() {
-                if (isChecking) {
+                // Bỏ qua khi đang có request hoặc tab đang ẩn (đỡ ~20 request/phút lúc không xem).
+                if (isChecking || document.hidden) {
                     return;
                 }
                 isChecking = true;
@@ -50,6 +52,7 @@ define(['jquery', 'core/ajax', 'core/log'], function($, ajax, Log) {
                     }
 
                     if (newState !== currentState) {
+                        clearInterval(pollinterval);
                         window.location.reload();
                     }
                     isChecking = false;
@@ -59,7 +62,7 @@ define(['jquery', 'core/ajax', 'core/log'], function($, ajax, Log) {
                 });
             }
 
-            setInterval(checkStatusChange, 3000);
+            pollinterval = setInterval(checkStatusChange, 3000);
             checkStatusChange();
         }
     };

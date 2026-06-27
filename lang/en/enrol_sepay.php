@@ -123,6 +123,14 @@ A new user ({$a->username}) has successfully enrolled in your course: "{$a->cour
 Course link: {$a->courseurl}
 User profile: {$a->profileurl}';
 
+$string['email_admin_subject'] = 'New Enrollment: {$a->coursename}';
+$string['email_admin_body'] = 'Hello,
+
+A new user ({$a->username}) has successfully enrolled in the course: "{$a->coursename}" via SePay.
+
+Course link: {$a->courseurl}
+User profile: {$a->profileurl}';
+
 $string['costerror'] = 'Invalid value';
 
 // Manual approval strings.

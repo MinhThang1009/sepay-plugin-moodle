@@ -123,6 +123,14 @@ Một học viên mới ({$a->username}) vừa ghi danh thành công vào khóa 
 Link khóa học: {$a->courseurl}
 Hồ sơ học viên: {$a->profileurl}';
 
+$string['email_admin_subject'] = 'Ghi danh mới: {$a->coursename}';
+$string['email_admin_body'] = 'Xin chào,
+
+Một học viên mới ({$a->username}) vừa ghi danh thành công vào khóa học: "{$a->coursename}" thông qua cổng SePay.
+
+Link khóa học: {$a->courseurl}
+Hồ sơ học viên: {$a->profileurl}';
+
 $string['costerror'] = 'Giá trị không hợp lệ';
 
 // Các chuỗi mới cho mục Phê duyệt thủ công.

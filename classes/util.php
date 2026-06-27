@@ -227,8 +227,8 @@ class util {
                 $msg->name              = 'sepay_enrolment';
                 $msg->userfrom          = $contact;
                 $msg->userto            = $admin;
-                $msg->subject           = get_string('email_teacher_subject', 'enrol_sepay', $a);
-                $msg->fullmessage       = get_string('email_teacher_body', 'enrol_sepay', $a);
+                $msg->subject           = get_string('email_admin_subject', 'enrol_sepay', $a);
+                $msg->fullmessage       = get_string('email_admin_body', 'enrol_sepay', $a);
                 $msg->fullmessageformat = FORMAT_PLAIN;
                 $msg->smallmessage      = $msg->subject;
                 $msg->notification      = 1;
@@ -241,8 +241,8 @@ class util {
                 email_to_user(
                     $admin,
                     $contact,
-                    get_string('email_teacher_subject', 'enrol_sepay', $a),
-                    get_string('email_teacher_body', 'enrol_sepay', $a),
+                    get_string('email_admin_subject', 'enrol_sepay', $a),
+                    get_string('email_admin_body', 'enrol_sepay', $a),
                     $htmlalert
                 );
             }

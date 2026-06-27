@@ -75,6 +75,13 @@ class cleanup_transactions extends \core\task\scheduled_task {
         if ($pendingretentiondays < 1) {
             $pendingretentiondays = 30;
         }
+        // Đảm bảo retention >= pending_retention: nếu admin cấu hình nghịch, pending vừa bị
+        // reject (vẫn giữ timecreated cũ) sẽ bị dọn ngay trong cùng run → mất bản ghi sớm.
+        if ($retentiondays < $pendingretentiondays) {
+            $retentiondays = $pendingretentiondays;
+            $cutofftime = time() - ($retentiondays * 86400);
+            mtrace('retention_days < pending_retention_days → nâng retention lên ' . $retentiondays . ' ngày.');
+        }
         $pendingcutoff = time() - ($pendingretentiondays * 86400);
         $DB->execute(
             "UPDATE {enrol_sepay_transactions}
@@ -92,7 +99,8 @@ class cleanup_transactions extends \core\task\scheduled_task {
                  WHERE status IN ('processed', 'rejected', 'unenrolled')
                    AND timecreated < :cutoff";
 
-        $oldtransactions = $DB->get_records_sql($sql, ['cutoff' => $cutofftime]);
+        // Giới hạn mỗi lần chạy để không nạp toàn bộ record cũ vào RAM (phần dư xử lý ở các run sau).
+        $oldtransactions = $DB->get_records_sql($sql, ['cutoff' => $cutofftime], 0, 500);
 
         if (empty($oldtransactions)) {
             mtrace('Không tìm thấy giao dịch cũ cần dọn dẹp.');
