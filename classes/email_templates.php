@@ -386,7 +386,8 @@ class email_templates {
         $profileurl     = htmlspecialchars($a->profileurl, ENT_QUOTES, 'UTF-8');
         $platformlabel = self::get_email_platform_label($a->useremail);
         return self::admin_head()
-            . self::admin_body($cleanname, $coursename, $useremail, $profileurl, $platformlabel);
+            . self::admin_body($cleanname, $coursename, $useremail, $profileurl, $platformlabel)
+            . self::admin_footer();
     }
     /**
      * Khối <head> + style của email admin.
@@ -546,6 +547,18 @@ class email_templates {
                         </td>
                     </tr>
 
+<?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Khối footer + đóng thẻ của email admin.
+     *
+     * @return string
+     */
+    private static function admin_footer(): string {
+        ob_start();
+        ?>
                     <!-- FOOTER -->
                     <tr>
                         <td class="content-bg" style="background-color: #f8fafc; padding: 30px 25px; text-align: center; border-top: 1px solid #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
