@@ -3,9 +3,13 @@ name: Moodle Plugin CI
 # Chạy moodle-plugin-ci (Moodle-aware) trên runner GitHub: Moodle sạch + test DB riêng,
 # KHÔNG đụng production. Khớp môi trường thật: Moodle 4.2 (MOODLE_402_STABLE) + PHP 8.2 + MariaDB.
 #
+# Matrix theo event (job setup-matrix quyết định):
+#   - push (feedback hằng ngày): CHỈ 1 combo 8.2×4.2 -> nhanh.
+#   - pull_request (trước khi merge): FULL 11 combo, phủ Moodle 4.0→5.2 × PHP 7.4→8.3.
+#
 # Gating: phplint / validate / savepoints / mustache / phpunit / behat = HARD (đỏ nếu lỗi).
-#         phpcs / phpmd / phpdoc / phpstan / grunt = ADVISORY (continue-on-error) vì plugin
-#         còn nhiều style cũ — siết dần sau, đừng để CI đỏ vĩnh viễn.
+#         phpcs / phpmd / phpdoc / grunt = ADVISORY (continue-on-error) vì plugin còn style cũ.
+#         phpstan = GATING nhưng chỉ trên combo 8.2×4.2 (xem step bên dưới).
 
 on:
   push:
@@ -22,7 +26,26 @@ permissions:
   contents: read
 
 jobs:
+  # Quyết định matrix theo event: push -> 1 combo nhanh; pull_request -> full matrix.
+  setup-matrix:
+    runs-on: ubuntu-22.04
+    outputs:
+      include: ${{ steps.pick.outputs.include }}
+    steps:
+      - id: pick
+        run: |
+          # FULL phủ trọn dải hỗ trợ: Moodle 4.0→5.2 × PHP 7.4→8.3 (mỗi bản Moodle 1 dải PHP hợp lệ).
+          FULL='[{"php":"7.4","moodle-branch":"MOODLE_400_STABLE","database":"mariadb"},{"php":"8.1","moodle-branch":"MOODLE_401_STABLE","database":"mariadb"},{"php":"8.0","moodle-branch":"MOODLE_402_STABLE","database":"mariadb"},{"php":"8.1","moodle-branch":"MOODLE_402_STABLE","database":"mariadb"},{"php":"8.2","moodle-branch":"MOODLE_402_STABLE","database":"mariadb"},{"php":"8.2","moodle-branch":"MOODLE_403_STABLE","database":"mariadb"},{"php":"8.3","moodle-branch":"MOODLE_404_STABLE","database":"mariadb"},{"php":"8.3","moodle-branch":"MOODLE_405_STABLE","database":"mariadb"},{"php":"8.3","moodle-branch":"MOODLE_500_STABLE","database":"mariadb"},{"php":"8.3","moodle-branch":"MOODLE_501_STABLE","database":"mariadb"},{"php":"8.3","moodle-branch":"MOODLE_502_STABLE","database":"mariadb"}]'
+          # ONE = đúng combo được phpstan gating (8.2×4.2), khớp môi trường production.
+          ONE='[{"php":"8.2","moodle-branch":"MOODLE_402_STABLE","database":"mariadb"}]'
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "include=$FULL" >> "$GITHUB_OUTPUT"
+          else
+            echo "include=$ONE" >> "$GITHUB_OUTPUT"
+          fi
+
   test:
+    needs: setup-matrix
     runs-on: ubuntu-22.04
 
     services:
@@ -40,43 +63,8 @@ jobs:
 
     strategy:
       fail-fast: false
-      # Pair Moodle×PHP phải HỢP LỆ (mỗi bản Moodle chỉ hỗ trợ 1 dải PHP nhất định).
-      # Phủ trọn dải hỗ trợ: Moodle 4.0→5.2 × PHP 7.4→8.3 (floor 4.0/PHP7.4 ... ceiling 5.2/PHP8.3).
       matrix:
-        include:
-          - php: '7.4'
-            moodle-branch: 'MOODLE_400_STABLE'
-            database: 'mariadb'
-          - php: '8.1'
-            moodle-branch: 'MOODLE_401_STABLE'
-            database: 'mariadb'
-          - php: '8.0'
-            moodle-branch: 'MOODLE_402_STABLE'
-            database: 'mariadb'
-          - php: '8.1'
-            moodle-branch: 'MOODLE_402_STABLE'
-            database: 'mariadb'
-          - php: '8.2'
-            moodle-branch: 'MOODLE_402_STABLE'
-            database: 'mariadb'
-          - php: '8.2'
-            moodle-branch: 'MOODLE_403_STABLE'
-            database: 'mariadb'
-          - php: '8.3'
-            moodle-branch: 'MOODLE_404_STABLE'
-            database: 'mariadb'
-          - php: '8.3'
-            moodle-branch: 'MOODLE_405_STABLE'
-            database: 'mariadb'
-          - php: '8.3'
-            moodle-branch: 'MOODLE_500_STABLE'
-            database: 'mariadb'
-          - php: '8.3'
-            moodle-branch: 'MOODLE_501_STABLE'
-            database: 'mariadb'
-          - php: '8.3'
-            moodle-branch: 'MOODLE_502_STABLE'
-            database: 'mariadb'
+        include: ${{ fromJson(needs.setup-matrix.outputs.include) }}
 
     steps:
       - name: Checkout plugin
