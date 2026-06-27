@@ -60,7 +60,7 @@ class external extends external_api {
      * @return array
      */
     public static function check_transaction_status($courseid) {
-        global $DB, $USER;
+        global $USER;
 
         $params = self::validate_parameters(self::check_transaction_status_parameters(), ['courseid' => $courseid]);
         $courseid = $params['courseid'];
@@ -71,9 +71,23 @@ class external extends external_api {
         // nên nếu dùng context khoá học sẽ bị dính lỗi 'require_login_exception'.
         self::validate_context(\context_system::instance());
 
-        $userid = $USER->id;
+        $found = self::find_latest_transactions($USER->id, $courseid);
+        $enrolled = is_enrolled($context, $USER);
 
-        // Gộp thành 1 query để giảm số lần truy vấn DB.
+        return self::build_status_response($enrolled, $found);
+    }
+
+    /**
+     * Tìm giao dịch MỚI NHẤT cho mỗi trạng thái của user trong khóa học.
+     *
+     * @param int $userid
+     * @param int $courseid
+     * @return array map status (pending/processed/rejected/unenrolled) => bản ghi giao dịch hoặc null
+     */
+    private static function find_latest_transactions($userid, $courseid): array {
+        global $DB;
+
+        // Gộp thành 1 query để giảm số lần truy vấn DB; sắp xếp DESC nên bản ghi đầu mỗi status là mới nhất.
         $alltxns = $DB->get_records_select(
             'enrol_sepay_transactions',
             'userid = :uid AND courseid = :cid',
@@ -81,30 +95,29 @@ class external extends external_api {
             'timecreated DESC'
         );
 
-        $pending = $processed = $rejected = $unenrolled = null;
+        $found = ['pending' => null, 'processed' => null, 'rejected' => null, 'unenrolled' => null];
         foreach ($alltxns as $txn) {
-            if (!$pending    && $txn->status === 'pending') {
-                $pending    = $txn;
-            }
-            if (!$processed  && $txn->status === 'processed') {
-                $processed  = $txn;
-            }
-            if (!$rejected   && $txn->status === 'rejected') {
-                $rejected   = $txn;
-            }
-            if (!$unenrolled && $txn->status === 'unenrolled') {
-                $unenrolled = $txn;
+            if (array_key_exists($txn->status, $found) && !$found[$txn->status]) {
+                $found[$txn->status] = $txn;
             }
         }
+        return $found;
+    }
 
-        $enrolled = is_enrolled($context, $USER);
-
+    /**
+     * Dựng mảng kết quả trạng thái trả về cho web service.
+     *
+     * @param bool $enrolled User đã ghi danh chưa
+     * @param array $found map status => giao dịch|null
+     * @return array
+     */
+    private static function build_status_response(bool $enrolled, array $found): array {
         return [
             'enrolled'   => $enrolled,
-            'pending'    => (!$enrolled && $pending) ? true : false,
-            'processed'  => $processed ? true : false,
-            'rejected'   => (!$enrolled && $rejected) ? true : false,
-            'unenrolled' => (!$enrolled && $unenrolled) ? true : false,
+            'pending'    => (!$enrolled && $found['pending']) ? true : false,
+            'processed'  => $found['processed'] ? true : false,
+            'rejected'   => (!$enrolled && $found['rejected']) ? true : false,
+            'unenrolled' => (!$enrolled && $found['unenrolled']) ? true : false,
         ];
     }
 
