@@ -26,6 +26,10 @@ namespace enrol_sepay;
 
 defined('MOODLE_INTERNAL') || die();
 
+// Các hàm get_*_email_html chứa HTML email (Gmail/Outlook) với dòng dài và khoảng
+// trắng cuối dòng đặc thù email client, không thể wrap/trim mà không vỡ layout.
+// phpcs:disable moodle.Files.LineLength.MaxExceeded, moodle.Files.LineLength.TooLong, moodle.WhiteSpace.WhiteSpaceInStrings.EndLine
+
 /**
  * Lớp tiện ích hỗ trợ xử lý lỗi.
  */
