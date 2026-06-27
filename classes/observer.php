@@ -24,8 +24,6 @@
 
 namespace enrol_sepay;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Observer xử lý sự kiện ghi danh của plugin enrol_sepay.
  */

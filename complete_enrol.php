@@ -33,7 +33,7 @@ require_sesskey();
 $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 $plugin = enrol_get_plugin('sepay');
 
-// Khởi tạo PAGE để tránh các hàm gửi email làm văng cảnh báo làm kẹt lệnh Redirect
+// Khởi tạo PAGE để tránh các hàm gửi email làm văng cảnh báo làm kẹt lệnh Redirect.
 $PAGE->set_url(new moodle_url('/enrol/sepay/complete_enrol.php', ['id' => $course->id]));
 $PAGE->set_context(\context_course::instance($course->id));
 
@@ -66,7 +66,7 @@ if ((int)$instance->status !== ENROL_INSTANCE_ENABLED) {
     redirect(new moodle_url('/course/view.php', ['id' => $course->id]));
 }
 
-// Tính thời gian enrol
+// Tính thời gian enrol.
 if (!empty($instance->enrolperiod)) {
     $timestart = time();
     $timeend = $timestart + (int)$instance->enrolperiod;
@@ -91,7 +91,7 @@ if ($roleid <= 0) {
     );
 }
 
-// Kiểm tra xem đã ghi danh chưa (chống gửi email đúp khi reload trang)
+// Kiểm tra xem đã ghi danh chưa (chống gửi email đúp khi reload trang).
 if (!$DB->record_exists('user_enrolments', ['enrolid' => $instance->id, 'userid' => $USER->id])) {
     try {
         $plugin->enrol_user($instance, $USER->id, $roleid, $timestart, $timeend);
@@ -123,5 +123,5 @@ if (!$transaction->email_sent) {
     }
 }
 
-// Chuyển hướng vào khóa học
+// Chuyển hướng vào khóa học.
 redirect(new moodle_url('/course/view.php', ['id' => $course->id]));

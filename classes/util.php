@@ -24,11 +24,10 @@
 
 namespace enrol_sepay;
 
-defined('MOODLE_INTERNAL') || die();
-
-// Các hàm get_*_email_html chứa HTML email (Gmail/Outlook) với dòng dài và khoảng
-// trắng cuối dòng đặc thù email client, không thể wrap/trim mà không vỡ layout.
-// phpcs:disable moodle.Files.LineLength.MaxExceeded, moodle.Files.LineLength.TooLong, moodle.WhiteSpace.WhiteSpaceInStrings.EndLine
+// Các hàm get_*_email_html chứa HTML email (Gmail/Outlook): dòng dài, khoảng trắng cuối
+// dòng, và nhiều lần chuyển đổi chế độ HTML/PHP (khiến sniff hiểu nhầm là thiếu file docblock).
+// Đây là đặc thù email client, không thể sửa mà không vỡ layout nên tắt các sniff liên quan.
+// phpcs:disable moodle.Files.LineLength.MaxExceeded, moodle.Files.LineLength.TooLong, moodle.WhiteSpace.WhiteSpaceInStrings.EndLine, moodle.Commenting.MissingDocblock.File, moodle.Commenting.FileExpectedTags.CopyrightTagMissing, moodle.Commenting.FileExpectedTags.LicenseTagMissing
 
 /**
  * Lớp tiện ích hỗ trợ xử lý lỗi.
@@ -134,10 +133,10 @@ class util {
         $a->useremail = $user->email;
         $a->courseurl = $courseurl;
 
-        // Tránh 1 người nhận 3 thông báo nếu họ vừa là Học viên, Giáo viên và Admin (Lọc trùng lặp)
+        // Tránh 1 người nhận 3 thông báo nếu họ vừa là Học viên, Giáo viên và Admin (Lọc trùng lặp).
         $notifiedusers = [];
 
-        // Tạo Mẫu HTML thông qua Static Methods để tái sử dụng ở môi trường Live & Test
+        // Tạo Mẫu HTML thông qua Static Methods để tái sử dụng ở môi trường Live & Test.
         $htmlstudent = self::get_student_email_html($a);
         $htmlalert   = self::get_admin_email_html($a);
 
@@ -265,16 +264,16 @@ class util {
             $parts = explode(' - ', $rawname);
             $parts = array_map('trim', $parts);
 
-            // Xóa đi các mẩu bị trống do dư dấu cách
+            // Xóa đi các mẩu bị trống do dư dấu cách.
             $parts = array_values(array_filter($parts, function ($val) {
                 return $val !== '';
             }));
 
             if (count($parts) >= 3) {
-                // Return phần giữa (Thường cấu trúc là ID - Tên - Lớp)
+                // Return phần giữa (Thường cấu trúc là ID - Tên - Lớp).
                 return $parts[1];
             } else if (count($parts) == 2) {
-                // Nếu là "ID - Tên"
+                // Nếu là "ID - Tên".
                 if (is_numeric($parts[0])) {
                     return $parts[1];
                 }

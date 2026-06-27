@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname'] = 'SePay';
 $string['pluginname_desc'] = 'Mô-đun SePay cho phép bạn thiết lập các khóa học trả phí. Nếu chi phí của bất kỳ khóa học nào bằng 0, học viên sẽ không cần thanh toán để tham gia. Bạn có thể đặt một mức giá toàn site làm mặc định cho toàn bộ hệ thống, sau đó mỗi khóa học có thể có một mức giá riêng. Giá của khóa học sẽ ghi đè giá mặc định của site.';
 
-// Cấu hình chung plugin
+// Cấu hình chung plugin.
 $string['enrolcost'] = 'Giá ghi danh';
 $string['sepay:config'] = 'Cấu hình các instance ghi danh SePay';
 
@@ -93,10 +93,10 @@ $string['pattern_desc'] = 'Tiền tố dùng trong nội dung chuyển khoản, 
 $string['separator'] = 'Ngăn cách CourseID/UserID';
 $string['separator_desc'] = 'Chuỗi ký tự ngăn cách giữa ID khóa học và ID người dùng.';
 
-// Thông báo khi không cần thanh toán
+// Thông báo khi không cần thanh toán.
 $string['nocost'] = 'Khoá học này không yêu cầu thanh toán.';
 
-// Thông báo thanh toán (dùng trong webhook)
+// Thông báo thanh toán (dùng trong webhook).
 $string['paymentthanks'] = 'Đã nhận thanh toán cho khóa học: {$a}';
 $string['paymentthanks_desc'] = 'Hệ thống đã nhận thanh toán. Bạn hiện đã được ghi danh vào khóa học: {$a}.';
 $string['paymentreceived'] = 'Đã nhận thanh toán SePay cho khóa học: {$a}';
@@ -105,7 +105,7 @@ $string['paymentreceived_desc'] = 'Một người dùng đã được ghi danh t
 $string['email_welcome_subject'] = 'Bạn đã được ghi danh vào khóa học: {$a->coursename}';
 $string['email_welcome_body'] = 'Xin chào {$a->username},
 
-Đây là email biên lai tự động xác nhận bạn đã đăng ký và thanh toán thành công khóa học: "{$a->coursename}". 
+Đây là email biên lai tự động xác nhận bạn đã đăng ký và thanh toán thành công khóa học: "{$a->coursename}".
 Hiện tại bạn đã có toàn quyền truy cập vào khóa học.
 
 Vào khóa học tại đây: {$a->courseurl}
@@ -179,7 +179,7 @@ $string['amount'] = 'Số tiền';
 $string['trans_content'] = 'Nội dung';
 $string['process_date'] = 'Ngày xử lý';
 
-// Cấu hình Lưu trữ Dữ liệu
+// Cấu hình Lưu trữ Dữ liệu.
 $string['data_retention_heading'] = 'Quản lý lưu trữ dữ liệu';
 $string['data_retention_heading_desc'] = 'Cấu hình tự động dọn dẹp và lưu trữ dữ liệu giao dịch cũ để tối ưu database.';
 $string['auto_cleanup_enabled'] = 'Bật tự động dọn dẹp';
@@ -193,14 +193,14 @@ $string['archive_strategy_delete'] = 'Xóa hoàn toàn';
 $string['archive_retention_days'] = 'Thời gian lưu vào bảng lưu trữ (ngày)';
 $string['archive_retention_days_desc'] = 'Số ngày lưu giữ giao dịch trong bảng lưu trữ. Giao dịch cũ hơn sẽ bị xóa vĩnh viễn. Chỉ áp dụng khi chiến lược là "Chuyển vào bảng lưu trữ". Mặc định: 365 ngày. Đặt 0 để giữ vô thời hạn.';
 
-// Tác vụ Scheduled Task
+// Tác vụ Scheduled Task.
 $string['task_cleanup_transactions'] = 'Dọn dẹp giao dịch SePay cũ';
 $string['task_process_enrolments'] = 'Xử lý ghi danh SePay đang chờ';
 $string['task_process_rejections'] = 'Gửi thông báo từ chối SePay';
 $string['task_update_banks'] = 'Đồng bộ danh sách ngân hàng SePay';
 $string['task_process_expirations'] = 'Xử lý gỡ bỏ ghi danh hết hạn SePay';
 
-// Phát hiện trùng lặp IP
+// Phát hiện trùng lặp IP.
 $string['ip_duplicate_warning'] = 'Cảnh báo: {$a} người dùng khác nhau đang dùng chung IP này!';
 $string['ip_duplicate_users'] = '{$a} người dùng';
 
@@ -208,7 +208,7 @@ $string['mailstudents'] = 'Gửi email cho học viên';
 $string['mailteachers'] = 'Gửi email cho giáo viên';
 $string['mailadmins'] = 'Gửi email cho quản trị viên';
 
-// Tin nhắn thông báo
+// Tin nhắn thông báo.
 $string['messageprovider:pending_transaction'] = 'Thông báo giao dịch chờ xử lý';
 $string['messageprovider:sepay_enrolment'] = 'Biên lai ghi danh khóa học';
 $string['notification_pending_title'] = 'Giao dịch mới đang chờ phê duyệt';
@@ -216,12 +216,12 @@ $string['notification_pending_body'] = 'Người dùng {$a->username} đã thanh
 $string['notification_pending_small'] = 'Thanh toán mới: {$a->amount} {$a->currency}';
 $string['notification_pending_url'] = 'Xem giao dịch';
 
-// Tin nhắn báo lỗi
+// Tin nhắn báo lỗi.
 $string['transaction_not_found'] = 'Không tìm thấy giao dịch';
 $string['payment_amount_insufficient'] = 'Số tiền thanh toán không đủ. Vui lòng kiểm tra lại.';
 $string['errdisabled'] = 'Plugin ghi danh SePay đã bị tắt';
 
-// Cài đặt thông báo
+// Cài đặt thông báo.
 $string['notification_settings'] = 'Thiết đặt thông báo SePay';
 $string['notification_statistics'] = 'Thống kê thông báo';
 $string['total_notifications'] = 'Tổng số thông báo';
@@ -251,7 +251,7 @@ $string['subject'] = 'Tiêu đề';
 $string['read'] = 'Đã đọc';
 $string['unread'] = 'Chưa đọc';
 
-// Tùy chọn xóa thông báo đã đọc
+// Tùy chọn xóa thông báo đã đọc.
 $string['delete_read_1day_option'] = '1 ngày';
 $string['delete_read_1week_option'] = '1 tuần';
 $string['delete_read_1month_option'] = '1 tháng';
@@ -261,7 +261,7 @@ $string['delete_read_never_option'] = 'Chưa lần nào';
 $string['delete_button'] = 'Xóa';
 $string['confirm_delete_read_selected'] = 'Bạn có chắc chắn muốn xóa các thông báo đã đọc theo khoảng thời gian đã chọn?';
 
-// Nhãn và mô tả cho Form
+// Nhãn và mô tả cho Form.
 $string['delete_read_time_label'] = 'Mặc định: 1 tuần';
 $string['delete_all_time_label'] = 'Mặc định: 1 tháng';
 $string['delete_all_notifications_label'] = 'Xóa toàn bộ thông báo';
@@ -273,7 +273,7 @@ $string['confirm_delete_notification'] = 'Bạn có chắc chắn muốn xóa th
 $string['notification_deleted'] = 'Đã xóa thông báo thành công.';
 $string['sender'] = 'Người gửi';
 
-// Giao diện bộ lọc và tìm kiếm giao dịch
+// Giao diện bộ lọc và tìm kiếm giao dịch.
 $string['transactions_found'] = 'Tìm thấy {$a} giao dịch';
 $string['search_user'] = 'Tìm theo người dùng';
 $string['search_course'] = 'Tìm theo khóa học';
@@ -304,31 +304,31 @@ $string['bulk_unenrol'] = 'Hủy ghi danh nhiều';
 $string['confirm_bulk_unenrol'] = 'Bạn có chắc chắn muốn hủy ghi danh các học viên của các giao dịch đã chọn?';
 $string['bulk_unenrolled'] = 'Đã hủy ghi danh {$a} học viên thành công.';
 
-// Chuỗi bổ sung
+// Chuỗi bổ sung.
 $string['error_instance_deleted'] = 'Instance ghi danh đã bị xóa.';
 $string['error_enrol_failed'] = 'Ghi danh thất bại. Vui lòng liên hệ quản trị viên.';
 $string['pending_retention_days'] = 'Thời gian giữ giao dịch chờ xử lý (ngày)';
 $string['pending_retention_days_desc'] = 'Số ngày giữ giao dịch chờ xử lý trước khi tự động từ chối. Mặc định: 30 ngày.';
 
-// Chuỗi thông báo từ chối
+// Chuỗi thông báo từ chối.
 $string['email_rejection_subject'] = 'Bạn đã bị từ chối ghi danh vào khóa học: {$a->coursename}';
 $string['email_rejection_body'] = 'Xin chào {$a->username}, bạn đã bị từ chối ghi danh vào khóa học: {$a->coursename}. Vui lòng liên hệ với quản trị viên để biết thêm thông tin.';
 $string['email_rejection_smallmessage'] = 'Bạn đã bị từ chối ghi danh vào khóa học: {$a->coursename}.';
 $string['messageprovider:rejection_notification'] = 'Thông báo từ chối ghi danh';
 
-// Chuỗi thông báo hủy ghi danh
+// Chuỗi thông báo hủy ghi danh.
 $string['email_unenrolment_subject'] = 'Bạn đã bị hủy ghi danh khỏi khóa học: {$a->coursename}';
 $string['email_unenrolment_body'] = 'Xin chào {$a->username}, bạn đã bị hủy ghi danh khỏi khóa học: {$a->coursename}. Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là nhầm lẫn.';
 $string['email_unenrolment_smallmessage'] = 'Bạn đã bị hủy ghi danh khỏi khóa học: {$a->coursename}.';
 $string['messageprovider:unenrolment_notification'] = 'Thông báo hủy ghi danh';
 
-// Xác nhận tự hủy ghi danh
+// Xác nhận tự hủy ghi danh.
 $string['unenrolselfconfirm'] = 'Bạn có thực sự muốn tự hủy ghi danh khỏi khóa học "{$a}"?';
 
-// Tên tác vụ
+// Tên tác vụ.
 $string['task_process_expirations'] = 'Xử lý ghi danh SePay hết hạn';
 
-// Chuỗi trang gửi email hàng loạt
+// Chuỗi trang gửi email hàng loạt.
 $string['mass_email_title'] = 'Gửi Lại Email Ghi Danh';
 $string['mass_email_heading'] = 'Gửi Lại Email Kích Hoạt Tồn Đọng (SePay)';
 $string['mass_email_desc'] = 'Tính năng này cho phép bạn quét các học viên đã mua khoá học trước đây nhưng chưa được gửi email thông báo tự động.';
@@ -337,7 +337,7 @@ $string['mass_email_found'] = 'Phát hiện <b>{$a}</b> học viên chưa nhận
 $string['mass_email_limit_label'] = 'Số email mỗi lượt:';
 $string['mass_email_submit'] = 'Đặt lịch gửi email trong nền';
 
-// Các chuỗi trong trang quản lý giao dịch thủ công (manage.php)
+// Các chuỗi trong trang quản lý giao dịch thủ công (manage.php).
 $string['manage_gateway'] = 'Cổng thanh toán';
 $string['manage_instance_cost'] = 'Giá instance';
 $string['manage_global_cost'] = 'Giá toàn hệ thống';

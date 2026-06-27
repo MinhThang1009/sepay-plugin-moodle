@@ -32,7 +32,7 @@ require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->dirroot . '/enrol/sepay/lib.php');
 require_once($CFG->dirroot . '/enrol/sepay/classes/util.php');
 
-// Lấy tham số lọc và tìm kiếm từ URL
+// Lấy tham số lọc và tìm kiếm từ URL.
 $action        = optional_param('action', '', PARAM_ALPHANUMEXT);
 $id            = optional_param('id', 0, PARAM_INT);
 $filter        = optional_param('filter', 'all', PARAM_ALPHA);
@@ -43,31 +43,31 @@ $dateto       = optional_param('date_to', '', PARAM_TEXT);
 $letterraw    = optional_param('letter', '', PARAM_TEXT);
 $letterfnraw = optional_param('letter_fn', '', PARAM_TEXT);
 $resettable   = optional_param('reset_table', 0, PARAM_INT);
-// Số dòng mỗi trang: mặc định 20, cho phép 10/20/30/50/100/TABLE_SHOW_ALL_PAGE_SIZE
+// Số dòng mỗi trang: mặc định 20, cho phép 10/20/30/50/100/TABLE_SHOW_ALL_PAGE_SIZE.
 $perpage       = optional_param('perpage', 20, PARAM_INT);
 
-// Bảng chữ cái tiếng Việt dùng cho bộ lọc họ và tên người dùng
+// Bảng chữ cái tiếng Việt dùng cho bộ lọc họ và tên người dùng.
 $vnalphabet = [
     'A', 'Ă', 'Â', 'B', 'C', 'D', 'Đ', 'E', 'Ê', 'G',
     'H', 'I', 'K', 'L', 'M', 'N', 'O', 'Ô', 'Ơ', 'P',
     'Q', 'R', 'S', 'T', 'U', 'Ư', 'V', 'X', 'Y',
 ];
 
-// Kiểm tra letter (họ) có hợp lệ không (whitelist)
+// Kiểm tra letter (họ) có hợp lệ không (whitelist).
 $letter = in_array(mb_strtoupper($letterraw, 'UTF-8'), $vnalphabet, true)
         ? mb_strtoupper($letterraw, 'UTF-8')
         : '';
 
-// Kiểm tra letter_fn (tên) có hợp lệ không (whitelist)
+// Kiểm tra letter_fn (tên) có hợp lệ không (whitelist).
 $letterfn = in_array(mb_strtoupper($letterfnraw, 'UTF-8'), $vnalphabet, true)
            ? mb_strtoupper($letterfnraw, 'UTF-8')
            : '';
 
-// Yêu cầu đăng nhập và kiểm tra quyền
+// Yêu cầu đăng nhập và kiểm tra quyền.
 require_login();
 $context = context_system::instance();
 
-// Thiết lập URL và context trước khi gọi admin_externalpage_setup
+// Thiết lập URL và context trước khi gọi admin_externalpage_setup.
 $PAGE->set_url(new moodle_url('/enrol/sepay/transactions.php', [
     'filter'        => $filter,
     'search_user'   => $searchuser,
@@ -83,7 +83,7 @@ $PAGE->set_context($context);
 require_capability('enrol/sepay:manage', $context);
 
 try {
-    // Gọi thiết lập trang admin, ưu tiên pagelayout 'report' để mở rộng độ rộng bảng tối đa (giống loglive)
+    // Gọi thiết lập trang admin, ưu tiên pagelayout 'report' để mở rộng độ rộng bảng tối đa (giống loglive).
     admin_externalpage_setup('enrol_sepay_transactions', '', null, '', ['pagelayout' => 'report']);
 } catch (moodle_exception $e) {
     if ($e->errorcode === 'accessdenied') {
@@ -100,18 +100,18 @@ $plugin = enrol_get_plugin('sepay');
 $PAGE->set_title(get_string('manage_transactions', 'enrol_sepay'));
 $PAGE->set_heading($SITE->fullname);
 
-// Breadcrumb điều hướng
+// Breadcrumb điều hướng.
 $PAGE->navbar->add(get_string('administrationsite'));
 $PAGE->navbar->add(get_string('plugins', 'admin'));
 $PAGE->navbar->add(get_string('enrolments', 'enrol'));
 $PAGE->navbar->add(get_string('manage_transactions', 'enrol_sepay'));
 
-// Xử lý action: Phê duyệt
+// Xử lý action: Phê duyệt.
 if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
     $transaction = $DB->get_record('enrol_sepay_transactions', ['id' => $id]);
 
     if ($transaction && $transaction->status === 'pending') {
-        // Chỉ cập nhật trạng thái, chưa ghi danh ngay
+        // Chỉ cập nhật trạng thái, chưa ghi danh ngay.
         $transaction->status = 'processed';
         $transaction->timeprocessed = time();
         $DB->update_record('enrol_sepay_transactions', $transaction);
@@ -123,7 +123,7 @@ if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
     }
 }
 
-// Xử lý action: Từ chối
+// Xử lý action: Từ chối.
 if ($action === 'reject' && $id > 0 && confirm_sesskey()) {
     $transaction = $DB->get_record('enrol_sepay_transactions', ['id' => $id]);
 
@@ -151,7 +151,7 @@ if ($action === 'reject' && $id > 0 && confirm_sesskey()) {
     }
 }
 
-// Xử lý action: Xóa một giao dịch
+// Xử lý action: Xóa một giao dịch.
 if ($action === 'delete' && $id > 0 && confirm_sesskey()) {
     $transaction = $DB->get_record('enrol_sepay_transactions', ['id' => $id]);
 
@@ -170,7 +170,7 @@ if ($action === 'delete' && $id > 0 && confirm_sesskey()) {
     }
 }
 
-// Xử lý action: Xóa nhiều giao dịch
+// Xử lý action: Xóa nhiều giao dịch.
 if ($action === 'bulk_delete' && confirm_sesskey()) {
     $deleteids = optional_param_array('deleteids', [], PARAM_INT);
 
@@ -210,7 +210,7 @@ if ($action === 'bulk_delete' && confirm_sesskey()) {
     }
 }
 
-// Xử lý action: Phê duyệt nhiều giao dịch
+// Xử lý action: Phê duyệt nhiều giao dịch.
 if ($action === 'bulk_approve' && confirm_sesskey()) {
     // Checkbox trong form dùng name="deleteids[]" cho cả 3 bulk actions.
     $approveids = optional_param_array('deleteids', [], PARAM_INT);
@@ -251,7 +251,7 @@ if ($action === 'bulk_approve' && confirm_sesskey()) {
     }
 }
 
-// Xử lý action: Hủy ghi danh nhiều giao dịch
+// Xử lý action: Hủy ghi danh nhiều giao dịch.
 if ($action === 'bulk_unenrol' && confirm_sesskey()) {
     // Checkbox trong form dùng name="deleteids[]" cho cả các bulk actions.
     $unenrolids = optional_param_array('deleteids', [], PARAM_INT);
@@ -262,26 +262,26 @@ if ($action === 'bulk_unenrol' && confirm_sesskey()) {
             $txn = $DB->get_record('enrol_sepay_transactions', ['id' => $txnid]);
             if ($txn && $txn->status === 'processed') {
                 // Lấy đúng instance SePay bằng instanceid từ giao dịch
-                // (tránh exception khi 1 course có nhiều SePay instance)
+                // (tránh exception khi 1 course có nhiều SePay instance).
                 $instance = $DB->get_record('enrol', ['id' => $txn->instanceid, 'enrol' => 'sepay']);
                 if (!$instance) {
-                    // Instance đã bị xóa — bỏ qua, không đổi trạng thái
+                    // Instance đã bị xóa — bỏ qua, không đổi trạng thái.
                     continue;
                 }
                 try {
                     $plugin->unenrol_user($instance, $txn->userid);
                 } catch (\Exception $e) {
-                    // Không crash toàn bộ vòng lặp — tiếp tục với giao dịch tiếp theo
+                    // Không crash toàn bộ vòng lặp — tiếp tục với giao dịch tiếp theo.
                     debugging('bulk_unenrol: unenrol_user failed for txn ' . $txnid . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
                     continue;
                 }
-                // Chỉ đổi trạng thái khi unenrol_user thành công
+                // Chỉ đổi trạng thái khi unenrol_user thành công.
                 $txn->status        = 'unenrolled';
                 $txn->timeprocessed = time();
                 try {
                     $DB->update_record('enrol_sepay_transactions', $txn);
                 } catch (\dml_exception $dbe) {
-                    // DB update thất bại — log nhưng cộng count vì user đã bị unenrol thật
+                    // DB update thất bại — log nhưng cộng count vì user đã bị unenrol thật.
                     debugging('bulk_unenrol: DB update failed for txn ' . $txnid . ': ' . $dbe->getMessage(), DEBUG_DEVELOPER);
                 }
                 $unenrolledcount++;
@@ -301,7 +301,7 @@ if ($action === 'bulk_unenrol' && confirm_sesskey()) {
         if ($unenrolledcount > 0) {
             redirect($redirecturl, get_string('bulk_unenrolled', 'enrol_sepay', $unenrolledcount));
         } else {
-            // Có ID được chọn nhưng không unenrol được ai (instance bị xóa hoặc lỗi kỹ thuật)
+            // Có ID được chọn nhưng không unenrol được ai (instance bị xóa hoặc lỗi kỹ thuật).
             redirect($redirecturl, get_string('error_already_processed', 'enrol_sepay'), null, core\output\notification::NOTIFY_ERROR);
         }
     } else {
@@ -310,7 +310,7 @@ if ($action === 'bulk_unenrol' && confirm_sesskey()) {
     }
 }
 
-// Xử lý action: Từ chối nhiều giao dịch
+// Xử lý action: Từ chối nhiều giao dịch.
 if ($action === 'bulk_reject' && confirm_sesskey()) {
     // Checkbox trong form dùng name="deleteids[]" cho cả 3 bulk actions.
     $rejectids = optional_param_array('deleteids', [], PARAM_INT);
@@ -369,14 +369,14 @@ echo $OUTPUT->heading(get_string('manage_transactions', 'enrol_sepay'));
 
     // Gỡ bỏ tùy chỉnh CSS rác để Moodle table layout hiển thị nguyên bản.
 
-// Lấy số liệu thống kê giao dịch
+// Lấy số liệu thống kê giao dịch.
 $countpending    = $DB->count_records('enrol_sepay_transactions', ['status' => 'pending']);
 $countprocessed  = $DB->count_records('enrol_sepay_transactions', ['status' => 'processed']);
 $countrejected   = $DB->count_records('enrol_sepay_transactions', ['status' => 'rejected']);
 $countunenrolled = $DB->count_records('enrol_sepay_transactions', ['status' => 'unenrolled']);
 $counttotal      = $countpending + $countprocessed + $countrejected + $countunenrolled;
 
-// Hiển thị thẻ thống kê TỔNG — Hàng riêng, to nhất
+// Hiển thị thẻ thống kê TỔNG — Hàng riêng, to nhất.
 echo '<div class="row mx-0 mb-2">';
 echo '  <div class="col-12">';
 echo '    <div class="card text-center sepay-stat-total-border">';
@@ -388,7 +388,7 @@ echo '    </div>';
 echo '  </div>';
 echo '</div>';
 
-// Hiển thị 4 thẻ thống kê còn lại — Chia đều hàng
+// Hiển thị 4 thẻ thống kê còn lại — Chia đều hàng.
 echo '<div class="row mx-0 mb-3">';
 $statitems = [
     [
@@ -429,7 +429,7 @@ foreach ($statitems as $stat) {
 }
 echo '</div>';
 
-// Khu vực bộ lọc (Search Options)
+// Khu vực bộ lọc (Search Options).
 echo '<div class="card mb-3">';
 echo '<div class="card-body py-3">';
 echo '<form method="get" action="" id="filter-form">';
@@ -437,7 +437,7 @@ echo '<input type="hidden" name="filter" value="' . s($filter) . '">';
 echo '<input type="hidden" name="letter" value="' . s($letter) . '">';
 echo '<input type="hidden" name="letter_fn" value="' . s($letterfn) . '">';
 
-// Hàng nhập bộ lọc — dùng form-group
+// Hàng nhập bộ lọc — dùng form-group.
 echo '<div class="d-flex flex-wrap align-items-end">';
 
 echo '<div class="form-group mr-3 mb-2">';
@@ -462,7 +462,7 @@ echo '<label class="col-form-label col-form-label-sm d-block">' . get_string('fi
 echo '<input type="date" name="date_to" class="form-control form-control-sm" value="' . s($dateto) . '">';
 echo '</div>';
 
-// Nút Clear và Apply - gộp vào cùng hàng cho tiết kiệm không gian
+// Nút Clear và Apply - gộp vào cùng hàng cho tiết kiệm không gian.
 echo '<div class="form-group mb-2 ml-auto d-flex align-items-end">';
 $clearurl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
 echo '<a href="' . $clearurl->out() . '" class="btn btn-sm btn-secondary mr-2">'
@@ -488,7 +488,7 @@ $statustabs = [
     'unenrolled' => [get_string('status_unenrolled', 'enrol_sepay'), 'bg-dark', 'sepay-tab-outline-dark'],
 ];
 
-// Hiển thị 5 tab lọc trạng thái — Layout 1-cái-đầu-ngang, 4-cái-dưới-chia-đều
+// Hiển thị 5 tab lọc trạng thái — Layout 1-cái-đầu-ngang, 4-cái-dưới-chia-đều.
 echo '<ul class="nav nav-pills d-flex flex-wrap mb-3 mx-n1">';
 foreach ($statustabs as $tabfilter => [$tablabel, $classactive, $classinactive]) {
     $taburl = new moodle_url('/enrol/sepay/transactions.php', [
@@ -503,7 +503,7 @@ foreach ($statustabs as $tabfilter => [$tablabel, $classactive, $classinactive])
     ]);
     $isactive = ($filter === $tabfilter);
 
-    // Tab "Tất cả" (all) full width hàng đầu, các tab khác chia hàng 4/hàng 2
+    // Tab "Tất cả" (all) full width hàng đầu, các tab khác chia hàng 4/hàng 2.
     $itemclass = ($tabfilter === 'all') ? 'col-12 px-1 mb-2' : 'col-6 col-md-3 px-1 mb-1';
 
     echo '<li class="nav-item ' . $itemclass . '">';
@@ -517,7 +517,7 @@ foreach ($statustabs as $tabfilter => [$tablabel, $classactive, $classinactive])
 echo '</ul>';
 
 // Bộ lọc chữ cái — 2 hàng: Tên (firstname) và Họ (lastname)
-// Dùng pagination pagination-sm theo đúng chuẩn Moodle initials_bar template
+// Dùng pagination pagination-sm theo đúng chuẩn Moodle initials_bar template.
 $filterbaseparams = [
     'filter'        => $filter,
     'search_user'   => $searchuser,
@@ -526,13 +526,13 @@ $filterbaseparams = [
     'date_to'       => $dateto,
 ];
 
-// Hàng 1: lọc theo Tên (firstname) — class firstinitial theo chuẩn Moodle
+// Hàng 1: lọc theo Tên (firstname) — class firstinitial theo chuẩn Moodle.
 echo '<div class="initialbar firstinitial d-flex flex-wrap justify-content-start">';
 echo '<span class="initialbarlabel mr-2">' . get_string('filter_firstname', 'enrol_sepay') . '</span>';
 echo '<nav class="initialbargroups d-flex flex-wrap">';
 echo '<ul class="pagination pagination-sm">';
 
-// Nút "Tất cả"
+// Nút "Tất cả".
 $allfnurl = new moodle_url(
     '/enrol/sepay/transactions.php',
     array_merge($filterbaseparams, ['letter_fn' => '', 'letter' => $letter])
@@ -546,7 +546,7 @@ echo '</li>';
 
 echo '</ul>';
 
-// Mỗi chữ cái trong một nhóm ul riêng (giống template Moodle chia nhóm)
+// Mỗi chữ cái trong một nhóm ul riêng (giống template Moodle chia nhóm).
 foreach (array_chunk($vnalphabet, 10) as $chunk) {
     echo '<ul class="pagination pagination-sm">';
     foreach ($chunk as $l) {
@@ -565,7 +565,7 @@ foreach (array_chunk($vnalphabet, 10) as $chunk) {
 echo '</nav>';
 echo '</div>';
 
-// Hàng 2: lọc theo Họ (lastname) — class lastinitial theo chuẩn Moodle
+// Hàng 2: lọc theo Họ (lastname) — class lastinitial theo chuẩn Moodle.
 echo '<div class="initialbar lastinitial d-flex flex-wrap justify-content-start mb-2">';
 echo '<span class="initialbarlabel mr-2">' . get_string('filter_lastname', 'enrol_sepay') . '</span>';
 echo '<nav class="initialbargroups d-flex flex-wrap">';
@@ -603,7 +603,7 @@ echo '</nav>';
 echo '</div>';
 
 
-// Khởi tạo bảng giao dịch
+// Khởi tạo bảng giao dịch.
 require_once($CFG->dirroot . '/enrol/sepay/classes/table/transactions_table.php');
 
 $table = new \enrol_sepay\table\transactions_table('sepay_transactions', $PAGE->url, [
@@ -616,7 +616,7 @@ $table = new \enrol_sepay\table\transactions_table('sepay_transactions', $PAGE->
     'letter_fn'     => $letterfn,
 ]);
 
-// Xây dựng câu truy vấn
+// Xây dựng câu truy vấn.
 $fields = "t.id, t.status, t.amount, t.currency, t.transaction_content,
            t.timecreated, t.timeprocessed, t.userid, t.courseid, t.ip_address,
            u.id AS uid, u.firstname, u.lastname, u.email,
@@ -665,7 +665,7 @@ if ($letterfn !== '') {
 
 $where = implode(' AND ', $whereparts);
 
-// Đếm tổng số kết quả (cho phân trang)
+// Đếm tổng số kết quả (cho phân trang).
 $transactioncount = $DB->count_records_sql(
     "SELECT COUNT(*) FROM $from WHERE $where",
     $params
@@ -674,7 +674,7 @@ $transactioncount = $DB->count_records_sql(
 $table->set_sql($fields, $from, $where, $params);
 $table->pagesize($perpage, $transactioncount);
 
-// Hiển thị số kết quả
+// Hiển thị số kết quả.
 echo '<div class="d-flex justify-content-between align-items-baseline mb-1">';
 echo html_writer::tag(
     'p',

@@ -22,8 +22,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 class enrol_sepay_plugin extends enrol_plugin {
     /**
      * Trả về icon hiển thị trong danh sách khóa học.
@@ -303,7 +301,7 @@ class enrol_sepay_plugin extends enrol_plugin {
                 ], 'timecreated DESC', '*', 0, 1);
                 $rejectedtransaction = $txnrejected ? reset($txnrejected) : null;
 
-                // Nếu đã có transaction pending hoặc processed, hiển thị thông báo thay vì QR code
+                // Nếu đã có transaction pending hoặc processed, hiển thị thông báo thay vì QR code.
                 if ($pendingtransaction) {
                     echo '<div class="alert alert-info sepay-alert-center">';
                     echo '<i class="fa-regular fa-clock sepay-status-icon sepay-icon-info"></i><br>';
@@ -311,29 +309,29 @@ class enrol_sepay_plugin extends enrol_plugin {
                     echo get_string('payment_pending_message', 'enrol_sepay');
                     echo '</div>';
 
-                    // Thêm JavaScript để kiểm tra liên tục và reload lại trang khi admin phê duyệt/từ chối thông qua AMD
+                    // Thêm JavaScript để kiểm tra liên tục và reload lại trang khi admin phê duyệt/từ chối thông qua AMD.
                     $PAGE->requires->js_call_amd('enrol_sepay/payment_poll', 'init', [$course->id, 'pending']);
                 } else if ($processedtransaction) {
-                    // Kiểm tra xem instance có bật manual enrollment không
+                    // Kiểm tra xem instance có bật manual enrollment không.
                     $instancemanual = $instance->customint1; // 0 = default, 1 = yes (manual), 2 = no (auto)
                     $globalmanual = $this->get_config('manual_enrol');
 
-                    // Xác định xem có phải manual enrollment không
+                    // Xác định xem có phải manual enrollment không.
                     $ismanualenrollment = false;
                     if ($instancemanual == 1) {
-                        // Instance bật manual
+                        // Instance bật manual.
                         $ismanualenrollment = true;
                     } else if ($instancemanual == 2) {
-                        // Instance tắt manual (auto)
+                        // Instance tắt manual (auto).
                         $ismanualenrollment = false;
                     } else {
-                        // Instance theo default → check global setting
+                        // Instance theo default → check global setting.
                         $ismanualenrollment = (bool)$globalmanual;
                     }
 
                     // Chọn string phù hợp
                     // Nếu là manual enrollment → "Xác nhận phê duyệt thành công!"
-                    // Nếu là auto enrollment → "Xác nhận thanh toán thành công!"
+                    // Nếu là auto enrollment → "Xác nhận thanh toán thành công!".
                     $titlestring = $ismanualenrollment ? 'payment_approved_title' : 'payment_auto_approved_title';
                     $messagestring = $ismanualenrollment ? 'payment_approved_message' : 'payment_auto_approved_message';
 
@@ -344,7 +342,7 @@ class enrol_sepay_plugin extends enrol_plugin {
                     echo '<br><small class="text-muted">' . get_string('redirecting_in', 'enrol_sepay') . ' <span id="countdown">5</span> ' . get_string('seconds', 'enrol_sepay') . '...</small>';
                     echo '</div>';
 
-                    // Tự động chuyển hướng kèm đếm ngược - Chuyển sang complete_enrol.php để ghi danh user
+                    // Tự động chuyển hướng kèm đếm ngược - Chuyển sang complete_enrol.php để ghi danh user.
                     $enrolurl = new moodle_url('/enrol/sepay/complete_enrol.php', ['id' => $course->id, 'sesskey' => sesskey()]);
                     $PAGE->requires->js_call_amd('enrol_sepay/payment_countdown', 'init', [$course->id, $enrolurl->out(false)]);
                 } else if ($rejectedtransaction) {
@@ -354,9 +352,9 @@ class enrol_sepay_plugin extends enrol_plugin {
                     echo get_string('payment_rejected_message', 'enrol_sepay');
                     echo '<div class="mt-3">';
 
-                    // CSS cho nút nguy hiểm đã được định nghĩa trong styles.css (.sepay-danger-btn)
+                    // CSS cho nút nguy hiểm đã được định nghĩa trong styles.css (.sepay-danger-btn).
 
-                    // Nút Thanh toán lại
+                    // Nút Thanh toán lại.
                     $retryurl = new moodle_url('/enrol/sepay/retry.php', [
                         'id' => $course->id,
                         'instance' => $instance->id,
@@ -366,13 +364,13 @@ class enrol_sepay_plugin extends enrol_plugin {
                     echo get_string('retry_payment', 'enrol_sepay');
                     echo '</a>';
 
-                    // Nút Liên hệ Admin
+                    // Nút Liên hệ Admin.
                     $contacturl = (new moodle_url('/message/index.php', ['id' => get_admin()->id]))->out(false);
                     echo '<a href="' . $contacturl . '" target="_blank" class="btn sepay-danger-btn mr-2 mb-2">';
                     echo get_string('contact_admin', 'enrol_sepay');
                     echo '</a>';
 
-                    // Nút Quay lại
+                    // Nút Quay lại.
                     $courseurl = new moodle_url('/course/view.php', ['id' => $course->id]);
                     echo '<a href="' . $courseurl . '" class="btn sepay-danger-btn mb-2">';
                     echo get_string('back_to_course', 'enrol_sepay');
@@ -381,7 +379,7 @@ class enrol_sepay_plugin extends enrol_plugin {
                     echo '</div>';
                     echo '</div>';
                 } else {
-                    // Chỉ hiển thị QR code khi chưa có giao dịch
+                    // Chỉ hiển thị QR code khi chưa có giao dịch.
                     $data = [
                         'qr_account' => $qraccount,
                         'qr_bank' => $qrbank,
@@ -392,7 +390,7 @@ class enrol_sepay_plugin extends enrol_plugin {
                     ];
                     echo $OUTPUT->render_from_template('enrol_sepay/enrol', $data);
 
-                    // Kích hoạt chuẩn AMD JS xử lý front-end giao diện QR
+                    // Kích hoạt chuẩn AMD JS xử lý front-end giao diện QR.
                     $PAGE->requires->js_call_amd('enrol_sepay/payment_actions', 'init', [$course->id, $CFG->wwwroot]);
                     $PAGE->requires->js_call_amd('enrol_sepay/payment_poll', 'init', [$course->id, 'none']);
                 }
@@ -494,7 +492,7 @@ class enrol_sepay_plugin extends enrol_plugin {
         $mform->addElement('select', 'status', get_string('status', 'enrol_sepay'), $options);
         $mform->setDefault('status', $this->get_config('status'));
 
-        // Duyệt thủ công cấp instance (customint1)
+        // Duyệt thủ công cấp instance (customint1).
         $manualoptions = [
             0 => get_string('manual_enrol_default', 'enrol_sepay'),
             1 => get_string('manual_enrol_yes', 'enrol_sepay'),

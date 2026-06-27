@@ -57,7 +57,7 @@ if ($ADMIN->fulltree) {
         ''
     ));
 
-    // PATTERN
+    // PATTERN.
     $settings->add(new admin_setting_configtext(
         'enrol_sepay/pattern',
         get_string('pattern', 'enrol_sepay'),
@@ -66,7 +66,7 @@ if ($ADMIN->fulltree) {
         PARAM_TEXT
     ));
 
-    // SEPARATOR
+    // SEPARATOR.
     $settings->add(new admin_setting_configtext(
         'enrol_sepay/separator',
         get_string('separator', 'enrol_sepay'),
@@ -84,7 +84,7 @@ if ($ADMIN->fulltree) {
         PARAM_TEXT
     ));
 
-    // Ngân hàng (dữ liệu được tải thông qua scheduled task enrol_sepay\task\update_banks)
+    // Ngân hàng (dữ liệu được tải thông qua scheduled task enrol_sepay\task\update_banks).
     $bankoptions = [];
     if ($cachedresponse = get_config('enrol_sepay', 'bank_list_json')) {
         $bankapiresponse = json_decode($cachedresponse, true);
@@ -116,7 +116,7 @@ if ($ADMIN->fulltree) {
         $bankoptions
     ));
 
-    // Template hiển thị
+    // Template hiển thị.
     $settings->add(new admin_setting_configselect(
         'enrol_sepay/template',
         get_string('template', 'enrol_sepay'),
@@ -152,7 +152,7 @@ if ($ADMIN->fulltree) {
     ));
 
 
-    // Cài đặt mặc định cho instance mới
+    // Cài đặt mặc định cho instance mới.
     $settings->add(new admin_setting_heading(
         'enrol_sepay_defaults',
         get_string('enrolinstancedefaults', 'admin'),
@@ -171,7 +171,7 @@ if ($ADMIN->fulltree) {
         $options
     ));
 
-    // Duyệt thủ công (Manual Enrolment) - giá trị mặc định cho instance mới
+    // Duyệt thủ công (Manual Enrolment) - giá trị mặc định cho instance mới.
     $settings->add(new admin_setting_configselect(
         'enrol_sepay/manual_enrol',
         get_string('manual_enrol', 'enrol_sepay'),
@@ -183,7 +183,7 @@ if ($ADMIN->fulltree) {
         ]
     ));
 
-    // Giá mặc định nếu admin không đặt ở mỗi khóa học
+    // Giá mặc định nếu admin không đặt ở mỗi khóa học.
     $settings->add(new admin_setting_configtext(
         'enrol_sepay/cost',
         get_string('defaultcost', 'enrol_sepay'),
@@ -239,14 +239,14 @@ if ($ADMIN->fulltree) {
         $options
     ));
 
-    // Cài đặt lưu trữ dữ liệu
+    // Cài đặt lưu trữ dữ liệu.
     $settings->add(new admin_setting_heading(
         'enrol_sepay_data_retention',
         get_string('data_retention_heading', 'enrol_sepay'),
         get_string('data_retention_heading_desc', 'enrol_sepay')
     ));
 
-    // Bật/tắt dọn dẹp tự động
+    // Bật/tắt dọn dẹp tự động.
     $settings->add(new admin_setting_configselect(
         'enrol_sepay/auto_cleanup_enabled',
         get_string('auto_cleanup_enabled', 'enrol_sepay'),
@@ -258,7 +258,7 @@ if ($ADMIN->fulltree) {
         ]
     ));
 
-    // Thời gian lưu trữ tính bằng ngày
+    // Thời gian lưu trữ tính bằng ngày.
     $settings->add(new admin_setting_configtext(
         'enrol_sepay/retention_days',
         get_string('retention_days', 'enrol_sepay'),
@@ -267,7 +267,7 @@ if ($ADMIN->fulltree) {
         PARAM_INT
     ));
 
-    // Chiến lược lưu trữ
+    // Chiến lược lưu trữ.
     $settings->add(new admin_setting_configselect(
         'enrol_sepay/archive_strategy',
         get_string('archive_strategy', 'enrol_sepay'),
@@ -279,7 +279,7 @@ if ($ADMIN->fulltree) {
         ]
     ));
 
-    // Thời gian lưu trữ bản lưu (chỉ áp dụng khi chiến lược là 'archive')
+    // Thời gian lưu trữ bản lưu (chỉ áp dụng khi chiến lược là 'archive').
     $settings->add(new admin_setting_configtext(
         'enrol_sepay/archive_retention_days',
         get_string('archive_retention_days', 'enrol_sepay'),

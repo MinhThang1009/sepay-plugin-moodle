@@ -32,30 +32,30 @@ require_login();
 
 $userid = $USER->id;
 
-// Kiểm tra user có giao dịch đang chờ xử lý không
+// Kiểm tra user có giao dịch đang chờ xử lý không.
 $pending = $DB->get_record('enrol_sepay_transactions', [
     'userid' => $userid,
     'courseid' => $courseid,
     'status' => 'pending',
 ], '*', IGNORE_MULTIPLE);
 
-// Kiểm tra user có giao dịch đã xử lý không
+// Kiểm tra user có giao dịch đã xử lý không.
 $processed = $DB->get_record('enrol_sepay_transactions', [
     'userid' => $userid,
     'courseid' => $courseid,
     'status' => 'processed',
 ], '*', IGNORE_MULTIPLE);
 
-// Kiểm tra user đã ghi danh chưa
+// Kiểm tra user đã ghi danh chưa.
 $context = context_course::instance($courseid);
 $enrolled = is_enrolled($context, $USER);
 
 // Logic mới: Trả về processed=true khi có transaction processed, bất kể đã enrolled hay chưa
-// Vì flow mới là: processed → countdown → enroll (qua complete_enrol.php)
+// Vì flow mới là: processed → countdown → enroll (qua complete_enrol.php).
 echo json_encode([
     'enrolled' => $enrolled,
-    'pending' => (!$enrolled && $pending) ? true : false, // Chỉ hiển thị pending khi chưa enrolled
-    'processed' => $processed ? true : false, // Trả về true nếu có transaction processed
+    'pending' => (!$enrolled && $pending) ? true : false, // Chỉ hiển thị pending khi chưa enrolled.
+    'processed' => $processed ? true : false, // Trả về true nếu có transaction processed.
     'transaction' => $pending ? [
         'amount' => $pending->amount,
         'currency' => $pending->currency,

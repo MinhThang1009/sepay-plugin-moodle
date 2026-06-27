@@ -27,6 +27,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// Hai form subclass (sửa/hủy hàng loạt) ở cùng file, mirror enrol/manual.
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
 require_once("$CFG->dirroot/enrol/bulkchange_forms.php");
 
 /**

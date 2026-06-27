@@ -24,8 +24,6 @@
 
 namespace enrol_sepay\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Scheduled task: gửi thông báo cho các giao dịch bị từ chối chưa được báo.
  */

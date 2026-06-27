@@ -41,7 +41,7 @@ $notificationid = optional_param('id', 0, PARAM_INT);
 $deletereadconfig = optional_param('delete_read_config', '', PARAM_ALPHANUMEXT);
 $deleteallconfig = optional_param('delete_all_config', '', PARAM_ALPHANUMEXT);
 
-// Lưu cấu hình nếu có gửi lên
+// Lưu cấu hình nếu có gửi lên.
 if ($deletereadconfig && confirm_sesskey()) {
     set_config('delete_read_notifications_delay', $deletereadconfig, 'enrol_sepay');
 }
@@ -49,7 +49,7 @@ if ($deleteallconfig && confirm_sesskey()) {
     set_config('delete_all_notifications_delay', $deleteallconfig, 'enrol_sepay');
 }
 
-// Đọc cấu hình đã lưu
+// Đọc cấu hình đã lưu.
 $saveddeleteread = get_config('enrol_sepay', 'delete_read_notifications_delay') ?: 'delete_read_1day';
 $saveddeleteall = get_config('enrol_sepay', 'delete_all_notifications_delay') ?: 'delete_all_1day';
 
@@ -57,7 +57,7 @@ $saveddeleteall = get_config('enrol_sepay', 'delete_all_notifications_delay') ?:
 if ($action && confirm_sesskey()) {
     switch ($action) {
         case 'delete_notification':
-            // Xóa một thông báo
+            // Xóa một thông báo.
             if ($notificationid > 0) {
                 $DB->delete_records('notifications', ['id' => $notificationid]);
                 redirect($PAGE->url, get_string('notification_deleted', 'enrol_sepay'));
@@ -66,10 +66,10 @@ if ($action && confirm_sesskey()) {
         case 'delete_read_1day':
             // Xóa thông báo đã đọc hơn 1 ngày.
             $timeread = time() - (1 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
-                    AND timeread IS NOT NULL 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
+                    AND timeread IS NOT NULL
                     AND timeread < :timeread";
             $params = [
                 'component' => 'enrol_sepay',
@@ -83,10 +83,10 @@ if ($action && confirm_sesskey()) {
         case 'delete_read_1week':
             // Xóa thông báo đã đọc hơn 1 tuần.
             $timeread = time() - (7 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
-                    AND timeread IS NOT NULL 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
+                    AND timeread IS NOT NULL
                     AND timeread < :timeread";
             $params = [
                 'component' => 'enrol_sepay',
@@ -100,10 +100,10 @@ if ($action && confirm_sesskey()) {
         case 'delete_read_1month':
             // Xóa thông báo đã đọc hơn 1 tháng.
             $timeread = time() - (30 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
-                    AND timeread IS NOT NULL 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
+                    AND timeread IS NOT NULL
                     AND timeread < :timeread";
             $params = [
                 'component' => 'enrol_sepay',
@@ -117,10 +117,10 @@ if ($action && confirm_sesskey()) {
         case 'delete_read_3months':
             // Xóa thông báo đã đọc hơn 3 tháng.
             $timeread = time() - (90 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
-                    AND timeread IS NOT NULL 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
+                    AND timeread IS NOT NULL
                     AND timeread < :timeread";
             $params = [
                 'component' => 'enrol_sepay',
@@ -134,10 +134,10 @@ if ($action && confirm_sesskey()) {
         case 'delete_read_6months':
             // Xóa thông báo đã đọc hơn 6 tháng.
             $timeread = time() - (180 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
-                    AND timeread IS NOT NULL 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
+                    AND timeread IS NOT NULL
                     AND timeread < :timeread";
             $params = [
                 'component' => 'enrol_sepay',
@@ -150,9 +150,9 @@ if ($action && confirm_sesskey()) {
 
         case 'delete_all_read':
             // Xóa tất cả thông báo đã đọc.
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
                     AND timeread IS NOT NULL";
             $params = [
                 'component' => 'enrol_sepay',
@@ -165,9 +165,9 @@ if ($action && confirm_sesskey()) {
         case 'delete_all_1day':
             // Xóa tất cả thông báo (đã đọc và chưa đọc) cũ hơn 1 ngày.
             $timecreated = time() - (1 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
                     AND timecreated < :timecreated";
             $params = [
                 'component' => 'enrol_sepay',
@@ -181,9 +181,9 @@ if ($action && confirm_sesskey()) {
         case 'delete_all_1week':
             // Xóa tất cả thông báo (đã đọc và chưa đọc) cũ hơn 1 tuần.
             $timecreated = time() - (7 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
                     AND timecreated < :timecreated";
             $params = [
                 'component' => 'enrol_sepay',
@@ -197,9 +197,9 @@ if ($action && confirm_sesskey()) {
         case 'delete_all_1month':
             // Xóa tất cả thông báo (đã đọc và chưa đọc) cũ hơn 1 tháng.
             $timecreated = time() - (30 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
                     AND timecreated < :timecreated";
             $params = [
                 'component' => 'enrol_sepay',
@@ -213,9 +213,9 @@ if ($action && confirm_sesskey()) {
         case 'delete_all_3months':
             // Xóa tất cả thông báo (đã đọc và chưa đọc) cũ hơn 3 tháng.
             $timecreated = time() - (90 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
                     AND timecreated < :timecreated";
             $params = [
                 'component' => 'enrol_sepay',
@@ -229,9 +229,9 @@ if ($action && confirm_sesskey()) {
         case 'delete_all_6months':
             // Xóa tất cả thông báo (đã đọc và chưa đọc) cũ hơn 6 tháng.
             $timecreated = time() - (180 * 24 * 60 * 60);
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
-                    AND eventtype = :eventtype 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
+                    AND eventtype = :eventtype
                     AND timecreated < :timecreated";
             $params = [
                 'component' => 'enrol_sepay',
@@ -244,8 +244,8 @@ if ($action && confirm_sesskey()) {
 
         case 'delete_all':
             // Xóa tất cả thông báo (đã đọc và chưa đọc).
-            $sql = "DELETE FROM {notifications} 
-                    WHERE component = :component 
+            $sql = "DELETE FROM {notifications}
+                    WHERE component = :component
                     AND eventtype = :eventtype";
             $params = [
                 'component' => 'enrol_sepay',
@@ -272,7 +272,7 @@ $unreadcount = $total - $readcount;
 
 echo $OUTPUT->header();
 
-// Tiêu đề trang
+// Tiêu đề trang.
 echo '<h2>' . get_string('notification_settings', 'enrol_sepay') . '</h2>';
 
 // Hiển thị thống kê.
@@ -285,7 +285,7 @@ echo '<li>' . get_string('unread_notifications', 'enrol_sepay') . ': <strong>' .
 echo '</ul>';
 echo '</div>';
 
-// Bắt đầu form chứa 2 dropdown
+// Bắt đầu form chứa 2 dropdown.
 echo '<form method="post" action="' . $PAGE->url . '" class="config-form" id="notification_config_form">';
 echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
 
@@ -339,7 +339,7 @@ echo '</div>';
 echo '</div>';
 echo '</div>';
 
-// Nút lưu
+// Nút lưu.
 echo '<div class="form-group row">';
 echo '<div class="col-md-3"></div>';
 echo '<div class="col-md-9">';
@@ -349,7 +349,7 @@ echo '</button>';
 echo '</div>';
 echo '</div>';
 
-// Kết thúc form
+// Kết thúc form.
 echo '</form>';
 
 // Hiển thị danh sách thông báo gần đây.
@@ -358,7 +358,7 @@ if ($total > 0) {
     echo '<div class="card-body">';
     echo '<h5 class="card-title">' . get_string('recent_notifications', 'enrol_sepay') . '</h5>';
 
-    // Phân trang
+    // Phân trang.
     $page = optional_param('page', 0, PARAM_INT);
     $perpage = 20;
 
@@ -406,7 +406,7 @@ if ($total > 0) {
                 ? '<span class="badge badge-success">' . get_string('read', 'enrol_sepay') . '</span>'
                 : '<span class="badge badge-danger">' . get_string('unread', 'enrol_sepay') . '</span>';
 
-            // Nút xóa
+            // Nút xóa.
             $deleteurl = new moodle_url($PAGE->url, [
                 'action' => 'delete_notification',
                 'id' => $notification->id,
@@ -433,7 +433,7 @@ if ($total > 0) {
 
         echo html_writer::table($table);
 
-        // Hiển thị thanh phân trang
+        // Hiển thị thanh phân trang.
         echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $PAGE->url);
     }
 

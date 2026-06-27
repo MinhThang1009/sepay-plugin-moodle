@@ -24,8 +24,6 @@
 
 namespace enrol_sepay\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Scheduled task: cập nhật danh sách ngân hàng hỗ trợ từ SePay.
  */
@@ -50,7 +48,7 @@ class update_banks extends \core\task\scheduled_task {
         $bankapiurl = 'https://qr.sepay.vn/banks.json';
         $raw = false;
 
-        // Sử dụng Moodle curl thay cho curl thô nếu có thể, hoặc dùng thư viện native
+        // Sử dụng Moodle curl thay cho curl thô nếu có thể, hoặc dùng thư viện native.
         require_once($CFG->libdir . '/filelib.php');
         $curl = new \curl();
 

@@ -28,6 +28,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// Hai bulk operation (sửa/hủy hàng loạt) ở cùng file, mirror enrol/manual.
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
 require_once($CFG->dirroot . '/enrol/locallib.php');
 
 /**
@@ -229,7 +232,7 @@ class enrol_sepay_deleteselectedusers_operation extends enrol_bulk_enrolment_ope
                 $plugin = $enrolment->enrolmentplugin;
                 $instance = $enrolment->enrolmentinstance;
                 if ($plugin->allow_unenrol_user($instance, $enrolment)) {
-                    // try/catch per-iteration: 1 user lỗi không làm dừng cả batch còn lại.
+                    // Try/catch per-iteration: 1 user lỗi không làm dừng cả batch còn lại.
                     try {
                         $plugin->unenrol_user($instance, $user->id);
                         $counter++;

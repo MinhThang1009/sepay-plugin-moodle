@@ -24,8 +24,6 @@
 
 namespace enrol_sepay\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Tác vụ tự động dọn dẹp các giao dịch SePay đã quá hạn.
  */
@@ -120,7 +118,7 @@ class cleanup_transactions extends \core\task\scheduled_task {
                     $dbtransaction->allow_commit();
                     $archived++;
                 } catch (\Exception $e) {
-                    // start_delegated_transaction rollback tự động khi exception được throw.
+                    // Start_delegated_transaction rollback tự động khi exception được throw.
                     mtrace('Lỗi khi lưu trữ giao dịch ID ' . $transaction->id . ': ' . $e->getMessage());
                 }
             } else {

@@ -23,18 +23,18 @@
  */
 
 // Mục đích: Xuất dữ liệu giao dịch SePay ra file (CSV, Excel, PDF, ...)
-// Chức năng: Đọc filter + danh sách ID từ POST, query DB, xuất file qua dataformat API
+// Chức năng: Đọc filter + danh sách ID từ POST, query DB, xuất file qua dataformat API.
 
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-// Kiểm tra đăng nhập và quyền
+// Kiểm tra đăng nhập và quyền.
 require_login();
 $context = context_system::instance();
 require_capability('enrol/sepay:manage', $context);
 require_sesskey();
 
-// Lấy tham số
+// Lấy tham số.
 $dataformat    = required_param('dataformat', PARAM_ALPHANUMEXT);
 $filter        = optional_param('filter', 'all', PARAM_ALPHA);
 $searchuser   = optional_param('search_user', '', PARAM_TEXT);
@@ -44,7 +44,7 @@ $dateto       = optional_param('date_to', '', PARAM_TEXT);
 $letterraw    = optional_param('letter', '', PARAM_TEXT);
 $letterfnraw = optional_param('letter_fn', '', PARAM_TEXT);
 
-// Danh sách bảng chữ cái hợp lệ
+// Danh sách bảng chữ cái hợp lệ.
 $vnalphabet = [
     'A', 'Ă', 'Â', 'B', 'C', 'D', 'Đ', 'E', 'Ê', 'G',
     'H', 'I', 'K', 'L', 'M', 'N', 'O', 'Ô', 'Ơ', 'P',
@@ -53,23 +53,23 @@ $vnalphabet = [
 $letter    = in_array(mb_strtoupper($letterraw, 'UTF-8'), $vnalphabet, true) ? mb_strtoupper($letterraw, 'UTF-8') : '';
 $letterfn = in_array(mb_strtoupper($letterfnraw, 'UTF-8'), $vnalphabet, true) ? mb_strtoupper($letterfnraw, 'UTF-8') : '';
 
-// Lấy danh sách ID được chọn từ form (nếu có)
+// Lấy danh sách ID được chọn từ form (nếu có).
 $selectedids = optional_param_array('deleteids', [], PARAM_INT);
 
-// Xây SQL WHERE
+// Xây SQL WHERE.
 $sqlwhere = "FROM {enrol_sepay_transactions} t
         JOIN {user}   u ON t.userid   = u.id
         JOIN {course} c ON t.courseid = c.id
         WHERE 1=1";
 $params = [];
 
-// Nếu có ID cụ thể được chọn thì chỉ xuất những dòng đó
+// Nếu có ID cụ thể được chọn thì chỉ xuất những dòng đó.
 if (!empty($selectedids)) {
     [$insql, $inparams] = $DB->get_in_or_equal($selectedids, SQL_PARAMS_NAMED, 'sel');
     $sqlwhere .= " AND t.id $insql";
     $params = array_merge($params, $inparams);
 } else {
-    // Không chọn cụ thể → xuất theo filter hiện tại
+    // Không chọn cụ thể → xuất theo filter hiện tại.
     if ($filter === 'pending' || $filter === 'processed' || $filter === 'rejected' || $filter === 'unenrolled') {
         $sqlwhere .= " AND t.status = :status";
         $params['status'] = $filter;
@@ -111,7 +111,7 @@ if (!empty($selectedids)) {
     }
 }
 
-// Câu SQL đầy đủ — lấy tất cả cột cần xuất
+// Câu SQL đầy đủ — lấy tất cả cột cần xuất.
 $sql = "SELECT t.id,
                u.lastname,
                u.firstname,
@@ -129,7 +129,7 @@ $sql = "SELECT t.id,
 
 $records = $DB->get_recordset_sql($sql, $params);
 
-// Định nghĩa tiêu đề cột
+// Định nghĩa tiêu đề cột.
 $columns = [
     'id'                  => 'ID',
     'lastname'            => get_string('lastname'),
@@ -144,13 +144,13 @@ $columns = [
     'ip_address'          => get_string('ip_address', 'enrol_sepay'),
 ];
 
-// Chuyển đổi dữ liệu thô trước khi ghi vào file
+// Chuyển đổi dữ liệu thô trước khi ghi vào file.
 $callback = function ($row) {
-    // Gộp amount + currency thành 1 ô
+    // Gộp amount + currency thành 1 ô.
     $row->amount = number_format($row->amount) . ' ' . $row->currency;
     unset($row->currency);
 
-    // Trạng thái dạng text
+    // Trạng thái dạng text.
     $statusmap = [
         'pending'    => get_string('status_pending', 'enrol_sepay'),
         'processed'  => get_string('status_processed', 'enrol_sepay'),
@@ -159,14 +159,14 @@ $callback = function ($row) {
     ];
     $row->status = $statusmap[$row->status] ?? $row->status;
 
-    // Ngày tạo và ngày xử lý dạng text
+    // Ngày tạo và ngày xử lý dạng text.
     $row->timecreated   = $row->timecreated ? userdate($row->timecreated) : '';
     $row->timeprocessed = $row->timeprocessed ? userdate($row->timeprocessed) : '';
 
     return $row;
 };
 
-// Xuất file — hàm này gửi header và nội dung file thẳng ra browser
+// Xuất file — hàm này gửi header và nội dung file thẳng ra browser.
 \core\dataformat::download_data(
     'sepay_transactions',
     $dataformat,

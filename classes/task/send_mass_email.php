@@ -24,8 +24,6 @@
 
 namespace enrol_sepay\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Ad-hoc task: gửi email chào mừng hàng loạt cho học viên chưa nhận.
  */

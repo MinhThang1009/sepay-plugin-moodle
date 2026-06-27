@@ -69,7 +69,7 @@ if (empty($expectedkey)) {
 }
 
 // Xác thực Authorization header từ SePay.
-// SePay gửi header: "Authorization: Apikey <API_KEY>"
+// SePay gửi header: "Authorization: Apikey <API_KEY>".
 $authheader = '';
 if (function_exists('getallheaders')) {
     $allheaders = getallheaders();
@@ -324,7 +324,7 @@ if ($transactionref !== '') {
             echo json_encode(['success' => true, 'message' => 'Giao dịch đã được ghi nhận trước đó']);
             exit;
         }
-        $refstored = true; // DB có cột này và đã check thành công
+        $refstored = true; // DB có cột này và đã check thành công.
     } catch (\dml_exception $e) {
         // Column transaction_ref chưa tồn tại trong DB — fallback sang Lớp 2.
         debugging('enrol_sepay webhook: transaction_ref column missing — ' . $e->getMessage(), DEBUG_DEVELOPER);
@@ -372,10 +372,10 @@ if (!$refstored) {
 try {
     $txnid = $DB->insert_record('enrol_sepay_transactions', $record);
 } catch (\dml_exception $e) {
-    // Đề phòng trường hợp chưa bắt được dml_exception ở Lớp 1 (edge case)
+    // Đề phòng trường hợp chưa bắt được dml_exception ở Lớp 1 (edge case).
     if (isset($record->transaction_ref) && strpos($e->getMessage(), 'transaction_ref') !== false) {
         unset($record->transaction_ref);
-        $refstored = false; // Đánh dấu lại là không có column
+        $refstored = false; // Đánh dấu lại là không có column.
         try {
             $txnid = $DB->insert_record('enrol_sepay_transactions', $record);
         } catch (\Exception $e2) {
@@ -538,17 +538,17 @@ if (!$manualenrol) {
 // Thứ tự: kết quả → user (parse đúng chưa?) → khóa học → tiền (đã thấy trên SePay UI).
 $response = [
     'success'         => true, // Webhook xử lý thành công?
-    'status'          => $status, // processed | pending
-    'message'         => $message, // Mô tả kết quả
-    'userid'          => $user->id, // ID user được parse từ content
-    'username'        => fullname($user), // Tên user — verify parse đúng chưa
-    'courseid'        => $course->id, // ID khóa học được parse từ content
-    'coursename'      => $course->fullname, // Tên khóa học — verify parse đúng chưa
-    'amount_received' => $transferamount, // Số tiền thực nhận (VND)
-    'amount_required' => $cost, // Số tiền yêu cầu (VND)
-    'accumulated'     => $accumulated, // Số dư tài khoản sau giao dịch (Lũy kế)
+    'status'          => $status, // Processed | pending.
+    'message'         => $message, // Mô tả kết quả.
+    'userid'          => $user->id, // ID user được parse từ content.
+    'username'        => fullname($user), // Tên user — verify parse đúng chưa.
+    'courseid'        => $course->id, // ID khóa học được parse từ content.
+    'coursename'      => $course->fullname, // Tên khóa học — verify parse đúng chưa.
+    'amount_received' => $transferamount, // Số tiền thực nhận (VND).
+    'amount_required' => $cost, // Số tiền yêu cầu (VND).
+    'accumulated'     => $accumulated, // Số dư tài khoản sau giao dịch (Lũy kế).
 ];
 
 http_response_code(200);
 echo json_encode($response);
-exit(); // Dừng script ngay sau khi trả về response
+exit(); // Dừng script ngay sau khi trả về response.
