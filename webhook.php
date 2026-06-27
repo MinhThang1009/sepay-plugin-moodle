@@ -25,6 +25,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:disable moodle.Commenting.InlineComment.NotCapital -- Comment tiếng Việt; sniff chỉ chấp nhận chữ hoa ASCII (Đ/Ư... bị coi là thường).
+
 // Tắt các thông báo lỗi đặc thù của Moodle ở đầu ra,
 // bỏ mã nguồn trống khi debug hoặc kiểm tra file log!
 define('NO_DEBUG_DISPLAY', true);

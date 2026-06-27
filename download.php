@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:disable moodle.Commenting.InlineComment.NotCapital -- Comment tiếng Việt; sniff chỉ chấp nhận chữ hoa ASCII (Đ/Ư... bị coi là thường).
+
 // Mục đích: Xuất dữ liệu giao dịch SePay ra file (CSV, Excel, PDF, ...)
 // Chức năng: Đọc filter + danh sách ID từ POST, query DB, xuất file qua dataformat API.
 
