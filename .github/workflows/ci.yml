@@ -156,7 +156,11 @@ jobs:
       - name: PHPStan
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: moodle-plugin-ci phpstan
+        run: |
+          composer global require phpstan/phpstan:^2 --no-interaction 2>&1 | tail -1
+          PHPSTAN="$(composer global config bin-dir --absolute)/phpstan"
+          cd moodle/enrol/sepay
+          php "$PHPSTAN" analyse -c phpstan.neon.dist --no-progress --memory-limit=1G
 
       - name: Grunt
         if: ${{ !cancelled() }}
