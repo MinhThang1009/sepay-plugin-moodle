@@ -22,6 +22,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Plugin ghi danh khóa học qua thanh toán chuyển khoản QR SePay.
+ */
 class enrol_sepay_plugin extends enrol_plugin {
     /**
      * Trả về icon hiển thị trong danh sách khóa học.
@@ -49,21 +52,44 @@ class enrol_sepay_plugin extends enrol_plugin {
         return [];
     }
 
+    /**
+     * Trả về true nếu các role do plugin gán được bảo vệ khỏi chỉnh sửa thủ công.
+     *
+     * @return bool false vì user có quyền gán role có thể thay đổi role sau
+     */
     public function roles_protected() {
         // User có quyền gán role có thể thay đổi role sau.
         return false;
     }
 
+    /**
+     * Trả về true nếu cho phép gỡ ghi danh thủ công cho instance này.
+     *
+     * @param stdClass $instance instance ghi danh cần kiểm tra
+     * @return bool true nếu cho phép gỡ ghi danh
+     */
     public function allow_unenrol(stdClass $instance) {
         // User có quyền unenrol có thể gỡ ghi danh thủ công - cần enrol/sepay:unenrol.
         return true;
     }
 
+    /**
+     * Trả về true nếu cho phép quản lý ghi danh thủ công cho instance này.
+     *
+     * @param stdClass $instance instance ghi danh cần kiểm tra
+     * @return bool true nếu cho phép quản lý
+     */
     public function allow_manage(stdClass $instance) {
         // User có quyền manage có thể thay đổi thời hạn và trạng thái - cần enrol/sepay:manage.
         return true;
     }
 
+    /**
+     * Trả về true nếu nên hiển thị link tự ghi danh cho instance này.
+     *
+     * @param stdClass $instance instance ghi danh cần kiểm tra
+     * @return bool true nếu instance đang được bật
+     */
     public function show_enrolme_link(stdClass $instance) {
         return ($instance->status == ENROL_INSTANCE_ENABLED);
     }
@@ -183,7 +209,7 @@ class enrol_sepay_plugin extends enrol_plugin {
 
         // Kiểm tra user đã ghi danh chưa.
         if ($DB->record_exists('user_enrolments', ['userid' => $USER->id, 'enrolid' => $instance->id])) {
-            return ob_get_clean(); // Đã ghi danh, dọn buffer và trả về.
+            return ob_get_clean(); // User đã ghi danh, dọn buffer và trả về.
         }
 
         // Kiểm tra ngày bắt đầu ghi danh đã đến chưa.
@@ -193,7 +219,7 @@ class enrol_sepay_plugin extends enrol_plugin {
 
         // Kiểm tra ngày kết thúc ghi danh đã qua chưa.
         if ($instance->enrolenddate != 0 && $instance->enrolenddate < time()) {
-            return ob_get_clean(); // Đã hết hạn ghi danh.
+            return ob_get_clean(); // Hết hạn ghi danh.
         }
 
         // Lấy thông tin khóa học từ database.
@@ -313,7 +339,8 @@ class enrol_sepay_plugin extends enrol_plugin {
                     $PAGE->requires->js_call_amd('enrol_sepay/payment_poll', 'init', [$course->id, 'pending']);
                 } else if ($processedtransaction) {
                     // Kiểm tra xem instance có bật manual enrollment không.
-                    $instancemanual = $instance->customint1; // 0 = default, 1 = yes (manual), 2 = no (auto)
+                    // Giá trị customint1: 0 là default, 1 là manual, 2 là auto.
+                    $instancemanual = $instance->customint1;
                     $globalmanual = $this->get_config('manual_enrol');
 
                     // Xác định xem có phải manual enrollment không.
@@ -339,7 +366,11 @@ class enrol_sepay_plugin extends enrol_plugin {
                     echo '<i class="fa-regular fa-circle-check sepay-status-icon sepay-icon-success"></i><br>';
                     echo '<strong>' . get_string($titlestring, 'enrol_sepay') . '</strong><br>';
                     echo get_string($messagestring, 'enrol_sepay');
-                    echo '<br><small class="text-muted">' . get_string('redirecting_in', 'enrol_sepay') . ' <span id="countdown">5</span> ' . get_string('seconds', 'enrol_sepay') . '...</small>';
+                    echo '<br><small class="text-muted">'
+                        . get_string('redirecting_in', 'enrol_sepay')
+                        . ' <span id="countdown">5</span> '
+                        . get_string('seconds', 'enrol_sepay')
+                        . '...</small>';
                     echo '</div>';
 
                     // Tự động chuyển hướng kèm đếm ngược - Chuyển sang complete_enrol.php để ghi danh user.
@@ -507,7 +538,7 @@ class enrol_sepay_plugin extends enrol_plugin {
         $mform->setType('cost', PARAM_RAW);
         $mform->setDefault('cost', $this->get_config('cost'));
 
-        // Đơn vị tiền tệ (Currency) – chọn từ danh sách, mặc định theo cấu hình plugin.
+        // Đơn vị tiền tệ (Currency) - chọn từ danh sách, mặc định theo cấu hình plugin.
         $currencyoptions = ['VND' => 'VND'];
         $mform->addElement('select', 'currency', get_string('currency', 'enrol_sepay'), $currencyoptions);
         $mform->setDefault('currency', $this->get_config('currency'));

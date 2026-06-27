@@ -111,7 +111,7 @@ class cleanup_transactions extends \core\task\scheduled_task {
                 try {
                     $dbtransaction = $DB->start_delegated_transaction();
                     $archiverecord = clone $transaction;
-                    unset($archiverecord->id); // Để DB tự động cấp ID mới.
+                    unset($archiverecord->id); // Cho DB tự động cấp ID mới.
                     $archiverecord->timearchived = time();
                     $DB->insert_record('enrol_sepay_archive', $archiverecord);
                     $DB->delete_records('enrol_sepay_transactions', ['id' => $transaction->id]);

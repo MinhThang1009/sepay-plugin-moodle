@@ -375,7 +375,7 @@ try {
     // Đề phòng trường hợp chưa bắt được dml_exception ở Lớp 1 (edge case).
     if (isset($record->transaction_ref) && strpos($e->getMessage(), 'transaction_ref') !== false) {
         unset($record->transaction_ref);
-        $refstored = false; // Đánh dấu lại là không có column.
+        $refstored = false; // Mark lại là không có column.
         try {
             $txnid = $DB->insert_record('enrol_sepay_transactions', $record);
         } catch (\Exception $e2) {
@@ -528,7 +528,8 @@ if (!$manualenrol) {
             try {
                 message_send($messagedata);
             } catch (\Exception $e) {
-                debugging('enrol_sepay webhook: message_send failed for admin ' . $admin->id . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+                debugging('enrol_sepay webhook: message_send failed for admin ' . $admin->id . ': '
+                    . $e->getMessage(), DEBUG_DEVELOPER);
             }
         }
     }

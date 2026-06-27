@@ -171,7 +171,9 @@ class transactions_table extends table_sql {
      * @return string
      */
     public function col_checkbox($row) {
-        return '<input type="checkbox" name="deleteids[]" value="' . $row->id . '" class="transaction-checkbox" data-userid="' . $row->userid . '" data-status="' . s($row->status) . '">';
+        return '<input type="checkbox" name="deleteids[]" value="' . $row->id
+            . '" class="transaction-checkbox" data-userid="' . $row->userid
+            . '" data-status="' . s($row->status) . '">';
     }
 
     /**

@@ -125,7 +125,7 @@ Hồ sơ học viên: {$a->profileurl}';
 
 $string['costerror'] = 'Giá trị không hợp lệ';
 
-// -- Các chuỗi mới cho mục Phê duyệt thủ công --
+// Các chuỗi mới cho mục Phê duyệt thủ công.
 $string['manual_enrol'] = 'Phê duyệt thủ công';
 $string['manual_enrol_desc'] = 'Mặc định cho các instance ghi danh mới. Nếu chọn "Có", các giao dịch sẽ được ghi lại ở trạng thái Chờ phê duyệt và cần quản trị viên phê duyệt thủ công trước khi người dùng được ghi danh.';
 $string['manage_transactions'] = 'Quản lý giao dịch SePay';

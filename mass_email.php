@@ -75,7 +75,8 @@ echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
 echo '<input type="hidden" name="execute" value="1">';
 echo '<div class="form-group">';
 echo '<label for="limit">' . get_string('mass_email_limit_label', 'enrol_sepay') . '</label>';
-echo '<input type="number" id="limit" name="limit" value="' . $limit . '" min="1" max="500" class="form-control sepay-limit-input">';
+echo '<input type="number" id="limit" name="limit" value="' . $limit
+    . '" min="1" max="500" class="form-control sepay-limit-input">';
 echo '</div>';
 echo '<button type="submit" class="btn btn-primary btn-lg">' . get_string('mass_email_submit', 'enrol_sepay') . '</button>';
 echo '</form>';

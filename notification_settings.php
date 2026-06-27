@@ -297,12 +297,18 @@ echo '</label>';
 echo '<div class="col-md-9">';
 
 echo '<select name="delete_read_config" class="custom-select mr-2 sepay-select-auto" id="delete_read_select">';
-echo '<option value="delete_read_1day"' . ($saveddeleteread == 'delete_read_1day' ? ' selected' : '') . '>' . get_string('delete_read_1day_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_read_1week"' . ($saveddeleteread == 'delete_read_1week' ? ' selected' : '') . '>' . get_string('delete_read_1week_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_read_1month"' . ($saveddeleteread == 'delete_read_1month' ? ' selected' : '') . '>' . get_string('delete_read_1month_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_read_3months"' . ($saveddeleteread == 'delete_read_3months' ? ' selected' : '') . '>' . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_read_6months"' . ($saveddeleteread == 'delete_read_6months' ? ' selected' : '') . '>' . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_read"' . ($saveddeleteread == 'delete_all_read' ? ' selected' : '') . '>' . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_1day"' . ($saveddeleteread == 'delete_read_1day' ? ' selected' : '') . '>'
+    . get_string('delete_read_1day_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_1week"' . ($saveddeleteread == 'delete_read_1week' ? ' selected' : '') . '>'
+    . get_string('delete_read_1week_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_1month"' . ($saveddeleteread == 'delete_read_1month' ? ' selected' : '') . '>'
+    . get_string('delete_read_1month_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_3months"' . ($saveddeleteread == 'delete_read_3months' ? ' selected' : '') . '>'
+    . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_6months"' . ($saveddeleteread == 'delete_read_6months' ? ' selected' : '') . '>'
+    . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_read"' . ($saveddeleteread == 'delete_all_read' ? ' selected' : '') . '>'
+    . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
 echo '</select>';
 
 echo '<span class="text-muted">' . get_string('delete_read_time_label', 'enrol_sepay') . '</span>';
@@ -322,12 +328,18 @@ echo '</label>';
 echo '<div class="col-md-9">';
 
 echo '<select name="delete_all_config" class="custom-select mr-2 sepay-select-auto" id="delete_all_select">';
-echo '<option value="delete_all_1day"' . ($saveddeleteall == 'delete_all_1day' ? ' selected' : '') . '>' . get_string('delete_read_1day_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_1week"' . ($saveddeleteall == 'delete_all_1week' ? ' selected' : '') . '>' . get_string('delete_read_1week_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_1month"' . ($saveddeleteall == 'delete_all_1month' ? ' selected' : '') . '>' . get_string('delete_read_1month_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_3months"' . ($saveddeleteall == 'delete_all_3months' ? ' selected' : '') . '>' . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_6months"' . ($saveddeleteall == 'delete_all_6months' ? ' selected' : '') . '>' . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all"' . ($saveddeleteall == 'delete_all' ? ' selected' : '') . '>' . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_1day"' . ($saveddeleteall == 'delete_all_1day' ? ' selected' : '') . '>'
+    . get_string('delete_read_1day_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_1week"' . ($saveddeleteall == 'delete_all_1week' ? ' selected' : '') . '>'
+    . get_string('delete_read_1week_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_1month"' . ($saveddeleteall == 'delete_all_1month' ? ' selected' : '') . '>'
+    . get_string('delete_read_1month_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_3months"' . ($saveddeleteall == 'delete_all_3months' ? ' selected' : '') . '>'
+    . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_6months"' . ($saveddeleteall == 'delete_all_6months' ? ' selected' : '') . '>'
+    . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all"' . ($saveddeleteall == 'delete_all' ? ' selected' : '') . '>'
+    . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
 echo '</select>';
 
 echo '<span class="text-muted">' . get_string('delete_all_time_label', 'enrol_sepay') . '</span>';

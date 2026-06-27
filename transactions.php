@@ -162,7 +162,12 @@ if ($action === 'delete' && $id > 0 && confirm_sesskey()) {
         if ($wasprocessed) {
             // Xóa giao dịch đã xử lý không tự hủy ghi danh — cảnh báo admin + ghi log.
             debugging('enrol_sepay: đã xóa giao dịch processed id=' . $id . ' — ghi danh không bị tự hủy.', DEBUG_DEVELOPER);
-            redirect($PAGE->url, get_string('transaction_deleted_processed', 'enrol_sepay'), null, core\output\notification::NOTIFY_WARNING);
+            redirect(
+                $PAGE->url,
+                get_string('transaction_deleted_processed', 'enrol_sepay'),
+                null,
+                core\output\notification::NOTIFY_WARNING
+            );
         }
         redirect($PAGE->url, get_string('transaction_deleted', 'enrol_sepay'));
     } else {
@@ -190,7 +195,8 @@ if ($action === 'bulk_delete' && confirm_sesskey()) {
 
         if ($processedcount > 0) {
             // Có giao dịch đã xử lý bị xóa — ghi danh không bị tự hủy, ghi log để truy vết.
-            debugging('enrol_sepay bulk_delete: đã xóa ' . $processedcount . ' giao dịch processed — ghi danh không bị tự hủy.', DEBUG_DEVELOPER);
+            debugging('enrol_sepay bulk_delete: đã xóa ' . $processedcount
+                . ' giao dịch processed — ghi danh không bị tự hủy.', DEBUG_DEVELOPER);
         }
 
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', [
@@ -206,7 +212,12 @@ if ($action === 'bulk_delete' && confirm_sesskey()) {
         redirect($redirecturl, get_string('transactions_deleted', 'enrol_sepay', count($deleteids)));
     } else {
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
-        redirect($redirecturl, get_string('no_transactions_selected', 'enrol_sepay'), null, core\output\notification::NOTIFY_WARNING);
+        redirect(
+            $redirecturl,
+            get_string('no_transactions_selected', 'enrol_sepay'),
+            null,
+            core\output\notification::NOTIFY_WARNING
+        );
     }
 }
 
@@ -228,7 +239,8 @@ if ($action === 'bulk_approve' && confirm_sesskey()) {
                     \enrol_sepay\util::delete_pending_notifications($txn);
                     $approvedcount++;
                 } catch (\dml_exception $e) {
-                    debugging('enrol_sepay bulk_approve: update_record failed for id=' . $txnid . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+                    debugging('enrol_sepay bulk_approve: update_record failed for id=' . $txnid . ': '
+                        . $e->getMessage(), DEBUG_DEVELOPER);
                     $failedcount++;
                 }
             }
@@ -247,7 +259,12 @@ if ($action === 'bulk_approve' && confirm_sesskey()) {
         redirect($redirecturl, get_string('bulk_approved', 'enrol_sepay', $approvedcount));
     } else {
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
-        redirect($redirecturl, get_string('no_transactions_selected', 'enrol_sepay'), null, core\output\notification::NOTIFY_WARNING);
+        redirect(
+            $redirecturl,
+            get_string('no_transactions_selected', 'enrol_sepay'),
+            null,
+            core\output\notification::NOTIFY_WARNING
+        );
     }
 }
 
@@ -302,11 +319,21 @@ if ($action === 'bulk_unenrol' && confirm_sesskey()) {
             redirect($redirecturl, get_string('bulk_unenrolled', 'enrol_sepay', $unenrolledcount));
         } else {
             // Có ID được chọn nhưng không unenrol được ai (instance bị xóa hoặc lỗi kỹ thuật).
-            redirect($redirecturl, get_string('error_already_processed', 'enrol_sepay'), null, core\output\notification::NOTIFY_ERROR);
+            redirect(
+                $redirecturl,
+                get_string('error_already_processed', 'enrol_sepay'),
+                null,
+                core\output\notification::NOTIFY_ERROR
+            );
         }
     } else {
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
-        redirect($redirecturl, get_string('no_transactions_selected', 'enrol_sepay'), null, core\output\notification::NOTIFY_WARNING);
+        redirect(
+            $redirecturl,
+            get_string('no_transactions_selected', 'enrol_sepay'),
+            null,
+            core\output\notification::NOTIFY_WARNING
+        );
     }
 }
 
@@ -336,11 +363,13 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
                             \enrol_sepay\util::send_rejection_notification($rcourse, $ruser);
                             $DB->set_field('enrol_sepay_transactions', 'rejection_notified', 1, ['id' => $txn->id]);
                         } catch (\Exception $e) {
-                            debugging('enrol_sepay bulk_reject: notification failed for id=' . $txnid . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+                            debugging('enrol_sepay bulk_reject: notification failed for id=' . $txnid . ': '
+                                . $e->getMessage(), DEBUG_DEVELOPER);
                         }
                     }
                 } catch (\dml_exception $e) {
-                    debugging('enrol_sepay bulk_reject: update_record failed for id=' . $txnid . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+                    debugging('enrol_sepay bulk_reject: update_record failed for id=' . $txnid . ': '
+                        . $e->getMessage(), DEBUG_DEVELOPER);
                     $failedcount++;
                 }
             }
@@ -360,7 +389,12 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
         redirect($redirecturl, get_string('bulk_rejected', 'enrol_sepay', $rejectedcount));
     } else {
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
-        redirect($redirecturl, get_string('no_transactions_selected', 'enrol_sepay'), null, core\output\notification::NOTIFY_WARNING);
+        redirect(
+            $redirecturl,
+            get_string('no_transactions_selected', 'enrol_sepay'),
+            null,
+            core\output\notification::NOTIFY_WARNING
+        );
     }
 }
 
@@ -508,7 +542,8 @@ foreach ($statustabs as $tabfilter => [$tablabel, $classactive, $classinactive])
 
     echo '<li class="nav-item ' . $itemclass . '">';
     if ($isactive) {
-        echo '<a href="' . $taburl->out() . '" class="nav-link active ' . $classactive . ' font-weight-bold text-center">' . $tablabel . '</a>';
+        echo '<a href="' . $taburl->out() . '" class="nav-link active ' . $classactive
+            . ' font-weight-bold text-center">' . $tablabel . '</a>';
     } else {
         echo '<a href="' . $taburl->out() . '" class="nav-link border ' . $classinactive . ' text-center">' . $tablabel . '</a>';
     }
@@ -812,7 +847,10 @@ if ($transactioncount == 0) {
             $displaylist[] = [get_string('downloadas', 'table') => $downloadoptions];
         }
 
-        $label  = html_writer::tag('label', get_string('withselectedusers'), ['for' => 'formactionid', 'class' => 'col-form-label d-inline']);
+        $label  = html_writer::tag('label', get_string('withselectedusers'), [
+            'for'   => 'formactionid',
+            'class' => 'col-form-label d-inline',
+        ]);
         $select = html_writer::select($displaylist, 'action', '', ['' => 'choosedots'], [
             'id'               => 'formactionid',
             'class'            => 'ml-2',
@@ -824,11 +862,11 @@ if ($transactioncount == 0) {
         echo html_writer::tag('div', $label . $select);
     }
 
-    echo '</div></div></div>'; // Đóng form-inline, buttons, sepay-table-margin-top.
+    echo '</div></div></div>'; // Close form-inline, buttons, sepay-table-margin-top.
 
     echo '</form>';
 
-    echo '</div>'; // Đóng div#sepay-table-container.
+    echo '</div>'; // Close div#sepay-table-container.
 
     // Khởi tạo AMD module xử lý bulk actions — CSP compliant, không dùng inline <script>.
     $confirmstringkeys = [

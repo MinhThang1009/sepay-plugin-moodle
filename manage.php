@@ -40,13 +40,23 @@ $plugin = enrol_get_plugin('sepay');
 if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
     $transaction = $DB->get_record('enrol_sepay_transactions', ['id' => $id], '*', MUST_EXIST);
     if ($transaction->status !== 'pending') {
-        redirect(new moodle_url('/enrol/sepay/manage.php'), get_string('error_already_processed', 'enrol_sepay'), null, core\output\notification::NOTIFY_ERROR);
+        redirect(
+            new moodle_url('/enrol/sepay/manage.php'),
+            get_string('error_already_processed', 'enrol_sepay'),
+            null,
+            core\output\notification::NOTIFY_ERROR
+        );
     }
 
     // Validate Instance.
     $instance = $DB->get_record('enrol', ['id' => $transaction->instanceid], '*', IGNORE_MISSING);
     if (!$instance) {
-        redirect(new moodle_url('/enrol/sepay/manage.php'), get_string('error_instance_deleted', 'enrol_sepay'), null, core\output\notification::NOTIFY_ERROR);
+        redirect(
+            new moodle_url('/enrol/sepay/manage.php'),
+            get_string('error_instance_deleted', 'enrol_sepay'),
+            null,
+            core\output\notification::NOTIFY_ERROR
+        );
     }
 
     // Course & Context.
@@ -116,7 +126,12 @@ if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
     $DB->update_record('enrol_sepay_transactions', $transaction);
     \enrol_sepay\util::delete_pending_notifications($transaction);
 
-    redirect(new moodle_url('/enrol/sepay/manage.php'), get_string('transaction_approved', 'enrol_sepay'), null, core\output\notification::NOTIFY_SUCCESS);
+    redirect(
+        new moodle_url('/enrol/sepay/manage.php'),
+        get_string('transaction_approved', 'enrol_sepay'),
+        null,
+        core\output\notification::NOTIFY_SUCCESS
+    );
 }
 
 // Display Page.
@@ -151,7 +166,10 @@ if (!$transactions) {
     ];
 
     foreach ($transactions as $t) {
-        $userlink = html_writer::link(new moodle_url('/user/view.php', ['id' => $t->userid, 'course' => $t->courseid]), fullname($t));
+        $userlink = html_writer::link(
+            new moodle_url('/user/view.php', ['id' => $t->userid, 'course' => $t->courseid]),
+            fullname($t)
+        );
         $courselink = html_writer::link(new moodle_url('/course/view.php', ['id' => $t->courseid]), format_string($t->coursename));
 
         $details = get_string('amount', 'enrol_sepay') . ": " . number_format($t->amount) . " " . $t->currency . "<br>";
@@ -164,7 +182,8 @@ if (!$transactions) {
         $globalcost = (float)$plugin->get_config('cost');
 
         $settingshtml = "<small>";
-        $settingshtml .= "<b>" . get_string('manage_instance_cost', 'enrol_sepay') . ":</b> " . number_format($instancecost) . "<br>";
+        $settingshtml .= "<b>" . get_string('manage_instance_cost', 'enrol_sepay') . ":</b> "
+            . number_format($instancecost) . "<br>";
         $settingshtml .= "<b>" . get_string('manage_global_cost', 'enrol_sepay') . ":</b> " . number_format($globalcost) . "<br>";
         $settingshtml .= "</small>";
 

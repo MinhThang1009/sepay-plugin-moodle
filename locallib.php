@@ -237,7 +237,8 @@ class enrol_sepay_deleteselectedusers_operation extends enrol_bulk_enrolment_ope
                         $plugin->unenrol_user($instance, $user->id);
                         $counter++;
                     } catch (\Exception $e) {
-                        debugging('enrol_sepay bulk unenrol: thất bại cho user ' . $user->id . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+                        debugging('enrol_sepay bulk unenrol: thất bại cho user ' . $user->id . ': '
+                            . $e->getMessage(), DEBUG_DEVELOPER);
                     }
                 }
             }
