@@ -110,14 +110,12 @@ if (!$DB->record_exists('user_enrolments', ['enrolid' => $instance->id, 'userid'
     }
 }
 
-// Gửi welcome email nếu chưa gửi — webhook có thể đã gửi rồi (email_sent = 1), tránh gửi đúp.
+// Gửi welcome email nếu chưa gửi — webhook/cron có thể chạy song song; helper
+// dùng lock + re-check trong lock để chống gửi đúp. Pre-check rẻ tránh lấy lock thừa.
 if (!$transaction->email_sent) {
     try {
         require_once(__DIR__ . '/classes/util.php');
-        // Chỉ đánh dấu email_sent khi thực sự gửi (send_welcome_messages trả true).
-        if (\enrol_sepay\util::send_welcome_messages($course, $USER, $instance)) {
-            $DB->set_field('enrol_sepay_transactions', 'email_sent', 1, ['id' => $transaction->id]);
-        }
+        \enrol_sepay\util::send_welcome_messages_once($transaction->id, $course, $USER, $instance);
     } catch (\Exception $e) {
         debugging('enrol_sepay complete_enrol: send_welcome_messages failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
     }

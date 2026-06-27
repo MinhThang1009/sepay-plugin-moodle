@@ -74,14 +74,13 @@ class send_mass_email extends \core\task\adhoc_task {
             $instance = $DB->get_record('enrol', ['id' => $tx->instanceid], '*', IGNORE_MISSING);
 
             try {
-                // Chỉ đánh dấu email_sent khi send_welcome_messages gửi thực sự (trả true).
-                // Trả false (không throw) khi tắt hết mail config → không đánh dấu để lần sau gửi lại.
-                if (\enrol_sepay\util::send_welcome_messages($course, $user, $instance ?? new \stdClass())) {
-                    $DB->set_field('enrol_sepay_transactions', 'email_sent', 1, ['id' => $tx->id]);
+                // Gửi đúng một lần — helper tự re-check + set email_sent trong lock.
+                // Trả true nếu lần này gửi; false nếu mail tắt hoặc đã gửi bởi luồng khác.
+                if (\enrol_sepay\util::send_welcome_messages_once($tx->id, $course, $user, $instance ?? new \stdClass())) {
                     $sent++;
                     mtrace('enrol_sepay send_mass_email: sent to user ' . $user->id . ' course ' . $course->id);
                 } else {
-                    mtrace('enrol_sepay send_mass_email: bỏ qua user ' . $user->id . ' (chưa bật gửi email).');
+                    mtrace('enrol_sepay send_mass_email: bỏ qua user ' . $user->id . ' (đã gửi hoặc chưa bật email).');
                 }
             } catch (\Exception $e) {
                 debugging('enrol_sepay send_mass_email: failed for user ' . $user->id . ': ' . $e->getMessage(), DEBUG_DEVELOPER);

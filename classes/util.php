@@ -98,6 +98,48 @@ class util {
     }
 
     /**
+     * Gửi welcome email đúng MỘT lần cho một giao dịch, an toàn với race.
+     *
+     * Nhiều luồng có thể cùng xử lý một giao dịch: webhook auto-enrol, trang
+     * complete_enrol, cron process_enrolments, adhoc send_mass_email. Trước đây
+     * mỗi luồng tự kiểm tra cờ email_sent rồi gửi (check-then-set) nên hai luồng
+     * cùng đọc email_sent=0 sẽ gửi đúp. Ở đây dùng app-lock theo transaction id
+     * để serialize: chỉ luồng giành được lock và đọc lại email_sent=0 TRONG lock
+     * mới gửi rồi set 1.
+     *
+     * @param int $transactionid id bản ghi enrol_sepay_transactions
+     * @param \stdClass $course
+     * @param \stdClass $user
+     * @param \stdClass $instance
+     * @return bool true nếu lần gọi này đã gửi; false nếu đã gửi trước đó / mail tắt / không lấy được lock
+     */
+    public static function send_welcome_messages_once(int $transactionid, $course, $user, $instance): bool {
+        global $DB;
+
+        $lockfactory = \core\lock\lock_config::get_lock_factory('enrol_sepay_email');
+        $lock = $lockfactory->get_lock('txn_' . $transactionid, 10);
+        if (!$lock) {
+            // Luồng khác đang giữ lock cho giao dịch này — để nó gửi, ta bỏ qua.
+            return false;
+        }
+
+        try {
+            // Kiểm tra lại cờ TRONG lock (không tin giá trị đã load trước đó) — chống TOCTOU.
+            if ($DB->get_field('enrol_sepay_transactions', 'email_sent', ['id' => $transactionid])) {
+                return false;
+            }
+            if (!self::send_welcome_messages($course, $user, $instance)) {
+                // Mail tắt (no-op) — không đánh dấu để lần sau thử lại.
+                return false;
+            }
+            $DB->set_field('enrol_sepay_transactions', 'email_sent', 1, ['id' => $transactionid]);
+            return true;
+        } finally {
+            $lock->release();
+        }
+    }
+
+    /**
      * Send welcome messages to students, teachers, and admins after successful enrolment.
      * Check plugin config before sending.
      *

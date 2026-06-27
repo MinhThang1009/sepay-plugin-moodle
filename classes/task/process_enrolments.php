@@ -122,8 +122,8 @@ class process_enrolments extends \core\task\scheduled_task {
             if ($course && !$t->email_sent) {
                 try {
                     require_once($CFG->dirroot . '/enrol/sepay/classes/util.php');
-                    \enrol_sepay\util::send_welcome_messages($course, $user, $instance);
-                    $DB->set_field('enrol_sepay_transactions', 'email_sent', 1, ['id' => $t->id]);
+                    // Gửi đúng một lần — chống gửi đúp khi webhook/complete_enrol chạy song song.
+                    \enrol_sepay\util::send_welcome_messages_once($t->id, $course, $user, $instance);
                 } catch (\Exception $e) {
                     mtrace("Lỗi gửi email giao dịch ID {$t->id}: " . $e->getMessage());
                 }

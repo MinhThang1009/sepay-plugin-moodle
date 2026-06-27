@@ -468,22 +468,11 @@ if (!$manualenrol) {
         );
     }
 
-    // Gửi email chào mừng (không bắt buộc).
+    // Gửi email chào mừng (không bắt buộc) — đúng một lần, chống gửi đúp khi
+    // complete_enrol/cron chạy song song (helper dùng lock theo transaction id).
     // Lỗi email KHÔNG được làm abort flow — user đã ghi danh, chỉ thiếu mail.
     try {
-        // Chỉ đánh dấu email_sent khi send_welcome_messages thực sự gửi (trả true).
-        if (\enrol_sepay\util::send_welcome_messages($course, $user, $instance)) {
-            if ($refstored) {
-                $DB->set_field('enrol_sepay_transactions', 'email_sent', 1, ['transaction_ref' => $transactionref]);
-            } else {
-                $DB->set_field(
-                    'enrol_sepay_transactions',
-                    'email_sent',
-                    1,
-                    ['userid' => $user->id, 'courseid' => $course->id, 'instanceid' => $instance->id, 'status' => 'processed']
-                );
-            }
-        }
+        \enrol_sepay\util::send_welcome_messages_once($txnid, $course, $user, $instance);
     } catch (\Exception $e) {
         // Log nhưng không abort — ghi danh đã xong, email chỉ là phụ.
         debugging('enrol_sepay webhook: send_welcome_messages failed — ' . $e->getMessage(), DEBUG_DEVELOPER);
