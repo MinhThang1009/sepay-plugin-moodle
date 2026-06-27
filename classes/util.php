@@ -175,115 +175,171 @@ class util {
         $htmlstudent = email_templates::get_student_email_html($a);
         $htmlalert   = email_templates::get_admin_email_html($a);
 
-        // 1. Mail to Student
+        // Gửi theo từng kênh đã bật. $notifiedusers truyền tham chiếu để lọc trùng người nhận.
         if ($mailstudents) {
-            $contact = get_admin();
+            self::notify_student($user, $course, $a, $courseurl, $htmlstudent, $notifiedusers);
+        }
+        if ($mailteachers) {
+            self::notify_teachers($context, $course, $a, $profileurl, $htmlalert, $notifiedusers);
+        }
+        if ($mailadmins) {
+            self::notify_admins($course, $a, $profileurl, $htmlalert, $notifiedusers);
+        }
 
-            // Bell/popup notification qua Moodle messaging.
+        return true;
+    }
+
+    /**
+     * Gửi bell notification + email chào mừng cho học viên.
+     *
+     * @param \stdClass $user
+     * @param \stdClass $course
+     * @param \stdClass $a Dữ liệu template email
+     * @param string $courseurl
+     * @param string $htmlstudent HTML email học viên
+     * @param int[] $notifiedusers Danh sách id đã nhận (cập nhật tham chiếu)
+     * @return void
+     */
+    private static function notify_student(
+        $user,
+        $course,
+        $a,
+        string $courseurl,
+        string $htmlstudent,
+        array &$notifiedusers
+    ): void {
+        $contact = get_admin();
+
+        // Bell/popup notification qua Moodle messaging.
+        $msg = new \core\message\message();
+        $msg->component         = 'enrol_sepay';
+        $msg->name              = 'sepay_enrolment';
+        $msg->userfrom          = $contact;
+        $msg->userto            = $user;
+        $msg->subject           = get_string('email_welcome_subject', 'enrol_sepay', $a);
+        $msg->fullmessage       = get_string('email_welcome_body', 'enrol_sepay', $a);
+        $msg->fullmessageformat = FORMAT_PLAIN;
+        $msg->smallmessage      = $msg->subject;
+        $msg->notification      = 1;
+        $msg->contexturl        = $courseurl;
+        $msg->contexturlname    = $a->coursename;
+        $msg->courseid          = $course->id;
+        message_send($msg);
+
+        // Email trực tiếp với HTML tùy chỉnh — tránh Moodle wrapper và footer mobile app.
+        email_to_user(
+            $user,
+            $contact,
+            get_string('email_welcome_subject', 'enrol_sepay', $a),
+            get_string('email_welcome_body', 'enrol_sepay', $a),
+            $htmlstudent
+        );
+
+        $notifiedusers[] = $user->id;
+    }
+
+    /**
+     * Gửi bell notification + email cho giáo viên của khóa học (bỏ qua người đã nhận).
+     *
+     * @param \context_course $context
+     * @param \stdClass $course
+     * @param \stdClass $a Dữ liệu template email
+     * @param string $profileurl
+     * @param string $htmlalert HTML email thông báo
+     * @param int[] $notifiedusers Danh sách id đã nhận (cập nhật tham chiếu)
+     * @return void
+     */
+    private static function notify_teachers(
+        $context,
+        $course,
+        $a,
+        string $profileurl,
+        string $htmlalert,
+        array &$notifiedusers
+    ): void {
+        $teachers = get_enrolled_users($context, 'moodle/course:update', 0, 'u.*', null, 0, 0, true);
+        if (!$teachers) {
+            return;
+        }
+        $contact = get_admin();
+        foreach ($teachers as $teacher) {
+            // Nếu giáo viên cũng chính là người vừa được ghi danh (hoặc đã nhận mail rồi) thì bỏ qua!
+            if (in_array($teacher->id, $notifiedusers)) {
+                continue;
+            }
+
+            // Bell notification.
             $msg = new \core\message\message();
             $msg->component         = 'enrol_sepay';
             $msg->name              = 'sepay_enrolment';
             $msg->userfrom          = $contact;
-            $msg->userto            = $user;
-            $msg->subject           = get_string('email_welcome_subject', 'enrol_sepay', $a);
-            $msg->fullmessage       = get_string('email_welcome_body', 'enrol_sepay', $a);
+            $msg->userto            = $teacher;
+            $msg->subject           = get_string('email_teacher_subject', 'enrol_sepay', $a);
+            $msg->fullmessage       = get_string('email_teacher_body', 'enrol_sepay', $a);
             $msg->fullmessageformat = FORMAT_PLAIN;
             $msg->smallmessage      = $msg->subject;
             $msg->notification      = 1;
-            $msg->contexturl        = $courseurl;
-            $msg->contexturlname    = $a->coursename;
+            $msg->contexturl        = $profileurl;
+            $msg->contexturlname    = $a->username;
             $msg->courseid          = $course->id;
             message_send($msg);
 
-            // Email trực tiếp với HTML tùy chỉnh — tránh Moodle wrapper và footer mobile app.
+            // Email trực tiếp với HTML tùy chỉnh.
             email_to_user(
-                $user,
+                $teacher,
                 $contact,
-                get_string('email_welcome_subject', 'enrol_sepay', $a),
-                get_string('email_welcome_body', 'enrol_sepay', $a),
-                $htmlstudent
+                get_string('email_teacher_subject', 'enrol_sepay', $a),
+                get_string('email_teacher_body', 'enrol_sepay', $a),
+                $htmlalert
             );
-
-            $notifiedusers[] = $user->id;
+            $notifiedusers[] = $teacher->id;
         }
+    }
 
-        // 2. Mail to Teachers
-        if ($mailteachers) {
-            if ($teachers = get_enrolled_users($context, 'moodle/course:update', 0, 'u.*', null, 0, 0, true)) {
-                $contact = get_admin();
-                foreach ($teachers as $teacher) {
-                    // Nếu giáo viên cũng chính là người vừa được ghi danh (hoặc đã nhận mail rồi) thì bỏ qua!
-                    if (in_array($teacher->id, $notifiedusers)) {
-                        continue;
-                    }
-
-                    // Bell notification.
-                    $msg = new \core\message\message();
-                    $msg->component         = 'enrol_sepay';
-                    $msg->name              = 'sepay_enrolment';
-                    $msg->userfrom          = $contact;
-                    $msg->userto            = $teacher;
-                    $msg->subject           = get_string('email_teacher_subject', 'enrol_sepay', $a);
-                    $msg->fullmessage       = get_string('email_teacher_body', 'enrol_sepay', $a);
-                    $msg->fullmessageformat = FORMAT_PLAIN;
-                    $msg->smallmessage      = $msg->subject;
-                    $msg->notification      = 1;
-                    $msg->contexturl        = $profileurl;
-                    $msg->contexturlname    = $a->username;
-                    $msg->courseid          = $course->id;
-                    message_send($msg);
-
-                    // Email trực tiếp với HTML tùy chỉnh.
-                    email_to_user(
-                        $teacher,
-                        $contact,
-                        get_string('email_teacher_subject', 'enrol_sepay', $a),
-                        get_string('email_teacher_body', 'enrol_sepay', $a),
-                        $htmlalert
-                    );
-                    $notifiedusers[] = $teacher->id;
-                }
+    /**
+     * Gửi bell notification + email cho các admin site (bỏ qua người đã nhận).
+     *
+     * @param \stdClass $course
+     * @param \stdClass $a Dữ liệu template email
+     * @param string $profileurl
+     * @param string $htmlalert HTML email thông báo
+     * @param int[] $notifiedusers Danh sách id đã nhận (cập nhật tham chiếu)
+     * @return void
+     */
+    private static function notify_admins($course, $a, string $profileurl, string $htmlalert, array &$notifiedusers): void {
+        $admins = get_admins();
+        $contact = get_admin();
+        foreach ($admins as $admin) {
+            // Nếu Admin cũng là Giáo viên hoặc là người đang test thì bỏ qua để tránh spam!
+            if (in_array($admin->id, $notifiedusers)) {
+                continue;
             }
+
+            // Bell notification.
+            $msg = new \core\message\message();
+            $msg->component         = 'enrol_sepay';
+            $msg->name              = 'sepay_enrolment';
+            $msg->userfrom          = $contact;
+            $msg->userto            = $admin;
+            $msg->subject           = get_string('email_admin_subject', 'enrol_sepay', $a);
+            $msg->fullmessage       = get_string('email_admin_body', 'enrol_sepay', $a);
+            $msg->fullmessageformat = FORMAT_PLAIN;
+            $msg->smallmessage      = $msg->subject;
+            $msg->notification      = 1;
+            $msg->contexturl        = $profileurl;
+            $msg->contexturlname    = $a->username;
+            $msg->courseid          = $course->id;
+            message_send($msg);
+
+            // Email trực tiếp với HTML tùy chỉnh.
+            email_to_user(
+                $admin,
+                $contact,
+                get_string('email_admin_subject', 'enrol_sepay', $a),
+                get_string('email_admin_body', 'enrol_sepay', $a),
+                $htmlalert
+            );
         }
-
-        // 3. Mail to Admins
-        if ($mailadmins) {
-            $admins = get_admins();
-            $contact = get_admin();
-            foreach ($admins as $admin) {
-                // Nếu Admin cũng là Giáo viên hoặc là người đang test thì bỏ qua để tránh spam!
-                if (in_array($admin->id, $notifiedusers)) {
-                    continue;
-                }
-
-                // Bell notification.
-                $msg = new \core\message\message();
-                $msg->component         = 'enrol_sepay';
-                $msg->name              = 'sepay_enrolment';
-                $msg->userfrom          = $contact;
-                $msg->userto            = $admin;
-                $msg->subject           = get_string('email_admin_subject', 'enrol_sepay', $a);
-                $msg->fullmessage       = get_string('email_admin_body', 'enrol_sepay', $a);
-                $msg->fullmessageformat = FORMAT_PLAIN;
-                $msg->smallmessage      = $msg->subject;
-                $msg->notification      = 1;
-                $msg->contexturl        = $profileurl;
-                $msg->contexturlname    = $a->username;
-                $msg->courseid          = $course->id;
-                message_send($msg);
-
-                // Email trực tiếp với HTML tùy chỉnh.
-                email_to_user(
-                    $admin,
-                    $contact,
-                    get_string('email_admin_subject', 'enrol_sepay', $a),
-                    get_string('email_admin_body', 'enrol_sepay', $a),
-                    $htmlalert
-                );
-            }
-        }
-
-        return true;
     }
 
     /**
