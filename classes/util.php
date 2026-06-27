@@ -197,7 +197,7 @@ class util {
      * @param \stdClass $a Dữ liệu template email
      * @param string $courseurl
      * @param string $htmlstudent HTML email học viên
-     * @param int[] $notifiedusers Danh sách id đã nhận (cập nhật tham chiếu)
+     * @param array $notifiedusers Danh sách id đã nhận (cập nhật tham chiếu)
      * @return void
      */
     private static function notify_student(
@@ -246,7 +246,7 @@ class util {
      * @param \stdClass $a Dữ liệu template email
      * @param string $profileurl
      * @param string $htmlalert HTML email thông báo
-     * @param int[] $notifiedusers Danh sách id đã nhận (cập nhật tham chiếu)
+     * @param array $notifiedusers Danh sách id đã nhận (cập nhật tham chiếu)
      * @return void
      */
     private static function notify_teachers(
@@ -303,7 +303,7 @@ class util {
      * @param \stdClass $a Dữ liệu template email
      * @param string $profileurl
      * @param string $htmlalert HTML email thông báo
-     * @param int[] $notifiedusers Danh sách id đã nhận (cập nhật tham chiếu)
+     * @param array $notifiedusers Danh sách id đã nhận (cập nhật tham chiếu)
      * @return void
      */
     private static function notify_admins($course, $a, string $profileurl, string $htmlalert, array &$notifiedusers): void {
