@@ -40,7 +40,6 @@ class send_mass_email extends \core\task\adhoc_task {
 
         $data     = $this->get_custom_data();
         $limit    = isset($data->limit) ? (int)$data->limit : 50;
-        $admin    = get_admin();
 
         // Tìm các giao dịch processed có email_sent = 0.
         // Dùng tham số phân trang của Moodle thay vì LIMIT trong raw SQL
