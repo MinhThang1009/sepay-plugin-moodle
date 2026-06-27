@@ -116,52 +116,66 @@ class transactions_table extends table_sql {
 
         parent::query_db($pagesize, $useinitialsbar);
 
-        if ($this->rawdata && $DB->get_manager()->table_exists(new xmldb_table('logstore_standard_log'))) {
-            // 2 batch queries lấy dữ liệu IP cho tất cả users trên trang, tránh N queries trong vòng lặp.
-            $userids = array_unique(array_column((array)$this->rawdata, 'userid'));
-            if (!empty($userids)) {
-                [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'uid');
+        if (!$this->rawdata || !$DB->get_manager()->table_exists(new xmldb_table('logstore_standard_log'))) {
+            return;
+        }
 
-                // Batch 1: build ipusermap — dùng get_recordset_sql để tránh duplicate-key warning.
-                $sqlbatch1 = "SELECT userid, ip
-                                 FROM {logstore_standard_log}
-                                WHERE userid $insql AND ip IS NOT NULL AND ip != ''
-                             GROUP BY userid, ip";
-                $rs1 = $DB->get_recordset_sql($sqlbatch1, $inparams);
-                foreach ($rs1 as $row) {
-                    if (!isset($this->ipusermap[$row->ip])) {
-                        $this->ipusermap[$row->ip] = [];
-                    }
-                    if (!in_array($row->userid, $this->ipusermap[$row->ip])) {
-                        $this->ipusermap[$row->ip][] = $row->userid;
-                    }
-                }
-                $rs1->close();
+        // 2 batch queries lấy dữ liệu IP cho tất cả users trên trang, tránh N queries trong vòng lặp.
+        $userids = array_unique(array_column((array)$this->rawdata, 'userid'));
+        if (!empty($userids)) {
+            $this->preload_ip_maps($userids);
+        }
 
-                // Batch 2: build ipdetailmap (last 5 IPs per user by most recent).
-                $sqlbatch2 = "SELECT userid, ip, MAX(timecreated) as lastused
-                                 FROM {logstore_standard_log}
-                                WHERE userid $insql AND ip IS NOT NULL AND ip != ''
-                             GROUP BY userid, ip
-                             ORDER BY lastused DESC";
-                $rs2 = $DB->get_recordset_sql($sqlbatch2, $inparams);
-                foreach ($rs2 as $row) {
-                    if (!isset($this->ipdetailmap[$row->userid])) {
-                        $this->ipdetailmap[$row->userid] = [];
-                    }
-                    if (count($this->ipdetailmap[$row->userid]) < 5) {
-                        $this->ipdetailmap[$row->userid][] = $row;
-                    }
-                }
-                $rs2->close();
-            }
-
-            foreach ($this->ipusermap as $ip => $useridsforip) {
-                if (count($useridsforip) > 1) {
-                    $this->duplicateips[$ip] = count($useridsforip);
-                }
+        foreach ($this->ipusermap as $ip => $useridsforip) {
+            if (count($useridsforip) > 1) {
+                $this->duplicateips[$ip] = count($useridsforip);
             }
         }
+    }
+
+    /**
+     * Nạp sẵn 2 map IP (ipusermap, ipdetailmap) bằng 2 batch query trên logstore.
+     *
+     * @param array $userids Danh sách userid trên trang hiện tại
+     * @return void
+     */
+    private function preload_ip_maps(array $userids): void {
+        global $DB;
+
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'uid');
+
+        // Batch 1: build ipusermap — dùng get_recordset_sql để tránh duplicate-key warning.
+        $sqlbatch1 = "SELECT userid, ip
+                         FROM {logstore_standard_log}
+                        WHERE userid $insql AND ip IS NOT NULL AND ip != ''
+                     GROUP BY userid, ip";
+        $rs1 = $DB->get_recordset_sql($sqlbatch1, $inparams);
+        foreach ($rs1 as $row) {
+            if (!isset($this->ipusermap[$row->ip])) {
+                $this->ipusermap[$row->ip] = [];
+            }
+            if (!in_array($row->userid, $this->ipusermap[$row->ip])) {
+                $this->ipusermap[$row->ip][] = $row->userid;
+            }
+        }
+        $rs1->close();
+
+        // Batch 2: build ipdetailmap (last 5 IPs per user by most recent).
+        $sqlbatch2 = "SELECT userid, ip, MAX(timecreated) as lastused
+                         FROM {logstore_standard_log}
+                        WHERE userid $insql AND ip IS NOT NULL AND ip != ''
+                     GROUP BY userid, ip
+                     ORDER BY lastused DESC";
+        $rs2 = $DB->get_recordset_sql($sqlbatch2, $inparams);
+        foreach ($rs2 as $row) {
+            if (!isset($this->ipdetailmap[$row->userid])) {
+                $this->ipdetailmap[$row->userid] = [];
+            }
+            if (count($this->ipdetailmap[$row->userid]) < 5) {
+                $this->ipdetailmap[$row->userid][] = $row;
+            }
+        }
+        $rs2->close();
     }
 
     /**
