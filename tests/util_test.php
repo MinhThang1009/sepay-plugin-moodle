@@ -78,4 +78,28 @@ final class util_test extends \advanced_testcase {
 
         $this->assertFalse(util::send_welcome_messages($course, $user, new \stdClass()));
     }
+
+    /**
+     * send_welcome_messages: bật mail học viên thì gửi đúng 1 email cho học viên.
+     */
+    public function test_send_welcome_student_channel(): void {
+        $this->resetAfterTest();
+        set_config('mailstudents', 1, 'enrol_sepay');
+        set_config('mailteachers', 0, 'enrol_sepay');
+        set_config('mailadmins', 0, 'enrol_sepay');
+        $course = $this->getDataGenerator()->create_course();
+        $user = $this->getDataGenerator()->create_user();
+
+        $sink = $this->redirectEmails();
+        $result = util::send_welcome_messages($course, $user, new \stdClass());
+        $emails = $sink->get_messages();
+        $sink->close();
+
+        // Hàm message_send báo debugging "provider inactive/not allowed" với user mới tạo trong
+        // test (preferences mặc định) — artifact môi trường test, không phải lỗi code.
+        $this->assertDebuggingCalled();
+        $this->assertTrue($result);
+        $this->assertCount(1, $emails);
+        $this->assertEquals($user->email, $emails[0]->to);
+    }
 }

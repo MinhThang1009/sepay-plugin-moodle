@@ -114,4 +114,47 @@ final class transactions_table_test extends \advanced_testcase {
         $processed = $table->col_actions((object)['id' => 2, 'status' => 'processed']);
         $this->assertStringContainsString('action=delete', $processed);
     }
+
+    /**
+     * preload_ip_maps phát hiện IP dùng chung giữa nhiều user (cảnh báo trùng IP).
+     */
+    public function test_preload_ip_maps_duplicate(): void {
+        global $DB;
+        $this->resetAfterTest();
+        if (!$DB->get_manager()->table_exists('logstore_standard_log')) {
+            $this->markTestSkipped('logstore_standard_log chưa cài');
+        }
+
+        // 2 user đăng nhập cùng 1 IP.
+        foreach ([10, 11] as $uid) {
+            $DB->insert_record('logstore_standard_log', (object)[
+                'eventname' => '\\core\\event\\user_loggedin',
+                'component' => 'core',
+                'action' => 'loggedin',
+                'target' => 'user',
+                'crud' => 'r',
+                'edulevel' => 0,
+                'contextid' => 1,
+                'contextlevel' => 10,
+                'contextinstanceid' => 0,
+                'userid' => $uid,
+                'courseid' => 0,
+                'anonymous' => 0,
+                'ip' => '203.0.113.7',
+                'timecreated' => time(),
+            ]);
+        }
+
+        $table = $this->make_table();
+        $method = new \ReflectionMethod($table, 'preload_ip_maps');
+        $method->setAccessible(true);
+        $method->invoke($table, [10, 11]);
+
+        $prop = new \ReflectionProperty($table, 'ipusermap');
+        $prop->setAccessible(true);
+        $ipusermap = $prop->getValue($table);
+
+        $this->assertArrayHasKey('203.0.113.7', $ipusermap);
+        $this->assertCount(2, $ipusermap['203.0.113.7']);
+    }
 }
