@@ -30,7 +30,6 @@ defined('MOODLE_INTERNAL') || die();
  * Tác vụ tự động dọn dẹp các giao dịch SePay đã quá hạn.
  */
 class cleanup_transactions extends \core\task\scheduled_task {
-
     /**
      * Lấy tên mô tả của task.
      *
@@ -161,7 +160,7 @@ class cleanup_transactions extends \core\task\scheduled_task {
 
         // Lấy thời gian lưu trữ bản lưu.
         $archive_retention_days = get_config('enrol_sepay', 'archive_retention_days');
-        
+
         // Nếu giá trị là 0 hoặc rỗng, giữ lưu trữ vô thời hạn.
         if (empty($archive_retention_days) || $archive_retention_days < 1) {
             mtrace('Lưu trữ vô thời hạn. Bỏ qua dọn dẹp bảng lưu trữ.');

@@ -134,7 +134,7 @@ if ($action === 'reject' && $id > 0 && confirm_sesskey()) {
         \enrol_sepay\util::delete_pending_notifications($transaction);
 
         // Gửi rejection notification cho student.
-        $user   = $DB->get_record('user',   ['id' => $transaction->userid]);
+        $user   = $DB->get_record('user', ['id' => $transaction->userid]);
         $course = $DB->get_record('course', ['id' => $transaction->courseid]);
         if ($user && $course) {
             try {
@@ -175,8 +175,8 @@ if ($action === 'bulk_delete' && confirm_sesskey()) {
     $deleteids = optional_param_array('deleteids', [], PARAM_INT);
 
     if (!empty($deleteids)) {
-        list($insql, $params) = $DB->get_in_or_equal($deleteids);
-        
+        [$insql, $params] = $DB->get_in_or_equal($deleteids);
+
         $txns = $DB->get_records_select('enrol_sepay_transactions', "id $insql", $params);
         $processed_count = 0;
         foreach ($txns as $txn) {
@@ -329,7 +329,7 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
                     $rejected_count++;
 
                     // Gửi rejection notification cho student.
-                    $r_user   = $DB->get_record('user',   ['id' => $txn->userid]);
+                    $r_user   = $DB->get_record('user', ['id' => $txn->userid]);
                     $r_course = $DB->get_record('course', ['id' => $txn->courseid]);
                     if ($r_user && $r_course) {
                         try {
@@ -481,11 +481,11 @@ echo '</div>';
 // Các class CSS cho stat cards và tab lọc đã được định nghĩa trong styles.css.
 
 $status_tabs = [
-    'all'        => [get_string('all', 'moodle'),                    'sepay-tab-all',         'sepay-tab-outline-all'],
-    'pending'    => [get_string('status_pending', 'enrol_sepay'),    'bg-warning text-dark',  'sepay-tab-outline-warning'],
-    'processed'  => [get_string('status_processed', 'enrol_sepay'),  'bg-success',            'sepay-tab-outline-success'],
-    'rejected'   => [get_string('status_rejected', 'enrol_sepay'),   'bg-danger',             'sepay-tab-outline-danger'],
-    'unenrolled' => [get_string('status_unenrolled', 'enrol_sepay'), 'bg-dark',               'sepay-tab-outline-dark'],
+    'all'        => [get_string('all', 'moodle'), 'sepay-tab-all', 'sepay-tab-outline-all'],
+    'pending'    => [get_string('status_pending', 'enrol_sepay'), 'bg-warning text-dark', 'sepay-tab-outline-warning'],
+    'processed'  => [get_string('status_processed', 'enrol_sepay'), 'bg-success', 'sepay-tab-outline-success'],
+    'rejected'   => [get_string('status_rejected', 'enrol_sepay'), 'bg-danger', 'sepay-tab-outline-danger'],
+    'unenrolled' => [get_string('status_unenrolled', 'enrol_sepay'), 'bg-dark', 'sepay-tab-outline-dark'],
 ];
 
 // Hiển thị 5 tab lọc trạng thái — Layout 1-cái-đầu-ngang, 4-cái-dưới-chia-đều
@@ -533,8 +533,10 @@ echo '<nav class="initialbargroups d-flex flex-wrap">';
 echo '<ul class="pagination pagination-sm">';
 
 // Nút "Tất cả"
-$all_fn_url = new moodle_url('/enrol/sepay/transactions.php',
-    array_merge($filter_base_params, ['letter_fn' => '', 'letter' => $letter]));
+$all_fn_url = new moodle_url(
+    '/enrol/sepay/transactions.php',
+    array_merge($filter_base_params, ['letter_fn' => '', 'letter' => $letter])
+);
 $all_fn_active = ($letter_fn === '') ? ' active' : '';
 echo '<li class="initialbarall page-item' . $all_fn_active . '">';
 echo '<a data-initial="" class="page-link" href="' . $all_fn_url->out() . '"'
@@ -548,8 +550,10 @@ echo '</ul>';
 foreach (array_chunk($vn_alphabet, 10) as $chunk) {
     echo '<ul class="pagination pagination-sm">';
     foreach ($chunk as $l) {
-        $l_url = new moodle_url('/enrol/sepay/transactions.php',
-            array_merge($filter_base_params, ['letter_fn' => $l, 'letter' => $letter]));
+        $l_url = new moodle_url(
+            '/enrol/sepay/transactions.php',
+            array_merge($filter_base_params, ['letter_fn' => $l, 'letter' => $letter])
+        );
         $l_active = ($letter_fn === $l) ? ' active' : '';
         echo '<li data-initial="' . s($l) . '" class="page-item' . $l_active . '">';
         echo '<a class="page-link" href="' . $l_url->out() . '"'
@@ -567,8 +571,10 @@ echo '<span class="initialbarlabel mr-2">' . get_string('filter_lastname', 'enro
 echo '<nav class="initialbargroups d-flex flex-wrap">';
 echo '<ul class="pagination pagination-sm">';
 
-$all_url = new moodle_url('/enrol/sepay/transactions.php',
-    array_merge($filter_base_params, ['letter' => '', 'letter_fn' => $letter_fn]));
+$all_url = new moodle_url(
+    '/enrol/sepay/transactions.php',
+    array_merge($filter_base_params, ['letter' => '', 'letter_fn' => $letter_fn])
+);
 $all_active = ($letter === '') ? ' active' : '';
 echo '<li class="initialbarall page-item' . $all_active . '">';
 echo '<a data-initial="" class="page-link" href="' . $all_url->out() . '"'
@@ -581,8 +587,10 @@ echo '</ul>';
 foreach (array_chunk($vn_alphabet, 10) as $chunk) {
     echo '<ul class="pagination pagination-sm">';
     foreach ($chunk as $l) {
-        $l_url = new moodle_url('/enrol/sepay/transactions.php',
-            array_merge($filter_base_params, ['letter' => $l, 'letter_fn' => $letter_fn]));
+        $l_url = new moodle_url(
+            '/enrol/sepay/transactions.php',
+            array_merge($filter_base_params, ['letter' => $l, 'letter_fn' => $letter_fn])
+        );
         $l_active = ($letter === $l) ? ' active' : '';
         echo '<li data-initial="' . s($l) . '" class="page-item' . $l_active . '">';
         echo '<a class="page-link" href="' . $l_url->out() . '"'
@@ -629,7 +637,8 @@ if ($filter !== 'all' && $filter !== '') {
 if ($search_user !== '') {
     $where_parts[] = $DB->sql_like(
         $DB->sql_concat("u.firstname", "' '", "u.lastname"),
-        ':search_user', false
+        ':search_user',
+        false
     );
     $params['search_user'] = '%' . $DB->sql_like_escape($search_user) . '%';
 }
@@ -667,7 +676,8 @@ $table->pagesize($perpage, $transaction_count);
 
 // Hiển thị số kết quả
 echo '<div class="d-flex justify-content-between align-items-baseline mb-1">';
-echo html_writer::tag('p',
+echo html_writer::tag(
+    'p',
     get_string('transactions_found', 'enrol_sepay', $transaction_count),
     ['data-region' => 'participant-count']
 );
@@ -679,11 +689,11 @@ echo '<div id="sepay-table-container">';
 if ($transaction_count == 0) {
     if ($filter === 'pending') {
         echo $OUTPUT->notification(get_string('no_pending_transactions', 'enrol_sepay'), 'info');
-    } elseif ($filter === 'processed') {
+    } else if ($filter === 'processed') {
         echo $OUTPUT->notification(get_string('no_processed_transactions_found', 'enrol_sepay'), 'info');
-    } elseif ($filter === 'rejected') {
+    } else if ($filter === 'rejected') {
         echo $OUTPUT->notification(get_string('no_rejected_transactions_found', 'enrol_sepay'), 'info');
-    } elseif ($filter === 'unenrolled') {
+    } else if ($filter === 'unenrolled') {
         echo $OUTPUT->notification(get_string('no_unenrolled_transactions_found', 'enrol_sepay'), 'info');
     } else {
         echo $OUTPUT->notification(get_string('no_transactions_found', 'enrol_sepay'), 'info');
@@ -823,11 +833,11 @@ if ($transaction_count == 0) {
     // Khởi tạo AMD module xử lý bulk actions — CSP compliant, không dùng inline <script>.
     $confirm_string_keys = [
         ['action' => 'bulk_approve', 'key' => 'confirm_bulk_approve'],
-        ['action' => 'bulk_reject',  'key' => 'confirm_bulk_reject'],
+        ['action' => 'bulk_reject', 'key' => 'confirm_bulk_reject'],
         ['action' => 'bulk_unenrol', 'key' => 'confirm_bulk_unenrol'],
-        ['action' => 'bulk_delete',  'key' => 'confirm_bulk_delete'],
-        ['action' => 'reject',       'key' => 'confirm_reject'],
-        ['action' => 'delete',       'key' => 'confirm_delete'],
+        ['action' => 'bulk_delete', 'key' => 'confirm_bulk_delete'],
+        ['action' => 'reject', 'key' => 'confirm_reject'],
+        ['action' => 'delete', 'key' => 'confirm_delete'],
     ];
     $PAGE->requires->js_call_amd('enrol_sepay/transactions_bulk', 'init', [
         $confirm_string_keys,

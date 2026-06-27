@@ -37,7 +37,6 @@ require_once($CFG->dirroot . '/enrol/locallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_sepay_editselectedusers_operation extends enrol_bulk_enrolment_operation {
-
     /**
      * Tiêu đề hiển thị cho bulk operation này.
      *
@@ -72,8 +71,8 @@ class enrol_sepay_editselectedusers_operation extends enrol_bulk_enrolment_opera
         }
 
         // Gom toàn bộ user_enrolment id cần cập nhật.
-        $ueids = array();
-        $instances = array();
+        $ueids = [];
+        $instances = [];
         foreach ($users as $user) {
             foreach ($user->enrolments as $enrolment) {
                 $ueids[] = $enrolment->id;
@@ -95,9 +94,9 @@ class enrol_sepay_editselectedusers_operation extends enrol_bulk_enrolment_opera
         $timestart = $properties->timestart;
         $timeend = $properties->timeend;
 
-        list($ueidsql, $params) = $DB->get_in_or_equal($ueids, SQL_PARAMS_NAMED);
+        [$ueidsql, $params] = $DB->get_in_or_equal($ueids, SQL_PARAMS_NAMED);
 
-        $updatesql = array();
+        $updatesql = [];
         if ($status == ENROL_USER_ACTIVE || $status == ENROL_USER_SUSPENDED) {
             $updatesql[] = 'status = :status';
             $params['status'] = (int)$status;
@@ -135,14 +134,14 @@ class enrol_sepay_editselectedusers_operation extends enrol_bulk_enrolment_opera
                     $enrolment->enrol = 'sepay';
                     // Bắn event.
                     $event = \core\event\user_enrolment_updated::create(
-                            array(
+                        [
                                 'objectid' => $enrolment->id,
                                 'courseid' => $enrolment->courseid,
                                 'context' => context_course::instance($enrolment->courseid),
                                 'relateduserid' => $user->id,
-                                'other' => array('enrol' => 'sepay')
-                                )
-                            );
+                                'other' => ['enrol' => 'sepay'],
+                                ]
+                    );
                     $event->trigger();
                 }
             }
@@ -175,7 +174,6 @@ class enrol_sepay_editselectedusers_operation extends enrol_bulk_enrolment_opera
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_sepay_deleteselectedusers_operation extends enrol_bulk_enrolment_operation {
-
     /**
      * Định danh của bulk operation — dùng làm key trong mảng get_bulk_operations().
      *
@@ -205,7 +203,7 @@ class enrol_sepay_deleteselectedusers_operation extends enrol_bulk_enrolment_ope
         global $CFG;
         require_once($CFG->dirroot . '/enrol/sepay/bulkchangeforms.php');
         if (!is_array($defaultcustomdata)) {
-            $defaultcustomdata = array();
+            $defaultcustomdata = [];
         }
         $defaultcustomdata['title'] = $this->get_title();
         $defaultcustomdata['message'] = get_string('confirmbulkdeleteenrolment', 'enrol_sepay');

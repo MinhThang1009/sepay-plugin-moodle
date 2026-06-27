@@ -27,7 +27,6 @@ namespace enrol_sepay\task;
 defined('MOODLE_INTERNAL') || die();
 
 class send_mass_email extends \core\task\adhoc_task {
-
     public function execute() {
         global $CFG, $DB;
 
@@ -57,7 +56,7 @@ class send_mass_email extends \core\task\adhoc_task {
         $fail = 0;
 
         foreach ($transactions as $tx) {
-            $user   = $DB->get_record('user',   ['id' => $tx->userid]);
+            $user   = $DB->get_record('user', ['id' => $tx->userid]);
             $course = $DB->get_record('course', ['id' => $tx->courseid]);
 
             if (!$user || !$course) {

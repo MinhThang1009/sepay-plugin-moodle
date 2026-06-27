@@ -53,9 +53,12 @@ if (!$transaction) {
 $instance = $DB->get_record('enrol', ['id' => $transaction->instanceid], '*', IGNORE_MISSING);
 
 if (!$instance) {
-    redirect(new moodle_url('/course/view.php', ['id' => $course->id]),
+    redirect(
+        new moodle_url('/course/view.php', ['id' => $course->id]),
         get_string('error_instance_deleted', 'enrol_sepay'),
-        null, \core\output\notification::NOTIFY_ERROR);
+        null,
+        \core\output\notification::NOTIFY_ERROR
+    );
 }
 
 // Bỏ qua nếu instance đang bị tắt.
@@ -80,9 +83,12 @@ if ($roleid <= 0) {
         'complete_enrol.php: roleid chưa cấu hình (<=0) — bỏ qua ghi danh để tránh enrol không có role.',
         ['userid' => $USER->id, 'courseid' => $course->id, 'instanceid' => $instance->id]
     );
-    redirect(new moodle_url('/course/view.php', ['id' => $course->id]),
+    redirect(
+        new moodle_url('/course/view.php', ['id' => $course->id]),
         get_string('error_enrol_failed', 'enrol_sepay'),
-        null, \core\output\notification::NOTIFY_ERROR);
+        null,
+        \core\output\notification::NOTIFY_ERROR
+    );
 }
 
 // Kiểm tra xem đã ghi danh chưa (chống gửi email đúp khi reload trang)
@@ -95,9 +101,12 @@ if (!$DB->record_exists('user_enrolments', ['enrolid' => $instance->id, 'userid'
             'complete_enrol.php: enrol_user() threw exception — ' . $e->getMessage(),
             ['userid' => $USER->id, 'courseid' => $course->id, 'instanceid' => $instance->id]
         );
-        redirect(new moodle_url('/course/view.php', ['id' => $course->id]),
+        redirect(
+            new moodle_url('/course/view.php', ['id' => $course->id]),
             get_string('error_enrol_failed', 'enrol_sepay'),
-            null, \core\output\notification::NOTIFY_ERROR);
+            null,
+            \core\output\notification::NOTIFY_ERROR
+        );
     }
 }
 

@@ -35,7 +35,8 @@ require_once("$CFG->dirroot/enrol/bulkchange_forms.php");
  * @copyright 2026 Quiz Van Lang <quizvanlang@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_sepay_editselectedusers_form extends enrol_bulk_enrolment_change_form {}
+class enrol_sepay_editselectedusers_form extends enrol_bulk_enrolment_change_form {
+}
 
 /**
  * Form xác nhận ý định hủy ghi danh hàng loạt.
@@ -43,4 +44,5 @@ class enrol_sepay_editselectedusers_form extends enrol_bulk_enrolment_change_for
  * @copyright 2026 Quiz Van Lang <quizvanlang@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_sepay_deleteselectedusers_form extends enrol_bulk_enrolment_confirm_form {}
+class enrol_sepay_deleteselectedusers_form extends enrol_bulk_enrolment_confirm_form {
+}

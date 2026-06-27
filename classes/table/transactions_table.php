@@ -34,7 +34,6 @@ use xmldb_table;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class transactions_table extends table_sql {
-
     /**
      * @var array $filter_params Các tham số lọc đang được áp dụng
      */
@@ -67,7 +66,7 @@ class transactions_table extends table_sql {
 
         $this->filter_params = $filter_params;
         $this->define_baseurl($baseurl);
-        
+
         $this->set_attribute('class', 'generaltable table-sm');
 
         $this->define_columns([
@@ -111,14 +110,14 @@ class transactions_table extends table_sql {
      */
     public function query_db($pagesize, $useinitialsbar = true) {
         global $DB;
-        
+
         parent::query_db($pagesize, $useinitialsbar);
-        
+
         if ($this->rawdata && $DB->get_manager()->table_exists(new xmldb_table('logstore_standard_log'))) {
             // 2 batch queries lấy dữ liệu IP cho tất cả users trên trang, tránh N queries trong vòng lặp.
             $userids = array_unique(array_column((array)$this->rawdata, 'userid'));
             if (!empty($userids)) {
-                list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'uid');
+                [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'uid');
 
                 // Batch 1: build ip_user_map — dùng get_recordset_sql để tránh duplicate-key warning.
                 $sql_batch1 = "SELECT userid, ip
@@ -239,22 +238,26 @@ class transactions_table extends table_sql {
      */
     public function col_status($row) {
         if ($row->status === 'pending') {
-            return html_writer::tag('span',
+            return html_writer::tag(
+                'span',
                 get_string('status_pending', 'enrol_sepay'),
                 ['class' => 'badge badge-warning']
             );
-        } elseif ($row->status === 'rejected') {
-            return html_writer::tag('span',
+        } else if ($row->status === 'rejected') {
+            return html_writer::tag(
+                'span',
                 get_string('status_rejected', 'enrol_sepay'),
                 ['class' => 'badge badge-danger']
             );
-        } elseif ($row->status === 'unenrolled') {
-            return html_writer::tag('span',
+        } else if ($row->status === 'unenrolled') {
+            return html_writer::tag(
+                'span',
                 get_string('status_unenrolled', 'enrol_sepay'),
                 ['class' => 'badge badge-secondary']
             );
         } else {
-            return html_writer::tag('span',
+            return html_writer::tag(
+                'span',
                 get_string('status_processed', 'enrol_sepay'),
                 ['class' => 'badge badge-success']
             );
@@ -284,10 +287,14 @@ class transactions_table extends table_sql {
     public function col_actions($row) {
         $actions = '';
         if ($row->status === 'pending') {
-            $approveurl = new moodle_url('/enrol/sepay/transactions.php',
-                array_merge($this->filter_params, ['action' => 'approve', 'id' => $row->id, 'sesskey' => sesskey()]));
-            $rejecturl  = new moodle_url('/enrol/sepay/transactions.php',
-                array_merge($this->filter_params, ['action' => 'reject',  'id' => $row->id, 'sesskey' => sesskey()]));
+            $approveurl = new moodle_url(
+                '/enrol/sepay/transactions.php',
+                array_merge($this->filter_params, ['action' => 'approve', 'id' => $row->id, 'sesskey' => sesskey()])
+            );
+            $rejecturl  = new moodle_url(
+                '/enrol/sepay/transactions.php',
+                array_merge($this->filter_params, ['action' => 'reject', 'id' => $row->id, 'sesskey' => sesskey()])
+            );
 
             $actions .= html_writer::link($approveurl, get_string('approve', 'enrol_sepay'), [
                 'class' => 'btn btn-outline-success btn-sm mb-1',
@@ -300,8 +307,10 @@ class transactions_table extends table_sql {
         }
 
         if ($row->status === 'processed' || $row->status === 'rejected' || $row->status === 'unenrolled') {
-            $deleteurl = new moodle_url('/enrol/sepay/transactions.php',
-                array_merge($this->filter_params, ['action' => 'delete', 'id' => $row->id, 'sesskey' => sesskey()]));
+            $deleteurl = new moodle_url(
+                '/enrol/sepay/transactions.php',
+                array_merge($this->filter_params, ['action' => 'delete', 'id' => $row->id, 'sesskey' => sesskey()])
+            );
             if ($actions !== '') {
                 $actions .= ' ';
             }
@@ -310,7 +319,7 @@ class transactions_table extends table_sql {
                 'onclick' => 'return confirm(' . json_encode(get_string('confirm_delete', 'enrol_sepay')) . ');',
             ]);
         }
-        
+
         return $actions;
     }
 }

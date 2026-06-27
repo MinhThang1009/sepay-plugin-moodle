@@ -36,14 +36,14 @@ $userid = $USER->id;
 $pending = $DB->get_record('enrol_sepay_transactions', [
     'userid' => $userid,
     'courseid' => $courseid,
-    'status' => 'pending'
+    'status' => 'pending',
 ], '*', IGNORE_MULTIPLE);
 
 // Kiểm tra user có giao dịch đã xử lý không
 $processed = $DB->get_record('enrol_sepay_transactions', [
     'userid' => $userid,
     'courseid' => $courseid,
-    'status' => 'processed'
+    'status' => 'processed',
 ], '*', IGNORE_MULTIPLE);
 
 // Kiểm tra user đã ghi danh chưa
@@ -54,18 +54,18 @@ $enrolled = is_enrolled($context, $USER);
 // Vì flow mới là: processed → countdown → enroll (qua complete_enrol.php)
 echo json_encode([
     'enrolled' => $enrolled,
-    'pending' => (!$enrolled && $pending) ? true : false,  // Chỉ hiển thị pending khi chưa enrolled
-    'processed' => $processed ? true : false,  // Trả về true nếu có transaction processed
+    'pending' => (!$enrolled && $pending) ? true : false, // Chỉ hiển thị pending khi chưa enrolled
+    'processed' => $processed ? true : false, // Trả về true nếu có transaction processed
     'transaction' => $pending ? [
         'amount' => $pending->amount,
         'currency' => $pending->currency,
         'timecreated' => $pending->timecreated,
-        'status' => 'pending'
+        'status' => 'pending',
     ] : ($processed ? [
         'amount' => $processed->amount,
         'currency' => $processed->currency,
         'timecreated' => $processed->timecreated,
         'timeprocessed' => $processed->timeprocessed,
-        'status' => 'processed'
-    ] : null)
+        'status' => 'processed',
+    ] : null),
 ]);

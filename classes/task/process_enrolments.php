@@ -17,7 +17,7 @@
 /**
  * Tác vụ tự động xử lý các giao dịch SePay đã được phê duyệt nhưng thẻ trình duyệt bị đóng.
  *
- * Mặc định quét các giao dịch có trạng thái "processed" (đã xử lý/được phê duyệt) 
+ * Mặc định quét các giao dịch có trạng thái "processed" (đã xử lý/được phê duyệt)
  * nhưng người học trong bảng chưa có trạng thái is_enrolled thực tế.
  * Tác vụ này chạy mỗi 1 phút để bảo vệ dữ liệu chống mất mát khi rớt mạng.
  *
@@ -31,7 +31,6 @@ namespace enrol_sepay\task;
 defined('MOODLE_INTERNAL') || die();
 
 class process_enrolments extends \core\task\scheduled_task {
-
     /**
      * Lấy tên mô tả của khối tác vụ này.
      *

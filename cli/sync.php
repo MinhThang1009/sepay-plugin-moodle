@@ -17,7 +17,7 @@
 /**
  * Công cụ lệnh CLI cho SePay.
  *
- * Công cụ CLI để chạy hàm sync() của plugin enrol_sepay, 
+ * Công cụ CLI để chạy hàm sync() của plugin enrol_sepay,
  * mô phỏng đúng pattern của enrol_paypal/cli/sync.php.
  *
  * @package    enrol_sepay
@@ -31,7 +31,7 @@ require(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/clilib.php');
 
 // Lấy tham số CLI.
-list($options, $unrecognized) = cli_get_params([
+[$options, $unrecognized] = cli_get_params([
     'verbose' => false,
     'help'    => false,
 ], [
@@ -46,11 +46,11 @@ if ($unrecognized) {
 
 if (!empty($options['help'])) {
     $help = "Chạy tác vụ sync() cho plugin enrol_sepay (giống PayPal)\n\n" .
-"Tùy chọn:\n" .
-"-v, --verbose         In chi tiết tiến trình\n" .
-"-h, --help            Hiển thị trợ giúp này\n\n" .
-"Ví dụ:\n" .
-"$ sudo -u www-data /usr/bin/php enrol/sepay/cli/sync.php --verbose\n";
+    "Tùy chọn:\n" .
+    "-v, --verbose         In chi tiết tiến trình\n" .
+    "-h, --help            Hiển thị trợ giúp này\n\n" .
+    "Ví dụ:\n" .
+    "$ sudo -u www-data /usr/bin/php enrol/sepay/cli/sync.php --verbose\n";
 
     echo $help;
     exit(0);

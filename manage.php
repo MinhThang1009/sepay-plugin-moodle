@@ -147,13 +147,13 @@ if (!$transactions) {
         get_string('timecreated', 'enrol_sepay'),
         get_string('ip_address', 'enrol_sepay'),
         get_string('settings_comparison', 'enrol_sepay'),
-        get_string('action')
+        get_string('action'),
     ];
 
     foreach ($transactions as $t) {
         $userlink = html_writer::link(new moodle_url('/user/view.php', ['id' => $t->userid, 'course' => $t->courseid]), fullname($t));
         $courselink = html_writer::link(new moodle_url('/course/view.php', ['id' => $t->courseid]), format_string($t->coursename));
-        
+
         $details = get_string('amount', 'enrol_sepay') . ": " . number_format($t->amount) . " " . $t->currency . "<br>";
         $details .= get_string('trans_content', 'enrol_sepay') . ": " . s($t->transaction_content) . "<br>";
         $details .= get_string('manage_gateway', 'enrol_sepay') . ": " . s($t->gateway);
@@ -162,7 +162,7 @@ if (!$transactions) {
         $instance = $DB->get_record('enrol', ['id' => $t->instanceid]);
         $instance_cost = $instance ? (float)$instance->cost : 0;
         $global_cost = (float)$plugin->get_config('cost');
-        
+
         $settings_html = "<small>";
         $settings_html .= "<b>" . get_string('manage_instance_cost', 'enrol_sepay') . ":</b> " . number_format($instance_cost) . "<br>";
         $settings_html .= "<b>" . get_string('manage_global_cost', 'enrol_sepay') . ":</b> " . number_format($global_cost) . "<br>";
@@ -178,7 +178,7 @@ if (!$transactions) {
             userdate($t->timecreated),
             s($t->ip_address),
             $settings_html,
-            $action_btn
+            $action_btn,
         ];
     }
     echo html_writer::table($table);

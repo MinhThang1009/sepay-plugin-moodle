@@ -17,7 +17,7 @@
 /**
  * Trang cho phép người dùng tự hủy ghi danh khỏi các khóa học SePay.
  *
- * Mô phỏng pattern của enrol_paypal/unenrolself.php 
+ * Mô phỏng pattern của enrol_paypal/unenrolself.php
  * nhưng áp dụng cho plugin enrol_sepay.
  *
  * @package    enrol_sepay

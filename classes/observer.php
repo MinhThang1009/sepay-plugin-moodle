@@ -27,7 +27,6 @@ namespace enrol_sepay;
 defined('MOODLE_INTERNAL') || die();
 
 class observer {
-
     /**
      * Xử lý sự kiện khi một user bị unenrol khỏi khóa học.
      *
@@ -75,7 +74,7 @@ class observer {
 
         // Gửi thông báo hủy ghi danh cho student.
         try {
-            $user   = $DB->get_record('user',   ['id' => $userid],  '*', IGNORE_MISSING);
+            $user   = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
             $course = $DB->get_record('course', ['id' => $courseid], '*', IGNORE_MISSING);
             if ($user && $course) {
                 require_once($CFG->dirroot . '/enrol/sepay/classes/util.php');

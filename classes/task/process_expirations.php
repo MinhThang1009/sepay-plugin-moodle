@@ -27,7 +27,6 @@ namespace enrol_sepay\task;
 defined('MOODLE_INTERNAL') || die();
 
 class process_expirations extends \core\task\scheduled_task {
-
     /**
      * Tên tác vụ.
      *

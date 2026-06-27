@@ -74,7 +74,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timeread' => $timeread
+                'timeread' => $timeread,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -91,7 +91,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timeread' => $timeread
+                'timeread' => $timeread,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -108,7 +108,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timeread' => $timeread
+                'timeread' => $timeread,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -125,7 +125,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timeread' => $timeread
+                'timeread' => $timeread,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -142,7 +142,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timeread' => $timeread
+                'timeread' => $timeread,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -156,7 +156,7 @@ if ($action && confirm_sesskey()) {
                     AND timeread IS NOT NULL";
             $params = [
                 'component' => 'enrol_sepay',
-                'eventtype' => 'pending_transaction'
+                'eventtype' => 'pending_transaction',
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -172,7 +172,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timecreated' => $timecreated
+                'timecreated' => $timecreated,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -188,7 +188,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timecreated' => $timecreated
+                'timecreated' => $timecreated,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -204,7 +204,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timecreated' => $timecreated
+                'timecreated' => $timecreated,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -220,7 +220,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timecreated' => $timecreated
+                'timecreated' => $timecreated,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -236,7 +236,7 @@ if ($action && confirm_sesskey()) {
             $params = [
                 'component' => 'enrol_sepay',
                 'eventtype' => 'pending_transaction',
-                'timecreated' => $timecreated
+                'timecreated' => $timecreated,
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('notifications_deleted_success', 'enrol_sepay'));
@@ -249,7 +249,7 @@ if ($action && confirm_sesskey()) {
                     AND eventtype = :eventtype";
             $params = [
                 'component' => 'enrol_sepay',
-                'eventtype' => 'pending_transaction'
+                'eventtype' => 'pending_transaction',
             ];
             $DB->execute($sql, $params);
             redirect($PAGE->url, get_string('all_notifications_deleted_success', 'enrol_sepay'));
@@ -263,8 +263,11 @@ $stats_params = [
     'eventtype' => 'pending_transaction',
 ];
 $total        = $DB->count_records('notifications', $stats_params);
-$read_count   = $DB->count_records_select('notifications',
-    "component = :component AND eventtype = :eventtype AND timeread IS NOT NULL", $stats_params);
+$read_count   = $DB->count_records_select(
+    'notifications',
+    "component = :component AND eventtype = :eventtype AND timeread IS NOT NULL",
+    $stats_params
+);
 $unread_count = $total - $read_count;
 
 echo $OUTPUT->header();
@@ -354,11 +357,11 @@ if ($total > 0) {
     echo '<div class="card">';
     echo '<div class="card-body">';
     echo '<h5 class="card-title">' . get_string('recent_notifications', 'enrol_sepay') . '</h5>';
-    
+
     // Phân trang
     $page = optional_param('page', 0, PARAM_INT);
     $perpage = 20;
-    
+
     $sql = "SELECT n.*, u.firstname, u.lastname, u.firstnamephonetic, u.lastnamephonetic,
                     u.middlename, u.alternatename, u.email
             FROM {notifications} n
@@ -389,51 +392,51 @@ if ($total > 0) {
             get_string('subject', 'enrol_sepay'),
             get_string('timecreated', 'enrol_sepay'),
             get_string('status', 'enrol_sepay'),
-            get_string('actions', 'enrol_sepay')
+            get_string('actions', 'enrol_sepay'),
         ];
-        
+
         foreach ($notifications as $notification) {
             // Sender data already available from the JOIN — no extra query needed.
             $sendername = trim(($notification->firstname ?? '') . ' ' . ($notification->lastname ?? '')) ?: 'N/A';
 
             $recipient = $recipients_map[$notification->useridto] ?? null;
             $recipientname = $recipient ? fullname($recipient) : 'N/A';
-            
-            $status = $notification->timeread 
+
+            $status = $notification->timeread
                 ? '<span class="badge badge-success">' . get_string('read', 'enrol_sepay') . '</span>'
                 : '<span class="badge badge-danger">' . get_string('unread', 'enrol_sepay') . '</span>';
-            
+
             // Nút xóa
             $deleteurl = new moodle_url($PAGE->url, [
                 'action' => 'delete_notification',
                 'id' => $notification->id,
-                'sesskey' => sesskey()
+                'sesskey' => sesskey(),
             ]);
             $deletebutton = html_writer::link(
                 $deleteurl,
                 get_string('delete', 'enrol_sepay'),
                 [
                     'class' => 'btn btn-sm btn-danger',
-                    'onclick' => 'return confirm(' . json_encode(get_string('confirm_delete_notification', 'enrol_sepay')) . ');'
+                    'onclick' => 'return confirm(' . json_encode(get_string('confirm_delete_notification', 'enrol_sepay')) . ');',
                 ]
             );
-            
+
             $table->data[] = [
                 $sendername,
                 $recipientname,
                 s($notification->subject),
                 userdate($notification->timecreated),
                 $status,
-                $deletebutton
+                $deletebutton,
             ];
         }
-        
+
         echo html_writer::table($table);
-        
+
         // Hiển thị thanh phân trang
         echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $PAGE->url);
     }
-    
+
     echo '</div>';
     echo '</div>';
 }

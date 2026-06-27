@@ -36,13 +36,13 @@ require_sesskey();
 
 // Lấy tham số
 $dataformat    = required_param('dataformat', PARAM_ALPHANUMEXT);
-$filter        = optional_param('filter',        'all', PARAM_ALPHA);
-$search_user   = optional_param('search_user',   '',   PARAM_TEXT);
-$search_course = optional_param('search_course', '',   PARAM_TEXT);
-$date_from     = optional_param('date_from',     '',   PARAM_TEXT);
-$date_to       = optional_param('date_to',       '',   PARAM_TEXT);
-$letter_raw    = optional_param('letter',        '',   PARAM_TEXT);
-$letter_fn_raw = optional_param('letter_fn',     '',   PARAM_TEXT);
+$filter        = optional_param('filter', 'all', PARAM_ALPHA);
+$search_user   = optional_param('search_user', '', PARAM_TEXT);
+$search_course = optional_param('search_course', '', PARAM_TEXT);
+$date_from     = optional_param('date_from', '', PARAM_TEXT);
+$date_to       = optional_param('date_to', '', PARAM_TEXT);
+$letter_raw    = optional_param('letter', '', PARAM_TEXT);
+$letter_fn_raw = optional_param('letter_fn', '', PARAM_TEXT);
 
 // Danh sách bảng chữ cái hợp lệ
 $vn_alphabet = [
@@ -50,7 +50,7 @@ $vn_alphabet = [
     'H', 'I', 'K', 'L', 'M', 'N', 'O', 'Ô', 'Ơ', 'P',
     'Q', 'R', 'S', 'T', 'U', 'Ư', 'V', 'X', 'Y',
 ];
-$letter    = in_array(mb_strtoupper($letter_raw,    'UTF-8'), $vn_alphabet, true) ? mb_strtoupper($letter_raw,    'UTF-8') : '';
+$letter    = in_array(mb_strtoupper($letter_raw, 'UTF-8'), $vn_alphabet, true) ? mb_strtoupper($letter_raw, 'UTF-8') : '';
 $letter_fn = in_array(mb_strtoupper($letter_fn_raw, 'UTF-8'), $vn_alphabet, true) ? mb_strtoupper($letter_fn_raw, 'UTF-8') : '';
 
 // Lấy danh sách ID được chọn từ form (nếu có)
@@ -65,7 +65,7 @@ $params = [];
 
 // Nếu có ID cụ thể được chọn thì chỉ xuất những dòng đó
 if (!empty($selected_ids)) {
-    list($insql, $inparams) = $DB->get_in_or_equal($selected_ids, SQL_PARAMS_NAMED, 'sel');
+    [$insql, $inparams] = $DB->get_in_or_equal($selected_ids, SQL_PARAMS_NAMED, 'sel');
     $sql_where .= " AND t.id $insql";
     $params = array_merge($params, $inparams);
 } else {
@@ -76,8 +76,8 @@ if (!empty($selected_ids)) {
     }
     if ($search_user !== '') {
         $sql_where .= " AND (" . $DB->sql_like('u.firstname', ':su1', false)
-                   . " OR "  . $DB->sql_like('u.lastname',  ':su2', false)
-                   . " OR "  . $DB->sql_like('u.email',     ':su3', false) . ")";
+                   . " OR "  . $DB->sql_like('u.lastname', ':su2', false)
+                   . " OR "  . $DB->sql_like('u.email', ':su3', false) . ")";
         $like = '%' . $DB->sql_like_escape($search_user) . '%';
         $params['su1'] = $like;
         $params['su2'] = $like;
@@ -145,22 +145,22 @@ $columns = [
 ];
 
 // Chuyển đổi dữ liệu thô trước khi ghi vào file
-$callback = function($row) {
+$callback = function ($row) {
     // Gộp amount + currency thành 1 ô
     $row->amount = number_format($row->amount) . ' ' . $row->currency;
     unset($row->currency);
 
     // Trạng thái dạng text
     $status_map = [
-        'pending'    => get_string('status_pending',    'enrol_sepay'),
-        'processed'  => get_string('status_processed',  'enrol_sepay'),
-        'rejected'   => get_string('status_rejected',   'enrol_sepay'),
+        'pending'    => get_string('status_pending', 'enrol_sepay'),
+        'processed'  => get_string('status_processed', 'enrol_sepay'),
+        'rejected'   => get_string('status_rejected', 'enrol_sepay'),
         'unenrolled' => get_string('status_unenrolled', 'enrol_sepay'),
     ];
     $row->status = $status_map[$row->status] ?? $row->status;
 
     // Ngày tạo và ngày xử lý dạng text
-    $row->timecreated   = $row->timecreated   ? userdate($row->timecreated)   : '';
+    $row->timecreated   = $row->timecreated ? userdate($row->timecreated) : '';
     $row->timeprocessed = $row->timeprocessed ? userdate($row->timeprocessed) : '';
 
     return $row;

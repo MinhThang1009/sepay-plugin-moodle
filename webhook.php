@@ -106,13 +106,13 @@ if (!is_array($sepay_data) || empty($sepay_data['content'])) {
 }
 
 // Lấy các trường quan trọng từ payload SePay.
-$content          = (string)($sepay_data['content']       ?? '');
-$transferAmount   = (int)($sepay_data['transferAmount']   ?? 0);
-$transferType     = (string)($sepay_data['transferType']  ?? '');
-$gateway          = (string)($sepay_data['gateway']       ?? '');
+$content          = (string)($sepay_data['content'] ?? '');
+$transferAmount   = (int)($sepay_data['transferAmount'] ?? 0);
+$transferType     = (string)($sepay_data['transferType'] ?? '');
+$gateway          = (string)($sepay_data['gateway'] ?? '');
 $accountNumber    = (string)($sepay_data['accountNumber'] ?? '');
-$subAccount       = (string)($sepay_data['subAccount']    ?? '');
-$accumulated      = (int)($sepay_data['accumulated']      ?? 0); // Lũy kế
+$subAccount       = (string)($sepay_data['subAccount'] ?? '');
+$accumulated      = (int)($sepay_data['accumulated'] ?? 0); // Lũy kế
 // referenceCode = mã giao dịch duy nhất của SePay, dùng để chống replay attack.
 $transaction_ref  = (string)($sepay_data['referenceCode'] ?? $sepay_data['id'] ?? '');
 
@@ -140,16 +140,16 @@ if ($accountNumber !== $bankAccount && $subAccount !== $bankAccount) {
 }
 
 // 4. Trích xuất courseid và userid từ nội dung chuyển khoản (content).
-//    Mẫu nội dung do Admin cấu hình: [pattern] + [courseid] + [separator] + [userid].
-//    Ví dụ: "VLU_CoursesID_12_UserID_34" -> courseid=12, userid=34.
+// Mẫu nội dung do Admin cấu hình: [pattern] + [courseid] + [separator] + [userid].
+// Ví dụ: "VLU_CoursesID_12_UserID_34" -> courseid=12, userid=34.
 $pattern = trim((string)$plugin->get_config('pattern', 'sepay'));
 $separator = trim((string)$plugin->get_config('separator', 'sepay'));
 
 // Ngân hàng thường strip ký tự đặc biệt (như _) trong nội dung chuyển khoản.
 // Giữ lại dấu cách và dấu chấm để làm terminator cho regex parse:
-//  - Dấu cách: hầu hết ngân hàng (MBBank, VCB, Techcombank...) tự thêm metadata
-//    sau một dấu cách, ví dụ "CourseID2UserID387 050526 23 03 ...".
-//  - Dấu chấm: phòng trường hợp một số ngân hàng giữ '.' nguyên hoặc tự chèn.
+// - Dấu cách: hầu hết ngân hàng (MBBank, VCB, Techcombank...) tự thêm metadata
+// sau một dấu cách, ví dụ "CourseID2UserID387 050526 23 03 ...".
+// - Dấu chấm: phòng trường hợp một số ngân hàng giữ '.' nguyên hoặc tự chèn.
 // Nếu cả hai terminator đều bị strip, lớp fallback DB shrinking bên dưới sẽ xử lý.
 $clean_pattern = preg_replace('/[^A-Za-z0-9]/', '', $pattern);
 $clean_separator = preg_replace('/[^A-Za-z0-9]/', '', $separator);
@@ -257,7 +257,7 @@ if ($transferAmount < $cost) {
     http_response_code(200);
     echo json_encode([
         'error'   => 'Số tiền thanh toán không đủ',
-        'detail'  => "Đã nhận: {$transferAmount}, yêu cầu: {$cost}"
+        'detail'  => "Đã nhận: {$transferAmount}, yêu cầu: {$cost}",
     ]);
     exit;
 }
@@ -281,7 +281,7 @@ $instance_manual = isset($instance->customint1) ? (int)$instance->customint1 : 0
 
 if ($instance_manual === 1) {
     $manual_enrol = true;
-} elseif ($instance_manual === 2) {
+} else if ($instance_manual === 2) {
     $manual_enrol = false;
 } else {
     // Dùng cấu hình global nếu instance không chỉ định.
@@ -431,17 +431,29 @@ if (!$manual_enrol) {
     try {
         $now = time();
         if ($ref_stored) {
-            $DB->set_field('enrol_sepay_transactions', 'status', 'processed',
+            $DB->set_field(
+                'enrol_sepay_transactions',
+                'status',
+                'processed',
                 ['transaction_ref' => $transaction_ref]
             );
-            $DB->set_field('enrol_sepay_transactions', 'timeprocessed', $now,
+            $DB->set_field(
+                'enrol_sepay_transactions',
+                'timeprocessed',
+                $now,
                 ['transaction_ref' => $transaction_ref]
             );
         } else {
-            $DB->set_field('enrol_sepay_transactions', 'status', 'processed',
+            $DB->set_field(
+                'enrol_sepay_transactions',
+                'status',
+                'processed',
                 ['userid' => $user->id, 'courseid' => $course->id, 'instanceid' => $instance->id, 'status' => 'pending']
             );
-            $DB->set_field('enrol_sepay_transactions', 'timeprocessed', $now,
+            $DB->set_field(
+                'enrol_sepay_transactions',
+                'timeprocessed',
+                $now,
                 ['userid' => $user->id, 'courseid' => $course->id, 'instanceid' => $instance->id, 'status' => 'processed']
             );
         }
@@ -462,7 +474,10 @@ if (!$manual_enrol) {
             if ($ref_stored) {
                 $DB->set_field('enrol_sepay_transactions', 'email_sent', 1, ['transaction_ref' => $transaction_ref]);
             } else {
-                $DB->set_field('enrol_sepay_transactions', 'email_sent', 1,
+                $DB->set_field(
+                    'enrol_sepay_transactions',
+                    'email_sent',
+                    1,
                     ['userid' => $user->id, 'courseid' => $course->id, 'instanceid' => $instance->id, 'status' => 'processed']
                 );
             }
@@ -522,16 +537,16 @@ if (!$manual_enrol) {
 // Trả về JSON thành công cho SePay.
 // Thứ tự: kết quả → user (parse đúng chưa?) → khóa học → tiền (đã thấy trên SePay UI).
 $response = [
-    'success'         => true,               // Webhook xử lý thành công?
-    'status'          => $status,            // processed | pending
-    'message'         => $message,           // Mô tả kết quả
-    'userid'          => $user->id,          // ID user được parse từ content
-    'username'        => fullname($user),    // Tên user — verify parse đúng chưa
-    'courseid'        => $course->id,        // ID khóa học được parse từ content
-    'coursename'      => $course->fullname,  // Tên khóa học — verify parse đúng chưa
-    'amount_received' => $transferAmount,    // Số tiền thực nhận (VND)
-    'amount_required' => $cost,              // Số tiền yêu cầu (VND)
-    'accumulated'     => $accumulated,       // Số dư tài khoản sau giao dịch (Lũy kế)
+    'success'         => true, // Webhook xử lý thành công?
+    'status'          => $status, // processed | pending
+    'message'         => $message, // Mô tả kết quả
+    'userid'          => $user->id, // ID user được parse từ content
+    'username'        => fullname($user), // Tên user — verify parse đúng chưa
+    'courseid'        => $course->id, // ID khóa học được parse từ content
+    'coursename'      => $course->fullname, // Tên khóa học — verify parse đúng chưa
+    'amount_received' => $transferAmount, // Số tiền thực nhận (VND)
+    'amount_required' => $cost, // Số tiền yêu cầu (VND)
+    'accumulated'     => $accumulated, // Số dư tài khoản sau giao dịch (Lũy kế)
 ];
 
 http_response_code(200);

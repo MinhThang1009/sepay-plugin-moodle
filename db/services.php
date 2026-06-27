@@ -32,5 +32,5 @@ $functions = [
         'type'          => 'read',
         'ajax'          => true,
         'loginrequired' => true,
-    ]
+    ],
 ];

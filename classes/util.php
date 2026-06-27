@@ -159,7 +159,9 @@ class util {
             message_send($msg);
 
             // Email trực tiếp với HTML tùy chỉnh — tránh Moodle wrapper và footer mobile app.
-            email_to_user($user, $contact,
+            email_to_user(
+                $user,
+                $contact,
                 get_string('email_welcome_subject', 'enrol_sepay', $a),
                 get_string('email_welcome_body', 'enrol_sepay', $a),
                 $html_student
@@ -177,7 +179,7 @@ class util {
                     if (in_array($teacher->id, $notified_users)) {
                         continue;
                     }
-                    
+
                     // Bell notification.
                     $msg = new \core\message\message();
                     $msg->component         = 'enrol_sepay';
@@ -195,7 +197,9 @@ class util {
                     message_send($msg);
 
                     // Email trực tiếp với HTML tùy chỉnh.
-                    email_to_user($teacher, $contact,
+                    email_to_user(
+                        $teacher,
+                        $contact,
                         get_string('email_teacher_subject', 'enrol_sepay', $a),
                         get_string('email_teacher_body', 'enrol_sepay', $a),
                         $html_alert
@@ -214,7 +218,7 @@ class util {
                 if (in_array($admin->id, $notified_users)) {
                     continue;
                 }
-                
+
                 // Bell notification.
                 $msg = new \core\message\message();
                 $msg->component         = 'enrol_sepay';
@@ -232,7 +236,9 @@ class util {
                 message_send($msg);
 
                 // Email trực tiếp với HTML tùy chỉnh.
-                email_to_user($admin, $contact,
+                email_to_user(
+                    $admin,
+                    $contact,
                     get_string('email_teacher_subject', 'enrol_sepay', $a),
                     get_string('email_teacher_body', 'enrol_sepay', $a),
                     $html_alert
@@ -252,16 +258,16 @@ class util {
         if (strpos($raw_name, ' - ') !== false) {
             $parts = explode(' - ', $raw_name);
             $parts = array_map('trim', $parts);
-            
+
             // Xóa đi các mẩu bị trống do dư dấu cách
-            $parts = array_values(array_filter($parts, function($val) {
+            $parts = array_values(array_filter($parts, function ($val) {
                 return $val !== '';
             }));
 
             if (count($parts) >= 3) {
                 // Return phần giữa (Thường cấu trúc là ID - Tên - Lớp)
-                return $parts[1]; 
-            } elseif (count($parts) == 2) {
+                return $parts[1];
+            } else if (count($parts) == 2) {
                 // Nếu là "ID - Tên"
                 if (is_numeric($parts[0])) {
                     return $parts[1];
@@ -288,7 +294,7 @@ class util {
         $str = [preg]::Replace($str, '(?|�|?|?|?)', 'Y');
         $str = [preg]::Replace($str, '(�)', 'D');
         $str = [preg]::Replace($str, '[^a-zA-Z0-9 ]', '');
-        return $str.Trim();
+        return $str . trim();
     }
 
     /**
@@ -321,7 +327,7 @@ class util {
             $uri = self::logo_data_uri('outlook_icon.png', 16, 16);
             $img = $uri ? '<img src="' . $uri . '" width="16" height="16" style="vertical-align: middle; margin-right: 6px;" alt="Outlook">' : '';
             return $img . 'Outlook:';
-        } elseif (stripos($email, '@gmail.com') !== false) {
+        } else if (stripos($email, '@gmail.com') !== false) {
             $uri = self::logo_data_uri('gmail_icon.png', 16, 16);
             $img = $uri ? '<img src="' . $uri . '" width="16" height="16" style="vertical-align: middle; margin-right: 6px;" alt="Gmail">' : '';
             return $img . 'Gmail:';
@@ -474,7 +480,7 @@ class util {
                         </td>
                     </tr>
 
-                    <?php if (stripos($a->useremail, '@vanlanguni.vn') === false): ?>
+                    <?php if (stripos($a->useremail, '@vanlanguni.vn') === false) : ?>
                     <!-- COMMUNITY BOX (ZALO) -->
                     <tr>
                         <td class="card-padding-mobile" style="padding: 0 30px 30px 30px; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
@@ -482,9 +488,9 @@ class util {
                                 <tr>
                                     <td class="card-bg-blue" style="background-color: #eff6ff; border: 1px solid #dbeafe; border-top: 2px solid #ffffff; border-bottom: 3px solid #bfdbfe; border-radius: 20px; padding: 30px 25px; text-align: center; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.05), inset 0 2px 0 rgba(255,255,255,0.6);">
                                         <?php $zalo_uri = self::logo_data_uri('zalo_icon.png', 60, 60); ?>
-                                        <?php if ($zalo_uri): ?>
+                                        <?php if ($zalo_uri) : ?>
                                         <img src="<?= $zalo_uri ?>" width="60" height="60" alt="Zalo Logo" style="display: block; margin: 0 auto 15px auto; border-radius: 16px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));">
-                                        <?php else: ?>
+                                        <?php else : ?>
                                         <div style="width:60px;height:60px;margin:0 auto 15px auto;background:#0068ff;border-radius:16px;display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:28px;font-weight:900;line-height:60px;text-align:center;display:block;">Z</span></div>
                                         <?php endif; ?>
                                         <h4 class="text-main" style="margin: 0 0 10px 0; color: #1e3a8a; font-size: 18px; font-weight: 700; text-shadow: 0 1px 1px rgba(255,255,255,0.8);">Cộng Đồng Quiz Văn Lang</h4>
@@ -508,9 +514,9 @@ class util {
                     <!-- FOOTER -->
                     <tr>
                         <td class="content-bg" style="background-color: #f8fafc; padding: 30px 25px; text-align: center; border-top: 1px solid #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                            <?php if (stripos($a->useremail, '@vanlanguni.vn') === false): ?>
+                            <?php if (stripos($a->useremail, '@vanlanguni.vn') === false) : ?>
                             <p class="footer-text" style="font-size: 14px; color: #64748b; margin: 0; line-height: 1.5;">💡 Nếu chưa vào được khóa học, inbox Zalo Admin:<br><a href="https://zalo.me/0588325106" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: 700; background: #e0e7ff; padding: 4px 12px; border-radius: 12px; display: inline-block; margin-top: 8px;">0588.325.106</a></p>
-                            <?php else: ?>
+                            <?php else : ?>
                             <p class="footer-text" style="font-size: 14px; color: #64748b; margin: 0; line-height: 1.5;">💡 Nếu chưa vào được khóa học, liên hệ SĐT Zalo Admin:<br><strong style="color: #475569; display: inline-block; margin-top: 8px;">0588.325.106</strong></p>
                             <?php endif; ?>
                             <div class="divider-line" style="width: 50px; height: 2px; background-color: #cbd5e1; margin: 20px auto; border-radius: 2px;"></div>
@@ -759,7 +765,9 @@ class util {
         message_send($msg);
 
         // Email trực tiếp với HTML tùy chỉnh — tránh Moodle wrapper và footer mobile app.
-        email_to_user($user, $admin,
+        email_to_user(
+            $user,
+            $admin,
             get_string('email_rejection_subject', 'enrol_sepay', $a),
             get_string('email_rejection_body', 'enrol_sepay', $a),
             self::get_rejection_email_html($a)
@@ -774,8 +782,8 @@ class util {
     public static function get_rejection_email_html($a): string {
         $clean_name     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
         $coursename     = htmlspecialchars($a->coursename, ENT_QUOTES, 'UTF-8');
-        $useremail      = htmlspecialchars($a->useremail,  ENT_QUOTES, 'UTF-8');
-        $courseurl      = htmlspecialchars($a->courseurl,  ENT_QUOTES, 'UTF-8');
+        $useremail      = htmlspecialchars($a->useremail, ENT_QUOTES, 'UTF-8');
+        $courseurl      = htmlspecialchars($a->courseurl, ENT_QUOTES, 'UTF-8');
         $platform_label = self::get_email_platform_label($a->useremail);
         ob_start();
         ?>
@@ -884,16 +892,16 @@ class util {
                             </tr>
 
                             <!-- ZALO COMMUNITY BOX -->
-                            <?php if (stripos($a->useremail, '@vanlanguni.vn') === false): ?>
+                            <?php if (stripos($a->useremail, '@vanlanguni.vn') === false) : ?>
                             <tr>
                                 <td class="card-padding-mobile" style="padding:0 30px 30px 30px;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
                                     <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:separate;border-spacing:0;">
                                         <tr>
                                             <td class="card-bg-blue" style="background-color:#eff6ff;border:1px solid #dbeafe;border-top:2px solid #ffffff;border-bottom:3px solid #bfdbfe;border-radius:20px;padding:30px 25px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,0.05),inset 0 2px 0 rgba(255,255,255,0.6);">
                                                 <?php $zalo_uri = self::logo_data_uri('zalo_icon.png', 60, 60); ?>
-                                                <?php if ($zalo_uri): ?>
+                                                <?php if ($zalo_uri) : ?>
                                                 <img src="<?= $zalo_uri ?>" width="60" height="60" alt="Zalo Logo" style="display:block;margin:0 auto 15px auto;border-radius:16px;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.15));">
-                                                <?php else: ?>
+                                                <?php else : ?>
                                                 <div style="width:60px;height:60px;margin:0 auto 15px auto;background:#0068ff;border-radius:16px;"><span style="color:#fff;font-size:28px;font-weight:900;line-height:60px;text-align:center;display:block;">Z</span></div>
                                                 <?php endif; ?>
                                                 <h4 class="text-main" style="margin:0 0 10px 0;color:#1e3a8a;font-size:18px;font-weight:700;">Cộng Đồng Quiz Văn Lang</h4>
@@ -917,9 +925,9 @@ class util {
                             <!-- FOOTER -->
                             <tr>
                                 <td class="content-bg" style="background-color:#f8fafc;padding:30px 25px;text-align:center;border-top:1px solid #e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-                                    <?php if (stripos($a->useremail, '@vanlanguni.vn') === false): ?>
+                                    <?php if (stripos($a->useremail, '@vanlanguni.vn') === false) : ?>
                                     <p class="footer-text" style="font-size:14px;color:#64748b;margin:0;line-height:1.5;">💡 Nếu muốn thử lại, inbox Zalo Admin:<br><a href="https://zalo.me/0588325106" target="_blank" style="color:#2563eb;text-decoration:none;font-weight:700;background:#e0e7ff;padding:4px 12px;border-radius:12px;display:inline-block;margin-top:8px;">0588.325.106</a></p>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                     <p class="footer-text" style="font-size:14px;color:#64748b;margin:0;line-height:1.5;">💡 Nếu muốn thử lại, liên hệ SĐT Zalo Admin:<br><strong style="color:#475569;display:inline-block;margin-top:8px;">0588.325.106</strong></p>
                                     <?php endif; ?>
                                     <div class="divider-line" style="width:50px;height:2px;background-color:#cbd5e1;margin:20px auto;border-radius:2px;"></div>
@@ -985,7 +993,9 @@ class util {
         message_send($msg);
 
         // Email trực tiếp với HTML tùy chỉnh — tránh Moodle wrapper và footer mobile app.
-        email_to_user($user, $admin,
+        email_to_user(
+            $user,
+            $admin,
             get_string('email_unenrolment_subject', 'enrol_sepay', $a),
             get_string('email_unenrolment_body', 'enrol_sepay', $a),
             self::get_unenrolment_email_html($a)
@@ -1000,12 +1010,13 @@ class util {
     public static function get_unenrolment_email_html($a): string {
         $clean_name     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
         $coursename     = htmlspecialchars($a->coursename, ENT_QUOTES, 'UTF-8');
-        $useremail      = htmlspecialchars($a->useremail,  ENT_QUOTES, 'UTF-8');
-        $courseurl      = htmlspecialchars($a->courseurl,  ENT_QUOTES, 'UTF-8');
+        $useremail      = htmlspecialchars($a->useremail, ENT_QUOTES, 'UTF-8');
+        $courseurl      = htmlspecialchars($a->courseurl, ENT_QUOTES, 'UTF-8');
         $platform_label = self::get_email_platform_label($a->useremail);
         $contact_url    = htmlspecialchars(
             (new \moodle_url('/message/index.php', ['id' => get_admin()->id]))->out(false),
-            ENT_QUOTES, 'UTF-8'
+            ENT_QUOTES,
+            'UTF-8'
         );
         ob_start();
         ?>
@@ -1115,9 +1126,9 @@ class util {
                             <!-- FOOTER -->
                             <tr>
                                 <td class="content-bg" style="background-color:#f8fafc;padding:30px 25px;text-align:center;border-top:1px solid #e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-                                    <?php if (stripos($a->useremail, '@vanlanguni.vn') === false): ?>
+                                    <?php if (stripos($a->useremail, '@vanlanguni.vn') === false) : ?>
                                     <p class="footer-text" style="font-size:14px;color:#64748b;margin:0;line-height:1.5;">💡 Nếu đây là nhầm lẫn, inbox Zalo Admin:<br><a href="https://zalo.me/0588325106" target="_blank" style="color:#2563eb;text-decoration:none;font-weight:700;background:#e0e7ff;padding:4px 12px;border-radius:12px;display:inline-block;margin-top:8px;">0588.325.106</a></p>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                     <p class="footer-text" style="font-size:14px;color:#64748b;margin:0;line-height:1.5;">💡 Nếu đây là nhầm lẫn, liên hệ SĐT Zalo Admin:<br><strong style="color:#475569;display:inline-block;margin-top:8px;">0588.325.106</strong></p>
                                     <?php endif; ?>
                                     <div class="divider-line" style="width:50px;height:2px;background-color:#cbd5e1;margin:20px auto;border-radius:2px;"></div>
