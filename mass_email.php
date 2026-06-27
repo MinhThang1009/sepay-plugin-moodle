@@ -41,18 +41,18 @@ echo html_writer::tag('h2', get_string('mass_email_title', 'enrol_sepay'));
 echo html_writer::tag('p', get_string('mass_email_desc', 'enrol_sepay'));
 
 // Đếm số giao dịch cần gửi email.
-$pending_count = $DB->count_records_select(
+$pendingcount = $DB->count_records_select(
     'enrol_sepay_transactions',
     "status = 'processed' AND email_sent = 0"
 );
 
-if ($pending_count === 0) {
+if ($pendingcount === 0) {
     echo $OUTPUT->notification(get_string('mass_email_allsent', 'enrol_sepay'), 'success');
     echo $OUTPUT->footer();
     exit;
 }
 
-echo $OUTPUT->notification(get_string('mass_email_found', 'enrol_sepay', $pending_count), 'info');
+echo $OUTPUT->notification(get_string('mass_email_found', 'enrol_sepay', $pendingcount), 'info');
 
 if ($execute && confirm_sesskey()) {
     // Queue ad-hoc task thay vì gửi trực tiếp (không block HTTP request, không cần sleep).
@@ -69,8 +69,8 @@ if ($execute && confirm_sesskey()) {
 }
 
 // Form xác nhận với sesskey (không còn GET-triggered action).
-$form_url = new moodle_url('/enrol/sepay/mass_email.php');
-echo '<form method="post" action="' . $form_url . '" class="mt-4">';
+$formurl = new moodle_url('/enrol/sepay/mass_email.php');
+echo '<form method="post" action="' . $formurl . '" class="mt-4">';
 echo '<input type="hidden" name="sesskey" value="' . sesskey() . '">';
 echo '<input type="hidden" name="execute" value="1">';
 echo '<div class="form-group">';

@@ -53,9 +53,9 @@ class cleanup_transactions extends \core\task\scheduled_task {
         }
 
         // Lấy thời gian lưu trữ tính bằng ngày.
-        $retention_days = get_config('enrol_sepay', 'retention_days');
-        if (empty($retention_days) || $retention_days < 1) {
-            $retention_days = 365; // Mặc định 1 năm.
+        $retentiondays = get_config('enrol_sepay', 'retention_days');
+        if (empty($retentiondays) || $retentiondays < 1) {
+            $retentiondays = 365; // Mặc định 1 năm.
         }
 
         // Lấy chiến lược lưu trữ.
@@ -65,11 +65,11 @@ class cleanup_transactions extends \core\task\scheduled_task {
         }
 
         // Tính mốc thời gian giới hạn.
-        $cutoff_time = time() - ($retention_days * 86400);
+        $cutofftime = time() - ($retentiondays * 86400);
 
         mtrace('Bắt đầu dọn dẹp giao dịch SePay...');
-        mtrace('Thời gian lưu trữ: ' . $retention_days . ' ngày');
-        mtrace('Mốc giới hạn: ' . userdate($cutoff_time));
+        mtrace('Thời gian lưu trữ: ' . $retentiondays . ' ngày');
+        mtrace('Mốc giới hạn: ' . userdate($cutofftime));
         mtrace('Chiến lược: ' . $strategy);
 
         // Tìm giao dịch cũ (đã xử lý hoặc bị từ chối, cũ hơn thời gian lưu trữ).
@@ -79,28 +79,28 @@ class cleanup_transactions extends \core\task\scheduled_task {
                  WHERE status IN ('processed', 'rejected')
                    AND timecreated < :cutoff";
 
-        $old_transactions = $DB->get_records_sql($sql, ['cutoff' => $cutoff_time]);
+        $oldtransactions = $DB->get_records_sql($sql, ['cutoff' => $cutofftime]);
 
-        if (empty($old_transactions)) {
+        if (empty($oldtransactions)) {
             mtrace('Không tìm thấy giao dịch cũ cần dọn dẹp.');
             return;
         }
 
-        $count = count($old_transactions);
+        $count = count($oldtransactions);
         mtrace('Tìm thấy ' . $count . ' giao dịch cũ cần xử lý.');
 
         $archived = 0;
         $deleted = 0;
 
-        foreach ($old_transactions as $transaction) {
+        foreach ($oldtransactions as $transaction) {
             if ($strategy === 'archive') {
                 // Chuyển sang bảng lưu trữ.
-                $archive_record = clone $transaction;
-                unset($archive_record->id); // Let DB assign new ID.
-                $archive_record->timearchived = time();
+                $archiverecord = clone $transaction;
+                unset($archiverecord->id); // Let DB assign new ID.
+                $archiverecord->timearchived = time();
 
                 try {
-                    $DB->insert_record('enrol_sepay_archive', $archive_record);
+                    $DB->insert_record('enrol_sepay_archive', $archiverecord);
                     $DB->delete_records('enrol_sepay_transactions', ['id' => $transaction->id]);
                     $archived++;
                 } catch (\Exception $e) {
@@ -142,26 +142,26 @@ class cleanup_transactions extends \core\task\scheduled_task {
         mtrace('Bắt đầu dọn dẹp bảng lưu trữ...');
 
         // Lấy thời gian lưu trữ bản lưu.
-        $archive_retention_days = get_config('enrol_sepay', 'archive_retention_days');
+        $archiveretentiondays = get_config('enrol_sepay', 'archive_retention_days');
 
         // Nếu giá trị là 0 hoặc rỗng, giữ lưu trữ vô thời hạn.
-        if (empty($archive_retention_days) || $archive_retention_days < 1) {
+        if (empty($archiveretentiondays) || $archiveretentiondays < 1) {
             mtrace('Lưu trữ vô thời hạn. Bỏ qua dọn dẹp bảng lưu trữ.');
             return;
         }
 
         // Tính mốc giới hạn cho bảng lưu trữ.
-        $archive_cutoff = time() - ($archive_retention_days * 86400);
+        $archivecutoff = time() - ($archiveretentiondays * 86400);
 
-        mtrace('Thời gian lưu trữ bản lưu: ' . $archive_retention_days . ' ngày');
-        mtrace('Mốc giới hạn bản lưu: ' . userdate($archive_cutoff));
+        mtrace('Thời gian lưu trữ bản lưu: ' . $archiveretentiondays . ' ngày');
+        mtrace('Mốc giới hạn bản lưu: ' . userdate($archivecutoff));
 
         // Tìm giao dịch lưu trữ cũ.
         $sql = "SELECT COUNT(*)
                   FROM {enrol_sepay_archive}
                  WHERE timearchived < :cutoff";
 
-        $count = $DB->count_records_sql($sql, ['cutoff' => $archive_cutoff]);
+        $count = $DB->count_records_sql($sql, ['cutoff' => $archivecutoff]);
 
         if ($count == 0) {
             mtrace('Không tìm thấy giao dịch lưu trữ cũ cần xóa.');
@@ -175,7 +175,7 @@ class cleanup_transactions extends \core\task\scheduled_task {
             $DB->execute(
                 "DELETE FROM {enrol_sepay_archive}
                   WHERE timearchived < :cutoff",
-                ['cutoff' => $archive_cutoff]
+                ['cutoff' => $archivecutoff]
             );
             mtrace('Đã xóa vĩnh viễn ' . $count . ' giao dịch lưu trữ.');
         } catch (\Exception $e) {

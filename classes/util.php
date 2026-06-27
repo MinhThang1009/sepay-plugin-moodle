@@ -131,11 +131,11 @@ class util {
         $a->courseurl = $courseurl;
 
         // Tránh 1 người nhận 3 thông báo nếu họ vừa là Học viên, Giáo viên và Admin (Lọc trùng lặp)
-        $notified_users = [];
+        $notifiedusers = [];
 
         // Tạo Mẫu HTML thông qua Static Methods để tái sử dụng ở môi trường Live & Test
-        $html_student = self::get_student_email_html($a);
-        $html_alert   = self::get_admin_email_html($a);
+        $htmlstudent = self::get_student_email_html($a);
+        $htmlalert   = self::get_admin_email_html($a);
 
         // 1. Mail to Student
         if ($mailstudents) {
@@ -163,10 +163,10 @@ class util {
                 $contact,
                 get_string('email_welcome_subject', 'enrol_sepay', $a),
                 get_string('email_welcome_body', 'enrol_sepay', $a),
-                $html_student
+                $htmlstudent
             );
 
-            $notified_users[] = $user->id;
+            $notifiedusers[] = $user->id;
         }
 
         // 2. Mail to Teachers
@@ -175,7 +175,7 @@ class util {
                 $contact = get_admin();
                 foreach ($teachers as $teacher) {
                     // Nếu giáo viên cũng chính là người vừa được ghi danh (hoặc đã nhận mail rồi) thì bỏ qua!
-                    if (in_array($teacher->id, $notified_users)) {
+                    if (in_array($teacher->id, $notifiedusers)) {
                         continue;
                     }
 
@@ -201,9 +201,9 @@ class util {
                         $contact,
                         get_string('email_teacher_subject', 'enrol_sepay', $a),
                         get_string('email_teacher_body', 'enrol_sepay', $a),
-                        $html_alert
+                        $htmlalert
                     );
-                    $notified_users[] = $teacher->id;
+                    $notifiedusers[] = $teacher->id;
                 }
             }
         }
@@ -214,7 +214,7 @@ class util {
             $contact = get_admin();
             foreach ($admins as $admin) {
                 // Nếu Admin cũng là Giáo viên hoặc là người đang test thì bỏ qua để tránh spam!
-                if (in_array($admin->id, $notified_users)) {
+                if (in_array($admin->id, $notifiedusers)) {
                     continue;
                 }
 
@@ -240,7 +240,7 @@ class util {
                     $contact,
                     get_string('email_teacher_subject', 'enrol_sepay', $a),
                     get_string('email_teacher_body', 'enrol_sepay', $a),
-                    $html_alert
+                    $htmlalert
                 );
             }
         }
@@ -252,10 +252,10 @@ class util {
      * Lọc và trích xuất đúng phần Tên học viên từ các định dạng phức tạp
      * VD: "2273401210132 - Võ Lê Thu Phương - 71K28KDTM02" -> "Võ Lê Thu Phương"
      */
-    public static function clean_student_name($raw_name) {
-        $raw_name = trim($raw_name);
-        if (strpos($raw_name, ' - ') !== false) {
-            $parts = explode(' - ', $raw_name);
+    public static function clean_student_name($rawname) {
+        $rawname = trim($rawname);
+        if (strpos($rawname, ' - ') !== false) {
+            $parts = explode(' - ', $rawname);
             $parts = array_map('trim', $parts);
 
             // Xóa đi các mẩu bị trống do dư dấu cách
@@ -274,7 +274,7 @@ class util {
                 return $parts[0];
             }
         }
-        return $raw_name;
+        return $rawname;
     }
 
     /**
@@ -319,11 +319,11 @@ class util {
      * BẢN VẼ HTML UI SENIOR UX DÀNH CHO HỌC VIÊN
      */
     public static function get_student_email_html($a) {
-        $clean_name     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
+        $cleanname     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
         $coursename     = htmlspecialchars($a->coursename, ENT_QUOTES, 'UTF-8');
         $useremail      = htmlspecialchars($a->useremail, ENT_QUOTES, 'UTF-8');
         $courseurl      = htmlspecialchars($a->courseurl, ENT_QUOTES, 'UTF-8');
-        $platform_label = self::get_email_platform_label($a->useremail);
+        $platformlabel = self::get_email_platform_label($a->useremail);
         ob_start();
         ?>
         <!DOCTYPE html>
@@ -402,7 +402,7 @@ class util {
                     <!-- CONTENT -->
                     <tr>
                         <td class="padding-mobile" style="padding: 35px 30px 25px 30px; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                            <p class="text-main" style="font-size: 19px; color: #1e293b; margin: 0 0 15px 0; line-height: 1.5; font-weight: 700;">Xin chào <span class="highlight-red" style="color: #d72134;"><?= $clean_name ?></span> 👋,</p>
+                            <p class="text-main" style="font-size: 19px; color: #1e293b; margin: 0 0 15px 0; line-height: 1.5; font-weight: 700;">Xin chào <span class="highlight-red" style="color: #d72134;"><?= $cleanname ?></span> 👋,</p>
                             <p class="text-sub" style="font-size: 16px; color: #475569; margin: 0; line-height: 1.7; text-align: justify;">🎉 Hệ thống đã xác nhận thanh toán và hoàn tất thủ tục ghi danh. Chúc mừng bạn đã chính thức tham gia khóa học này, hãy sẵn sàng ôn tập thật tốt để đạt kết quả cao trong kỳ thi sắp tới cùng Quiz Văn Lang nhé!</p>
                         </td>
                     </tr>
@@ -430,13 +430,13 @@ class util {
                                     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td width="35%" align="left" valign="top"><![endif]-->
                                     <span class="stack-mobile" style="font-size: 15px; color: #64748b; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">👤 Học viên:</span>
                                     <!--[if mso]></td><td width="65%" align="right" valign="top"><![endif]-->
-                                    <span class="stack-mobile value-mobile" style="font-size: 15px; font-weight: 700; color: #0f172a; float: right; text-align: right; word-break: break-word; max-width: 65%; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $clean_name ?></span>
+                                    <span class="stack-mobile value-mobile" style="font-size: 15px; font-weight: 700; color: #0f172a; float: right; text-align: right; word-break: break-word; max-width: 65%; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $cleanname ?></span>
                                     <!--[if mso]></td></tr></table><![endif]-->
                                 </div>
 
                                 <div class="dashed-border" style="border-top: 1px dashed #f4a2ab; padding: 12px 0 0 0; overflow: hidden; clear: both;">
                                     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td width="35%" align="left" valign="top"><![endif]-->
-                                    <span class="stack-mobile" style="font-size: 15px; color: #64748b; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $platform_label ?></span>
+                                    <span class="stack-mobile" style="font-size: 15px; color: #64748b; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $platformlabel ?></span>
                                     <!--[if mso]></td><td width="65%" align="right" valign="top"><![endif]-->
                                     <span class="stack-mobile value-mobile" style="font-size: 15px; font-weight: 700; color: #0f172a; float: right; text-align: right; word-break: break-all; max-width: 65%; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $useremail ?></span>
                                     <!--[if mso]></td></tr></table><![endif]-->
@@ -467,9 +467,9 @@ class util {
                             <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse: separate; border-spacing: 0;">
                                 <tr>
                                     <td class="card-bg-blue" style="background-color: #eff6ff; border: 1px solid #dbeafe; border-top: 2px solid #ffffff; border-bottom: 3px solid #bfdbfe; border-radius: 20px; padding: 30px 25px; text-align: center; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.05), inset 0 2px 0 rgba(255,255,255,0.6);">
-                                        <?php $zalo_uri = self::logo_data_uri('zalo_icon.png', 60, 60); ?>
-                                        <?php if ($zalo_uri) : ?>
-                                        <img src="<?= $zalo_uri ?>" width="60" height="60" alt="Zalo Logo" style="display: block; margin: 0 auto 15px auto; border-radius: 16px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));">
+                                        <?php $zalouri = self::logo_data_uri('zalo_icon.png', 60, 60); ?>
+                                        <?php if ($zalouri) : ?>
+                                        <img src="<?= $zalouri ?>" width="60" height="60" alt="Zalo Logo" style="display: block; margin: 0 auto 15px auto; border-radius: 16px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));">
                                         <?php else : ?>
                                         <div style="width:60px;height:60px;margin:0 auto 15px auto;background:#0068ff;border-radius:16px;display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:28px;font-weight:900;line-height:60px;text-align:center;display:block;">Z</span></div>
                                         <?php endif; ?>
@@ -527,11 +527,11 @@ class util {
      * BẢN VẼ HTML UI SENIOR UX DÀNH CHO ADMIN
      */
     public static function get_admin_email_html($a) {
-        $clean_name     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
+        $cleanname     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
         $coursename     = htmlspecialchars($a->coursename, ENT_QUOTES, 'UTF-8');
         $useremail      = htmlspecialchars($a->useremail, ENT_QUOTES, 'UTF-8');
         $profileurl     = htmlspecialchars($a->profileurl, ENT_QUOTES, 'UTF-8');
-        $platform_label = self::get_email_platform_label($a->useremail);
+        $platformlabel = self::get_email_platform_label($a->useremail);
         ob_start();
         ?>
         <!DOCTYPE html>
@@ -637,13 +637,13 @@ class util {
                                     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td width="35%" align="left" valign="top"><![endif]-->
                                     <span class="stack-mobile" style="font-size: 15px; color: #64748b; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">👤 Học viên:</span>
                                     <!--[if mso]></td><td width="65%" align="right" valign="top"><![endif]-->
-                                    <span class="stack-mobile value-mobile" style="font-size: 15px; font-weight: 700; color: #0f172a; float: right; text-align: right; word-break: break-word; max-width: 65%; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $clean_name ?></span>
+                                    <span class="stack-mobile value-mobile" style="font-size: 15px; font-weight: 700; color: #0f172a; float: right; text-align: right; word-break: break-word; max-width: 65%; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $cleanname ?></span>
                                     <!--[if mso]></td></tr></table><![endif]-->
                                 </div>
 
                                 <div class="dashed-border" style="border-top: 1px dashed #a7f3d0; padding: 12px 0 0 0; overflow: hidden; clear: both;">
                                     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"><tr><td width="35%" align="left" valign="top"><![endif]-->
-                                    <span class="stack-mobile" style="font-size: 15px; color: #64748b; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $platform_label ?></span>
+                                    <span class="stack-mobile" style="font-size: 15px; color: #64748b; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $platformlabel ?></span>
                                     <!--[if mso]></td><td width="65%" align="right" valign="top"><![endif]-->
                                     <span class="stack-mobile value-mobile" style="font-size: 15px; font-weight: 700; color: #0f172a; float: right; text-align: right; word-break: break-all; max-width: 65%; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;"><?= $useremail ?></span>
                                     <!--[if mso]></td></tr></table><![endif]-->
@@ -760,11 +760,11 @@ class util {
      * HTML email template cho rejection notification — màu cam, cùng chuẩn với enrollment template.
      */
     public static function get_rejection_email_html($a): string {
-        $clean_name     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
+        $cleanname     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
         $coursename     = htmlspecialchars($a->coursename, ENT_QUOTES, 'UTF-8');
         $useremail      = htmlspecialchars($a->useremail, ENT_QUOTES, 'UTF-8');
         $courseurl      = htmlspecialchars($a->courseurl, ENT_QUOTES, 'UTF-8');
-        $platform_label = self::get_email_platform_label($a->useremail);
+        $platformlabel = self::get_email_platform_label($a->useremail);
         ob_start();
         ?>
         <!DOCTYPE html>
@@ -827,7 +827,7 @@ class util {
                             <!-- CONTENT -->
                             <tr>
                                 <td class="padding-mobile" style="padding:35px 30px 25px 30px;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-                                    <p class="text-main" style="font-size:19px;color:#1e293b;margin:0 0 15px 0;line-height:1.5;font-weight:700;">Xin chào <span class="highlight" style="color:#ea580c;"><?= $clean_name ?></span> 👋,</p>
+                                    <p class="text-main" style="font-size:19px;color:#1e293b;margin:0 0 15px 0;line-height:1.5;font-weight:700;">Xin chào <span class="highlight" style="color:#ea580c;"><?= $cleanname ?></span> 👋,</p>
                                     <p class="text-sub" style="font-size:16px;color:#475569;margin:0;line-height:1.7;text-align:justify;">Rất tiếc, yêu cầu ghi danh khóa học của bạn đã bị từ chối. Vui lòng liên hệ với quản trị viên nếu bạn cho rằng đây là sự nhầm lẫn hoặc bạn muốn thử lại.</p>
                                 </td>
                             </tr>
@@ -846,10 +846,10 @@ class util {
                                         </div>
                                         <div style="border-top:1px dashed #fdba74;padding:12px 0;overflow:hidden;clear:both;">
                                             <span class="stack-mobile" style="font-size:15px;color:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;">👤 Học viên:</span>
-                                            <span class="stack-mobile value-mobile" style="font-size:15px;font-weight:700;color:#0f172a;float:right;text-align:right;word-break:break-word;max-width:65%;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $clean_name ?></span>
+                                            <span class="stack-mobile value-mobile" style="font-size:15px;font-weight:700;color:#0f172a;float:right;text-align:right;word-break:break-word;max-width:65%;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $cleanname ?></span>
                                         </div>
                                         <div style="border-top:1px dashed #fdba74;padding:12px 0 0 0;overflow:hidden;clear:both;">
-                                            <span class="stack-mobile" style="font-size:15px;color:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $platform_label ?></span>
+                                            <span class="stack-mobile" style="font-size:15px;color:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $platformlabel ?></span>
                                             <span class="stack-mobile value-mobile" style="font-size:15px;font-weight:700;color:#0f172a;float:right;text-align:right;word-break:break-all;max-width:65%;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $useremail ?></span>
                                         </div>
                                     </div>
@@ -878,9 +878,9 @@ class util {
                                     <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse:separate;border-spacing:0;">
                                         <tr>
                                             <td class="card-bg-blue" style="background-color:#eff6ff;border:1px solid #dbeafe;border-top:2px solid #ffffff;border-bottom:3px solid #bfdbfe;border-radius:20px;padding:30px 25px;text-align:center;box-shadow:0 4px 15px rgba(59,130,246,0.05),inset 0 2px 0 rgba(255,255,255,0.6);">
-                                                <?php $zalo_uri = self::logo_data_uri('zalo_icon.png', 60, 60); ?>
-                                                <?php if ($zalo_uri) : ?>
-                                                <img src="<?= $zalo_uri ?>" width="60" height="60" alt="Zalo Logo" style="display:block;margin:0 auto 15px auto;border-radius:16px;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.15));">
+                                                <?php $zalouri = self::logo_data_uri('zalo_icon.png', 60, 60); ?>
+                                                <?php if ($zalouri) : ?>
+                                                <img src="<?= $zalouri ?>" width="60" height="60" alt="Zalo Logo" style="display:block;margin:0 auto 15px auto;border-radius:16px;filter:drop-shadow(0 4px 10px rgba(0,0,0,0.15));">
                                                 <?php else : ?>
                                                 <div style="width:60px;height:60px;margin:0 auto 15px auto;background:#0068ff;border-radius:16px;"><span style="color:#fff;font-size:28px;font-weight:900;line-height:60px;text-align:center;display:block;">Z</span></div>
                                                 <?php endif; ?>
@@ -988,12 +988,12 @@ class util {
      * HTML email template cho unenrolment notification — màu slate, cùng chuẩn với enrollment template.
      */
     public static function get_unenrolment_email_html($a): string {
-        $clean_name     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
+        $cleanname     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
         $coursename     = htmlspecialchars($a->coursename, ENT_QUOTES, 'UTF-8');
         $useremail      = htmlspecialchars($a->useremail, ENT_QUOTES, 'UTF-8');
         $courseurl      = htmlspecialchars($a->courseurl, ENT_QUOTES, 'UTF-8');
-        $platform_label = self::get_email_platform_label($a->useremail);
-        $contact_url    = htmlspecialchars(
+        $platformlabel = self::get_email_platform_label($a->useremail);
+        $contacturl    = htmlspecialchars(
             (new \moodle_url('/message/index.php', ['id' => get_admin()->id]))->out(false),
             ENT_QUOTES,
             'UTF-8'
@@ -1059,7 +1059,7 @@ class util {
                             <!-- CONTENT -->
                             <tr>
                                 <td class="padding-mobile" style="padding:35px 30px 25px 30px;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-                                    <p class="text-main" style="font-size:19px;color:#1e293b;margin:0 0 15px 0;line-height:1.5;font-weight:700;">Xin chào <span class="highlight" style="color:#475569;"><?= $clean_name ?></span> 👋,</p>
+                                    <p class="text-main" style="font-size:19px;color:#1e293b;margin:0 0 15px 0;line-height:1.5;font-weight:700;">Xin chào <span class="highlight" style="color:#475569;"><?= $cleanname ?></span> 👋,</p>
                                     <p class="text-sub" style="font-size:16px;color:#475569;margin:0;line-height:1.7;text-align:justify;">Rất tiếc, bạn đã bị hủy ghi danh khỏi khóa học này. Nếu bạn cho rằng đây là nhầm lẫn, vui lòng liên hệ quản trị viên để được hỗ trợ kịp thời.</p>
                                 </td>
                             </tr>
@@ -1078,10 +1078,10 @@ class util {
                                         </div>
                                         <div style="border-top:1px dashed #cbd5e1;padding:12px 0;overflow:hidden;clear:both;">
                                             <span class="stack-mobile" style="font-size:15px;color:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;">👤 Học viên:</span>
-                                            <span class="stack-mobile value-mobile" style="font-size:15px;font-weight:700;color:#0f172a;float:right;text-align:right;word-break:break-word;max-width:65%;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $clean_name ?></span>
+                                            <span class="stack-mobile value-mobile" style="font-size:15px;font-weight:700;color:#0f172a;float:right;text-align:right;word-break:break-word;max-width:65%;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $cleanname ?></span>
                                         </div>
                                         <div style="border-top:1px dashed #cbd5e1;padding:12px 0 0 0;overflow:hidden;clear:both;">
-                                            <span class="stack-mobile" style="font-size:15px;color:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $platform_label ?></span>
+                                            <span class="stack-mobile" style="font-size:15px;color:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $platformlabel ?></span>
                                             <span class="stack-mobile value-mobile" style="font-size:15px;font-weight:700;color:#0f172a;float:right;text-align:right;word-break:break-all;max-width:65%;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><?= $useremail ?></span>
                                         </div>
                                     </div>
@@ -1092,13 +1092,13 @@ class util {
                             <tr>
                                 <td class="card-padding-mobile" style="padding:0 30px 40px 30px;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
                                     <!--[if mso]>
-                                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<?= $contact_url ?>" style="height:56px;v-text-anchor:middle;width:260px;" arcsize="50%" strokecolor="#1e293b" strokeweight="2px" fillcolor="#475569">
+                                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<?= $contacturl ?>" style="height:56px;v-text-anchor:middle;width:260px;" arcsize="50%" strokecolor="#1e293b" strokeweight="2px" fillcolor="#475569">
                                         <w:anchorlock/>
                                         <center style="color:#ffffff;font-family:'Segoe UI',sans-serif;font-size:16px;font-weight:bold;">LIÊN HỆ HỖ TRỢ</center>
                                     </v:roundrect>
                                     <![endif]-->
                                     <!--[if !mso]><!-->
-                                    <a href="<?= $contact_url ?>" class="cta-button" target="_blank" style="display:inline-block;background-color:#475569;background-image:linear-gradient(135deg,rgba(255,255,255,0.3) 0%,rgba(255,255,255,0.05) 45%,rgba(0,0,0,0.05) 55%,rgba(0,0,0,0.15) 100%);color:#ffffff;text-decoration:none;font-size:16px;font-weight:700;padding:15px 36px;border-radius:50px;border:1px solid rgba(255,255,255,0.4);box-shadow:0 10px 30px -5px rgba(71,85,105,0.4),inset 0 2px 4px rgba(255,255,255,0.5),inset 0 -4px 6px rgba(0,0,0,0.2);text-transform:uppercase;letter-spacing:1.5px;white-space:nowrap;"><span style="text-shadow:0 2px 4px rgba(0,0,0,0.3);">Liên Hệ Hỗ Trợ</span></a>
+                                    <a href="<?= $contacturl ?>" class="cta-button" target="_blank" style="display:inline-block;background-color:#475569;background-image:linear-gradient(135deg,rgba(255,255,255,0.3) 0%,rgba(255,255,255,0.05) 45%,rgba(0,0,0,0.05) 55%,rgba(0,0,0,0.15) 100%);color:#ffffff;text-decoration:none;font-size:16px;font-weight:700;padding:15px 36px;border-radius:50px;border:1px solid rgba(255,255,255,0.4);box-shadow:0 10px 30px -5px rgba(71,85,105,0.4),inset 0 2px 4px rgba(255,255,255,0.5),inset 0 -4px 6px rgba(0,0,0,0.2);text-transform:uppercase;letter-spacing:1.5px;white-space:nowrap;"><span style="text-shadow:0 2px 4px rgba(0,0,0,0.3);">Liên Hệ Hỗ Trợ</span></a>
                                     <!--<![endif]-->
                                 </td>
                             </tr>

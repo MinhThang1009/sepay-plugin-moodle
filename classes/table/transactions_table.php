@@ -35,36 +35,36 @@ use xmldb_table;
  */
 class transactions_table extends table_sql {
     /**
-     * @var array $filter_params Các tham số lọc đang được áp dụng
+     * @var array $filterparams Các tham số lọc đang được áp dụng
      */
-    protected $filter_params;
+    protected $filterparams;
 
     /**
-     * @var array $duplicate_ips Lưu trữ các IP bị trùng lặp user (IP => số lượng)
+     * @var array $duplicateips Lưu trữ các IP bị trùng lặp user (IP => số lượng)
      */
-    protected $duplicate_ips = [];
+    protected $duplicateips = [];
 
     /**
-     * @var array $ip_user_map Map IP đến các userid (dùng trong function format_row)
+     * @var array $ipusermap Map IP đến các userid (dùng trong function format_row)
      */
-    protected $ip_user_map = [];
+    protected $ipusermap = [];
 
     /**
-     * @var array $ip_detail_map Map userid đến danh sách IP records (batch preload trong query_db)
+     * @var array $ipdetailmap Map userid đến danh sách IP records (batch preload trong query_db)
      */
-    protected $ip_detail_map = [];
+    protected $ipdetailmap = [];
 
     /**
      * Hàm khởi tạo.
      *
      * @param string $uniqueid Khóa unique cho bảng
      * @param moodle_url $baseurl URL gốc của trang
-     * @param array $filter_params Mảng chứa các tham số lọc hiện tại
+     * @param array $filterparams Mảng chứa các tham số lọc hiện tại
      */
-    public function __construct($uniqueid, $baseurl, $filter_params = []) {
+    public function __construct($uniqueid, $baseurl, $filterparams = []) {
         parent::__construct($uniqueid);
 
-        $this->filter_params = $filter_params;
+        $this->filterparams = $filterparams;
         $this->define_baseurl($baseurl);
 
         $this->set_attribute('class', 'generaltable table-sm');
@@ -119,43 +119,43 @@ class transactions_table extends table_sql {
             if (!empty($userids)) {
                 [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'uid');
 
-                // Batch 1: build ip_user_map — dùng get_recordset_sql để tránh duplicate-key warning.
-                $sql_batch1 = "SELECT userid, ip
+                // Batch 1: build ipusermap — dùng get_recordset_sql để tránh duplicate-key warning.
+                $sqlbatch1 = "SELECT userid, ip
                                  FROM {logstore_standard_log}
                                 WHERE userid $insql AND ip IS NOT NULL AND ip != ''
                              GROUP BY userid, ip";
-                $rs1 = $DB->get_recordset_sql($sql_batch1, $inparams);
+                $rs1 = $DB->get_recordset_sql($sqlbatch1, $inparams);
                 foreach ($rs1 as $row) {
-                    if (!isset($this->ip_user_map[$row->ip])) {
-                        $this->ip_user_map[$row->ip] = [];
+                    if (!isset($this->ipusermap[$row->ip])) {
+                        $this->ipusermap[$row->ip] = [];
                     }
-                    if (!in_array($row->userid, $this->ip_user_map[$row->ip])) {
-                        $this->ip_user_map[$row->ip][] = $row->userid;
+                    if (!in_array($row->userid, $this->ipusermap[$row->ip])) {
+                        $this->ipusermap[$row->ip][] = $row->userid;
                     }
                 }
                 $rs1->close();
 
-                // Batch 2: build ip_detail_map (last 5 IPs per user by most recent).
-                $sql_batch2 = "SELECT userid, ip, MAX(timecreated) as lastused
+                // Batch 2: build ipdetailmap (last 5 IPs per user by most recent).
+                $sqlbatch2 = "SELECT userid, ip, MAX(timecreated) as lastused
                                  FROM {logstore_standard_log}
                                 WHERE userid $insql AND ip IS NOT NULL AND ip != ''
                              GROUP BY userid, ip
                              ORDER BY lastused DESC";
-                $rs2 = $DB->get_recordset_sql($sql_batch2, $inparams);
+                $rs2 = $DB->get_recordset_sql($sqlbatch2, $inparams);
                 foreach ($rs2 as $row) {
-                    if (!isset($this->ip_detail_map[$row->userid])) {
-                        $this->ip_detail_map[$row->userid] = [];
+                    if (!isset($this->ipdetailmap[$row->userid])) {
+                        $this->ipdetailmap[$row->userid] = [];
                     }
-                    if (count($this->ip_detail_map[$row->userid]) < 5) {
-                        $this->ip_detail_map[$row->userid][] = $row;
+                    if (count($this->ipdetailmap[$row->userid]) < 5) {
+                        $this->ipdetailmap[$row->userid][] = $row;
                     }
                 }
                 $rs2->close();
             }
 
-            foreach ($this->ip_user_map as $ip => $userids_for_ip) {
-                if (count($userids_for_ip) > 1) {
-                    $this->duplicate_ips[$ip] = count($userids_for_ip);
+            foreach ($this->ipusermap as $ip => $useridsforip) {
+                if (count($useridsforip) > 1) {
+                    $this->duplicateips[$ip] = count($useridsforip);
                 }
             }
         }
@@ -191,22 +191,22 @@ class transactions_table extends table_sql {
      * @return string
      */
     public function col_ip_address($row) {
-        // Không query DB — dùng ip_detail_map đã build sẵn trong query_db().
-        if (isset($this->ip_detail_map[$row->userid])) {
-            $ip_list = [];
-            foreach ($this->ip_detail_map[$row->userid] as $ip_record) {
-                $ip = s($ip_record->ip);
-                if (isset($this->duplicate_ips[$ip_record->ip])) {
-                    $num_users    = $this->duplicate_ips[$ip_record->ip];
-                    $warning_text = get_string('ip_duplicate_warning', 'enrol_sepay', $num_users);
-                    $users_text   = get_string('ip_duplicate_users', 'enrol_sepay', $num_users);
-                    $ip_list[] = '<div class="text-danger font-weight-bold" title="' . s($warning_text) . '">'
-                               . $ip . ' <span class="badge badge-danger ml-1">' . $users_text . '</span></div>';
+        // Không query DB — dùng ipdetailmap đã build sẵn trong query_db().
+        if (isset($this->ipdetailmap[$row->userid])) {
+            $iplist = [];
+            foreach ($this->ipdetailmap[$row->userid] as $iprecord) {
+                $ip = s($iprecord->ip);
+                if (isset($this->duplicateips[$iprecord->ip])) {
+                    $numusers    = $this->duplicateips[$iprecord->ip];
+                    $warningtext = get_string('ip_duplicate_warning', 'enrol_sepay', $numusers);
+                    $userstext   = get_string('ip_duplicate_users', 'enrol_sepay', $numusers);
+                    $iplist[] = '<div class="text-danger font-weight-bold" title="' . s($warningtext) . '">'
+                               . $ip . ' <span class="badge badge-danger ml-1">' . $userstext . '</span></div>';
                 } else {
-                    $ip_list[] = '<div>' . $ip . '</div>';
+                    $iplist[] = '<div>' . $ip . '</div>';
                 }
             }
-            return implode('', $ip_list);
+            return implode('', $iplist);
         }
         return s($row->ip_address) ?: '<em>N/A</em>';
     }
@@ -309,11 +309,11 @@ class transactions_table extends table_sql {
         if ($row->status === 'pending') {
             $approveurl = new moodle_url(
                 '/enrol/sepay/transactions.php',
-                array_merge($this->filter_params, ['action' => 'approve', 'id' => $row->id, 'sesskey' => sesskey()])
+                array_merge($this->filterparams, ['action' => 'approve', 'id' => $row->id, 'sesskey' => sesskey()])
             );
             $rejecturl  = new moodle_url(
                 '/enrol/sepay/transactions.php',
-                array_merge($this->filter_params, ['action' => 'reject', 'id' => $row->id, 'sesskey' => sesskey()])
+                array_merge($this->filterparams, ['action' => 'reject', 'id' => $row->id, 'sesskey' => sesskey()])
             );
 
             $actions .= html_writer::link($approveurl, get_string('approve', 'enrol_sepay'), [
@@ -329,7 +329,7 @@ class transactions_table extends table_sql {
         if ($row->status === 'processed' || $row->status === 'rejected' || $row->status === 'unenrolled') {
             $deleteurl = new moodle_url(
                 '/enrol/sepay/transactions.php',
-                array_merge($this->filter_params, ['action' => 'delete', 'id' => $row->id, 'sesskey' => sesskey()])
+                array_merge($this->filterparams, ['action' => 'delete', 'id' => $row->id, 'sesskey' => sesskey()])
             );
             if ($actions !== '') {
                 $actions .= ' ';

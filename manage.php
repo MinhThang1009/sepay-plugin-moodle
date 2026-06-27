@@ -160,16 +160,16 @@ if (!$transactions) {
 
         // Settings Comparison
         $instance = $DB->get_record('enrol', ['id' => $t->instanceid]);
-        $instance_cost = $instance ? (float)$instance->cost : 0;
-        $global_cost = (float)$plugin->get_config('cost');
+        $instancecost = $instance ? (float)$instance->cost : 0;
+        $globalcost = (float)$plugin->get_config('cost');
 
-        $settings_html = "<small>";
-        $settings_html .= "<b>" . get_string('manage_instance_cost', 'enrol_sepay') . ":</b> " . number_format($instance_cost) . "<br>";
-        $settings_html .= "<b>" . get_string('manage_global_cost', 'enrol_sepay') . ":</b> " . number_format($global_cost) . "<br>";
-        $settings_html .= "</small>";
+        $settingshtml = "<small>";
+        $settingshtml .= "<b>" . get_string('manage_instance_cost', 'enrol_sepay') . ":</b> " . number_format($instancecost) . "<br>";
+        $settingshtml .= "<b>" . get_string('manage_global_cost', 'enrol_sepay') . ":</b> " . number_format($globalcost) . "<br>";
+        $settingshtml .= "</small>";
 
-        $approve_url = new moodle_url('/enrol/sepay/manage.php', ['action' => 'approve', 'id' => $t->id, 'sesskey' => sesskey()]);
-        $action_btn = $OUTPUT->single_button($approve_url, get_string('approve', 'enrol_sepay'));
+        $approveurl = new moodle_url('/enrol/sepay/manage.php', ['action' => 'approve', 'id' => $t->id, 'sesskey' => sesskey()]);
+        $actionbtn = $OUTPUT->single_button($approveurl, get_string('approve', 'enrol_sepay'));
 
         $table->data[] = [
             $userlink,
@@ -177,8 +177,8 @@ if (!$transactions) {
             $details,
             userdate($t->timecreated),
             s($t->ip_address),
-            $settings_html,
-            $action_btn,
+            $settingshtml,
+            $actionbtn,
         ];
     }
     echo html_writer::table($table);

@@ -74,7 +74,7 @@ class external extends external_api {
         $userid = $USER->id;
 
         // Gộp thành 1 query để giảm số lần truy vấn DB.
-        $all_txns = $DB->get_records_select(
+        $alltxns = $DB->get_records_select(
             'enrol_sepay_transactions',
             'userid = :uid AND courseid = :cid',
             ['uid' => $userid, 'cid' => $courseid],
@@ -82,7 +82,7 @@ class external extends external_api {
         );
 
         $pending = $processed = $rejected = $unenrolled = null;
-        foreach ($all_txns as $txn) {
+        foreach ($alltxns as $txn) {
             if (!$pending    && $txn->status === 'pending') {
                 $pending    = $txn;
             }

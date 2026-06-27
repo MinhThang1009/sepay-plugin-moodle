@@ -59,10 +59,10 @@ if (!$plugin) {
 }
 
 // Lấy API Key cấu hình trong trang Settings của plugin.
-$expected_key = trim((string)$plugin->get_config('apikey'));
+$expectedkey = trim((string)$plugin->get_config('apikey'));
 
 // Từ chối ngay nếu admin chưa cấu hình API Key — không cho phép webhook chạy khi chưa bảo mật.
-if (empty($expected_key)) {
+if (empty($expectedkey)) {
     http_response_code(503);
     echo json_encode(['error' => 'Webhook chưa được cấu hình API Key']);
     exit;
@@ -70,25 +70,25 @@ if (empty($expected_key)) {
 
 // Xác thực Authorization header từ SePay.
 // SePay gửi header: "Authorization: Apikey <API_KEY>"
-$auth_header = '';
+$authheader = '';
 if (function_exists('getallheaders')) {
-    $all_headers = getallheaders();
-    foreach ($all_headers as $name => $value) {
+    $allheaders = getallheaders();
+    foreach ($allheaders as $name => $value) {
         if (strtolower($name) === 'authorization') {
-            $auth_header = $value;
+            $authheader = $value;
             break;
         }
     }
 }
 // Fallback cho CGI/FastCGI server không có getallheaders().
-if ($auth_header === '') {
-    $auth_header = $_SERVER['HTTP_AUTHORIZATION']
+if ($authheader === '') {
+    $authheader = $_SERVER['HTTP_AUTHORIZATION']
                 ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
                 ?? '';
 }
 
 // Dùng hash_equals để tránh timing attack.
-if (!hash_equals('Apikey ' . $expected_key, $auth_header)) {
+if (!hash_equals('Apikey ' . $expectedkey, $authheader)) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
@@ -96,44 +96,44 @@ if (!hash_equals('Apikey ' . $expected_key, $auth_header)) {
 
 // 2. Đọc JSON input body do SePay gửi sang.
 $input = file_get_contents('php://input');
-$sepay_data = json_decode($input, true);
+$sepaydata = json_decode($input, true);
 
 // Chỉ cần content hợp lệ; trường code có thể rỗng hoặc null.
-if (!is_array($sepay_data) || empty($sepay_data['content'])) {
+if (!is_array($sepaydata) || empty($sepaydata['content'])) {
     http_response_code(200);
     echo json_encode(['success' => true, 'message' => 'Webhook endpoint is active']);
     exit;
 }
 
 // Lấy các trường quan trọng từ payload SePay.
-$content          = (string)($sepay_data['content'] ?? '');
-$transferAmount   = (int)($sepay_data['transferAmount'] ?? 0);
-$transferType     = (string)($sepay_data['transferType'] ?? '');
-$gateway          = (string)($sepay_data['gateway'] ?? '');
-$accountNumber    = (string)($sepay_data['accountNumber'] ?? '');
-$subAccount       = (string)($sepay_data['subAccount'] ?? '');
-$accumulated      = (int)($sepay_data['accumulated'] ?? 0); // Lũy kế
+$content          = (string)($sepaydata['content'] ?? '');
+$transferamount   = (int)($sepaydata['transferAmount'] ?? 0);
+$transfertype     = (string)($sepaydata['transferType'] ?? '');
+$gateway          = (string)($sepaydata['gateway'] ?? '');
+$accountnumber    = (string)($sepaydata['accountNumber'] ?? '');
+$subaccount       = (string)($sepaydata['subAccount'] ?? '');
+$accumulated      = (int)($sepaydata['accumulated'] ?? 0); // Lũy kế
 // referenceCode = mã giao dịch duy nhất của SePay, dùng để chống replay attack.
-$transaction_ref  = (string)($sepay_data['referenceCode'] ?? $sepay_data['id'] ?? '');
+$transactionref  = (string)($sepaydata['referenceCode'] ?? $sepaydata['id'] ?? '');
 
 // Lấy thông tin tài khoản nhận và ngân hàng cấu hình trong plugin.
-$bankAccount = (string)$plugin->get_config('account');
-$configBank  = (string)$plugin->get_config('bank');
+$bankaccount = (string)$plugin->get_config('account');
+$configbank  = (string)$plugin->get_config('bank');
 
 // 3. Lọc những giao dịch không phải chuyển "vào" tài khoản này hoặc sai ngân hàng.
-if ($transferType !== 'in') {
+if ($transfertype !== 'in') {
     http_response_code(200);
     echo json_encode(['message' => 'Bỏ qua: transferType khác "in"']);
     exit;
 }
 
-if ($gateway !== $configBank) {
+if ($gateway !== $configbank) {
     http_response_code(200);
     echo json_encode(['message' => 'Bỏ qua: gateway khác ngân hàng cấu hình']);
     exit;
 }
 
-if ($accountNumber !== $bankAccount && $subAccount !== $bankAccount) {
+if ($accountnumber !== $bankaccount && $subaccount !== $bankaccount) {
     http_response_code(200);
     echo json_encode(['message' => 'Bỏ qua: số tài khoản nhận không khớp cấu hình']);
     exit;
@@ -151,45 +151,45 @@ $separator = trim((string)$plugin->get_config('separator', 'sepay'));
 // sau một dấu cách, ví dụ "CourseID2UserID387 050526 23 03 ...".
 // - Dấu chấm: phòng trường hợp một số ngân hàng giữ '.' nguyên hoặc tự chèn.
 // Nếu cả hai terminator đều bị strip, lớp fallback DB shrinking bên dưới sẽ xử lý.
-$clean_pattern = preg_replace('/[^A-Za-z0-9]/', '', $pattern);
-$clean_separator = preg_replace('/[^A-Za-z0-9]/', '', $separator);
-$clean_content = preg_replace('/[^A-Za-z0-9 .]/', '', $content);
+$cleanpattern = preg_replace('/[^A-Za-z0-9]/', '', $pattern);
+$cleanseparator = preg_replace('/[^A-Za-z0-9]/', '', $separator);
+$cleancontent = preg_replace('/[^A-Za-z0-9 .]/', '', $content);
 
 $matches = [];
-$parsed_courseid = null;
-$parsed_userid = null;
+$parsedcourseid = null;
+$parseduserid = null;
 
 // Lớp 1+2: regex strict — yêu cầu kết thúc bằng '.', dấu cách, hoặc end-of-string.
 // Đủ cho 99% giao dịch thực tế (bank giữ '.' hoặc giữ space).
-$strict_regex = '/' . preg_quote($clean_pattern, '/') . '(\d+)'
-              . preg_quote($clean_separator, '/') . '(\d+)(?=[.\s]|$)/i';
-if (preg_match($strict_regex, $clean_content, $matches)) {
-    $parsed_courseid = (int)$matches[1];
-    $parsed_userid   = (int)$matches[2];
+$strictregex = '/' . preg_quote($cleanpattern, '/') . '(\d+)'
+              . preg_quote($cleanseparator, '/') . '(\d+)(?=[.\s]|$)/i';
+if (preg_match($strictregex, $cleancontent, $matches)) {
+    $parsedcourseid = (int)$matches[1];
+    $parseduserid   = (int)$matches[2];
 } else {
     // Lớp 3 (fallback): regex loose + DB shrinking. Áp dụng khi ngân hàng strip cả
     // '.' lẫn space. Greedy '\d+' có thể nuốt thêm số metadata vào courseid/userid;
     // ta cắt dần từ phải và verify với DB để khôi phục giá trị thật.
-    $loose_regex = '/' . preg_quote($clean_pattern, '/') . '(\d+)'
-                 . preg_quote($clean_separator, '/') . '(\d+)/i';
-    if (preg_match($loose_regex, $clean_content, $matches)) {
-        $courseid_raw = $matches[1];
-        $userid_raw = $matches[2];
+    $looseregex = '/' . preg_quote($cleanpattern, '/') . '(\d+)'
+                 . preg_quote($cleanseparator, '/') . '(\d+)/i';
+    if (preg_match($looseregex, $cleancontent, $matches)) {
+        $courseidraw = $matches[1];
+        $useridraw = $matches[2];
 
         // Shrink courseid từ phải: lấy prefix dài nhất tồn tại trong bảng course.
-        for ($i = strlen($courseid_raw); $i > 0; $i--) {
-            $candidate = (int)substr($courseid_raw, 0, $i);
+        for ($i = strlen($courseidraw); $i > 0; $i--) {
+            $candidate = (int)substr($courseidraw, 0, $i);
             if ($candidate > 0 && $DB->record_exists('course', ['id' => $candidate])) {
-                $parsed_courseid = $candidate;
+                $parsedcourseid = $candidate;
                 break;
             }
         }
 
         // Shrink userid từ phải: lấy prefix dài nhất tồn tại và chưa bị xóa.
-        for ($i = strlen($userid_raw); $i > 0; $i--) {
-            $candidate = (int)substr($userid_raw, 0, $i);
+        for ($i = strlen($useridraw); $i > 0; $i--) {
+            $candidate = (int)substr($useridraw, 0, $i);
             if ($candidate > 0 && $DB->record_exists('user', ['id' => $candidate, 'deleted' => 0])) {
-                $parsed_userid = $candidate;
+                $parseduserid = $candidate;
                 break;
             }
         }
@@ -197,15 +197,15 @@ if (preg_match($strict_regex, $clean_content, $matches)) {
 }
 
 // Kiểm tra kết quả parse.
-if ($parsed_courseid === null || $parsed_userid === null) {
+if ($parsedcourseid === null || $parseduserid === null) {
     http_response_code(200);
     echo json_encode(['message' => 'Bỏ qua: nội dung chuyển khoản không khớp pattern mong đợi']);
     exit;
 }
 
 $data = new stdClass();
-$data->userid      = $parsed_userid;
-$data->courseid    = $parsed_courseid;
+$data->userid      = $parseduserid;
+$data->courseid    = $parsedcourseid;
 $data->timeupdated = time();
 
 // 5. Tìm user và khóa học tương ứng trong Moodle.
@@ -247,17 +247,17 @@ if ((float)$instance->cost <= 0) {
 }
 
 // Nếu chi tiết SePay gửi sang nhỏ hơn số tiền yêu cầu -> báo lỗi & không ghi danh.
-if ($transferAmount < $cost) {
+if ($transferamount < $cost) {
     // Log lỗi và thông báo admin giống phong cách Paypal.
     \enrol_sepay\util::message_sepay_error_to_admin(
-        "Số tiền thanh toán không đủ ({$transferAmount} < {$cost})",
-        $sepay_data
+        "Số tiền thanh toán không đủ ({$transferamount} < {$cost})",
+        $sepaydata
     );
 
     http_response_code(200);
     echo json_encode([
         'error'   => 'Số tiền thanh toán không đủ',
-        'detail'  => "Đã nhận: {$transferAmount}, yêu cầu: {$cost}",
+        'detail'  => "Đã nhận: {$transferamount}, yêu cầu: {$cost}",
     ]);
     exit;
 }
@@ -277,15 +277,15 @@ $roleid = !empty($instance->roleid) ? (int)$instance->roleid : (int)$plugin->get
 // 9. Thực hiện ghi danh hoặc lưu trạng thái chờ xử lý.
 // Lấy config 'manual_enrol' từ instance (customint1) hoặc global.
 // customint1: 0 = Default (Global), 1 = Manual, 2 = Auto.
-$instance_manual = isset($instance->customint1) ? (int)$instance->customint1 : 0;
+$instancemanual = isset($instance->customint1) ? (int)$instance->customint1 : 0;
 
-if ($instance_manual === 1) {
-    $manual_enrol = true;
-} else if ($instance_manual === 2) {
-    $manual_enrol = false;
+if ($instancemanual === 1) {
+    $manualenrol = true;
+} else if ($instancemanual === 2) {
+    $manualenrol = false;
 } else {
     // Dùng cấu hình global nếu instance không chỉ định.
-    $manual_enrol = (int)$plugin->get_config('manual_enrol');
+    $manualenrol = (int)$plugin->get_config('manual_enrol');
 }
 
 // Xác định trạng thái và hành động.
@@ -301,8 +301,8 @@ $userip = $user->lastip ?? '';
 // unique — cố ý, để cho phép mua lại sau khi bị reject). Serialize đoạn check+insert
 // bằng app-lock theo khóa dedup để chỉ một request xử lý tại một thời điểm.
 $lockfactory = \core\lock\lock_config::get_lock_factory('enrol_sepay_webhook');
-$lockresource = ($transaction_ref !== '')
-    ? 'ref_' . sha1($transaction_ref)
+$lockresource = ($transactionref !== '')
+    ? 'ref_' . sha1($transactionref)
     : 'tuple_' . $user->id . '_' . $course->id . '_' . $instance->id;
 $lock = $lockfactory->get_lock($lockresource, 10);
 if (!$lock) {
@@ -314,27 +314,27 @@ if (!$lock) {
 
 // Kiểm tra duplicate theo 2 lớp:
 // Lớp 1 — cùng transaction_ref (referenceCode SePay): chặn replay dù status là gì.
-$ref_stored = false;
-if ($transaction_ref !== '') {
+$refstored = false;
+if ($transactionref !== '') {
     try {
-        $ref_exists = $DB->record_exists('enrol_sepay_transactions', ['transaction_ref' => $transaction_ref]);
-        if ($ref_exists) {
+        $refexists = $DB->record_exists('enrol_sepay_transactions', ['transaction_ref' => $transactionref]);
+        if ($refexists) {
             $lock->release();
             http_response_code(200);
             echo json_encode(['success' => true, 'message' => 'Giao dịch đã được ghi nhận trước đó']);
             exit;
         }
-        $ref_stored = true; // DB có cột này và đã check thành công
+        $refstored = true; // DB có cột này và đã check thành công
     } catch (\dml_exception $e) {
         // Column transaction_ref chưa tồn tại trong DB — fallback sang Lớp 2.
         debugging('enrol_sepay webhook: transaction_ref column missing — ' . $e->getMessage(), DEBUG_DEVELOPER);
-        $ref_stored = false;
+        $refstored = false;
     }
 }
 
 // Lớp 2 — Chỉ chạy nếu không thể dùng Lớp 1 (DB cũ chưa upgrade, hoặc không có transaction_ref).
 // Chặn theo (userid, courseid, instanceid) với status pending/processed để chặn retry từ SePay.
-if (!$ref_stored) {
+if (!$refstored) {
     $existing = $DB->get_record_select(
         'enrol_sepay_transactions',
         "userid = :uid AND courseid = :cid AND instanceid = :iid AND status IN ('pending', 'processed')",
@@ -353,10 +353,10 @@ $record = new stdClass();
 $record->userid             = $user->id;
 $record->courseid           = $course->id;
 $record->instanceid         = $instance->id;
-$record->amount             = $transferAmount;
+$record->amount             = $transferamount;
 $record->currency           = $plugin->get_config('currency') ?: 'VND';
 $record->transaction_content = $content;
-$record->transaction_ref    = $transaction_ref;
+$record->transaction_ref    = $transactionref;
 $record->gateway            = $gateway;
 $record->status             = $status;
 $record->ip_address         = $userip;
@@ -365,7 +365,7 @@ $record->timeprocessed      = ($status === 'processed') ? time() : 0;
 
 // Nếu Lớp 1 đã xác định DB không có cột transaction_ref, bỏ nó ra khỏi record luôn.
 // Nếu Lớp 1 xác định có, ta cứ insert bình thường.
-if (!$ref_stored) {
+if (!$refstored) {
     unset($record->transaction_ref);
 }
 
@@ -375,19 +375,19 @@ try {
     // Đề phòng trường hợp chưa bắt được dml_exception ở Lớp 1 (edge case)
     if (isset($record->transaction_ref) && strpos($e->getMessage(), 'transaction_ref') !== false) {
         unset($record->transaction_ref);
-        $ref_stored = false; // Đánh dấu lại là không có column
+        $refstored = false; // Đánh dấu lại là không có column
         try {
             $txnid = $DB->insert_record('enrol_sepay_transactions', $record);
         } catch (\Exception $e2) {
             $lock->release();
-            \enrol_sepay\util::message_sepay_error_to_admin('Không thể lưu transaction vào DB: ' . $e2->getMessage(), $sepay_data);
+            \enrol_sepay\util::message_sepay_error_to_admin('Không thể lưu transaction vào DB: ' . $e2->getMessage(), $sepaydata);
             http_response_code(500);
             echo json_encode(['error' => 'Lỗi lưu giao dịch', 'detail' => $e2->getMessage()]);
             exit;
         }
     } else {
         $lock->release();
-        \enrol_sepay\util::message_sepay_error_to_admin('Không thể lưu transaction vào DB: ' . $e->getMessage(), $sepay_data);
+        \enrol_sepay\util::message_sepay_error_to_admin('Không thể lưu transaction vào DB: ' . $e->getMessage(), $sepaydata);
         http_response_code(500);
         echo json_encode(['error' => 'Lỗi lưu giao dịch', 'detail' => $e->getMessage()]);
         exit;
@@ -399,13 +399,13 @@ try {
 $lock->release();
 
 // 10. Thực hiện ghi danh ngay (auto enrol) hoặc thông báo chờ duyệt (manual enrol).
-if (!$manual_enrol) {
+if (!$manualenrol) {
     // Nếu role chưa cấu hình hợp lệ, KHÔNG auto-enrol (tránh enrol_user với roleid=0).
     // Giữ giao dịch ở 'pending' cho admin duyệt thủ công + báo admin.
     if ($roleid <= 0) {
         \enrol_sepay\util::message_sepay_error_to_admin(
             'webhook auto-enrol bị bỏ qua: roleid chưa cấu hình (<=0). Giao dịch để pending cho admin duyệt.',
-            $sepay_data
+            $sepaydata
         );
         http_response_code(200);
         echo json_encode(['success' => true, 'message' => 'Giao dịch ghi nhận, chờ duyệt thủ công (role chưa cấu hình)']);
@@ -419,7 +419,7 @@ if (!$manual_enrol) {
     } catch (\Exception $e) {
         \enrol_sepay\util::message_sepay_error_to_admin(
             "Lỗi enrol_user() — user {$user->id}, course {$course->id}: " . $e->getMessage(),
-            $sepay_data
+            $sepaydata
         );
         http_response_code(200);
         echo json_encode(['success' => true, 'message' => 'Giao dịch ghi nhận thành công, ghi danh sẽ được xử lý thủ công']);
@@ -430,18 +430,18 @@ if (!$manual_enrol) {
     // Nếu lỗi ở đây, user vẫn đã được ghi danh — chỉ log, không abort.
     try {
         $now = time();
-        if ($ref_stored) {
+        if ($refstored) {
             $DB->set_field(
                 'enrol_sepay_transactions',
                 'status',
                 'processed',
-                ['transaction_ref' => $transaction_ref]
+                ['transaction_ref' => $transactionref]
             );
             $DB->set_field(
                 'enrol_sepay_transactions',
                 'timeprocessed',
                 $now,
-                ['transaction_ref' => $transaction_ref]
+                ['transaction_ref' => $transactionref]
             );
         } else {
             $DB->set_field(
@@ -462,7 +462,7 @@ if (!$manual_enrol) {
         debugging('enrol_sepay webhook: set status processed failed — ' . $e->getMessage(), DEBUG_DEVELOPER);
         \enrol_sepay\util::message_sepay_error_to_admin(
             "DB update processed failed (user đã enrol) — user {$user->id}, course {$course->id}: " . $e->getMessage(),
-            $sepay_data
+            $sepaydata
         );
     }
 
@@ -471,8 +471,8 @@ if (!$manual_enrol) {
     try {
         // Chỉ đánh dấu email_sent khi send_welcome_messages thực sự gửi (trả true).
         if (\enrol_sepay\util::send_welcome_messages($course, $user, $instance)) {
-            if ($ref_stored) {
-                $DB->set_field('enrol_sepay_transactions', 'email_sent', 1, ['transaction_ref' => $transaction_ref]);
+            if ($refstored) {
+                $DB->set_field('enrol_sepay_transactions', 'email_sent', 1, ['transaction_ref' => $transactionref]);
             } else {
                 $DB->set_field(
                     'enrol_sepay_transactions',
@@ -505,7 +505,7 @@ if (!$manual_enrol) {
 
         $messagetext = new stdClass();
         $messagetext->username = fullname($user);
-        $messagetext->amount = number_format($transferAmount);
+        $messagetext->amount = number_format($transferamount);
         $messagetext->currency = $record->currency;
         $messagetext->coursename = $course->fullname;
 
@@ -544,7 +544,7 @@ $response = [
     'username'        => fullname($user), // Tên user — verify parse đúng chưa
     'courseid'        => $course->id, // ID khóa học được parse từ content
     'coursename'      => $course->fullname, // Tên khóa học — verify parse đúng chưa
-    'amount_received' => $transferAmount, // Số tiền thực nhận (VND)
+    'amount_received' => $transferamount, // Số tiền thực nhận (VND)
     'amount_required' => $cost, // Số tiền yêu cầu (VND)
     'accumulated'     => $accumulated, // Số dư tài khoản sau giao dịch (Lũy kế)
 ];

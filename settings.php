@@ -85,11 +85,11 @@ if ($ADMIN->fulltree) {
     ));
 
     // Ngân hàng (dữ liệu được tải thông qua scheduled task enrol_sepay\task\update_banks)
-    $bank_options = [];
-    if ($cached_response = get_config('enrol_sepay', 'bank_list_json')) {
-        $bank_api_response = json_decode($cached_response, true);
-        if (is_array($bank_api_response) && !empty($bank_api_response['data']) && is_array($bank_api_response['data'])) {
-            foreach ($bank_api_response['data'] as $bank) {
+    $bankoptions = [];
+    if ($cachedresponse = get_config('enrol_sepay', 'bank_list_json')) {
+        $bankapiresponse = json_decode($cachedresponse, true);
+        if (is_array($bankapiresponse) && !empty($bankapiresponse['data']) && is_array($bankapiresponse['data'])) {
+            foreach ($bankapiresponse['data'] as $bank) {
                 if (empty($bank['supported'])) {
                     continue;
                 }
@@ -98,14 +98,14 @@ if ($ADMIN->fulltree) {
                 if ($shortname === '') {
                     continue;
                 }
-                $bank_options[$shortname] = $shortname . ' - ' . $fullname;
+                $bankoptions[$shortname] = $shortname . ' - ' . $fullname;
             }
         }
     }
 
     // Nếu vì lý do nào đó không lấy được danh sách ngân hàng, vẫn nên có ít nhất một lựa chọn mặc định.
-    if (empty($bank_options)) {
-        $bank_options['MBBank'] = 'MBBank';
+    if (empty($bankoptions)) {
+        $bankoptions['MBBank'] = 'MBBank';
     }
 
     $settings->add(new admin_setting_configselect(
@@ -113,7 +113,7 @@ if ($ADMIN->fulltree) {
         get_string('bank', 'enrol_sepay'),
         get_string('bank_desc', 'enrol_sepay'),
         'MBBank',
-        $bank_options
+        $bankoptions
     ));
 
     // Template hiển thị

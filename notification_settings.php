@@ -38,20 +38,20 @@ $PAGE->set_heading($SITE->fullname);
 // Lấy tham số tùy chọn.
 $action = optional_param('action', '', PARAM_ALPHANUMEXT);
 $notificationid = optional_param('id', 0, PARAM_INT);
-$delete_read_config = optional_param('delete_read_config', '', PARAM_ALPHANUMEXT);
-$delete_all_config = optional_param('delete_all_config', '', PARAM_ALPHANUMEXT);
+$deletereadconfig = optional_param('delete_read_config', '', PARAM_ALPHANUMEXT);
+$deleteallconfig = optional_param('delete_all_config', '', PARAM_ALPHANUMEXT);
 
 // Lưu cấu hình nếu có gửi lên
-if ($delete_read_config && confirm_sesskey()) {
-    set_config('delete_read_notifications_delay', $delete_read_config, 'enrol_sepay');
+if ($deletereadconfig && confirm_sesskey()) {
+    set_config('delete_read_notifications_delay', $deletereadconfig, 'enrol_sepay');
 }
-if ($delete_all_config && confirm_sesskey()) {
-    set_config('delete_all_notifications_delay', $delete_all_config, 'enrol_sepay');
+if ($deleteallconfig && confirm_sesskey()) {
+    set_config('delete_all_notifications_delay', $deleteallconfig, 'enrol_sepay');
 }
 
 // Đọc cấu hình đã lưu
-$saved_delete_read = get_config('enrol_sepay', 'delete_read_notifications_delay') ?: 'delete_read_1day';
-$saved_delete_all = get_config('enrol_sepay', 'delete_all_notifications_delay') ?: 'delete_all_1day';
+$saveddeleteread = get_config('enrol_sepay', 'delete_read_notifications_delay') ?: 'delete_read_1day';
+$saveddeleteall = get_config('enrol_sepay', 'delete_all_notifications_delay') ?: 'delete_all_1day';
 
 // Xử lý các hành động.
 if ($action && confirm_sesskey()) {
@@ -258,17 +258,17 @@ if ($action && confirm_sesskey()) {
 }
 
 // Lấy thống kê thông báo bằng cách gọi count_records() riêng biệt — cross-DB (PostgreSQL, MySQL, MSSQL).
-$stats_params = [
+$statsparams = [
     'component' => 'enrol_sepay',
     'eventtype' => 'pending_transaction',
 ];
-$total        = $DB->count_records('notifications', $stats_params);
-$read_count   = $DB->count_records_select(
+$total        = $DB->count_records('notifications', $statsparams);
+$readcount   = $DB->count_records_select(
     'notifications',
     "component = :component AND eventtype = :eventtype AND timeread IS NOT NULL",
-    $stats_params
+    $statsparams
 );
-$unread_count = $total - $read_count;
+$unreadcount = $total - $readcount;
 
 echo $OUTPUT->header();
 
@@ -280,8 +280,8 @@ echo '<div class="alert alert-info">';
 echo '<h4>' . get_string('notification_statistics', 'enrol_sepay') . '</h4>';
 echo '<ul>';
 echo '<li>' . get_string('total_notifications', 'enrol_sepay') . ': <strong>' . $total . '</strong></li>';
-echo '<li>' . get_string('read_notifications', 'enrol_sepay') . ': <strong>' . $read_count . '</strong></li>';
-echo '<li>' . get_string('unread_notifications', 'enrol_sepay') . ': <strong>' . $unread_count . '</strong></li>';
+echo '<li>' . get_string('read_notifications', 'enrol_sepay') . ': <strong>' . $readcount . '</strong></li>';
+echo '<li>' . get_string('unread_notifications', 'enrol_sepay') . ': <strong>' . $unreadcount . '</strong></li>';
 echo '</ul>';
 echo '</div>';
 
@@ -297,12 +297,12 @@ echo '</label>';
 echo '<div class="col-md-9">';
 
 echo '<select name="delete_read_config" class="custom-select mr-2 sepay-select-auto" id="delete_read_select">';
-echo '<option value="delete_read_1day"' . ($saved_delete_read == 'delete_read_1day' ? ' selected' : '') . '>' . get_string('delete_read_1day_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_read_1week"' . ($saved_delete_read == 'delete_read_1week' ? ' selected' : '') . '>' . get_string('delete_read_1week_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_read_1month"' . ($saved_delete_read == 'delete_read_1month' ? ' selected' : '') . '>' . get_string('delete_read_1month_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_read_3months"' . ($saved_delete_read == 'delete_read_3months' ? ' selected' : '') . '>' . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_read_6months"' . ($saved_delete_read == 'delete_read_6months' ? ' selected' : '') . '>' . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_read"' . ($saved_delete_read == 'delete_all_read' ? ' selected' : '') . '>' . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_1day"' . ($saveddeleteread == 'delete_read_1day' ? ' selected' : '') . '>' . get_string('delete_read_1day_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_1week"' . ($saveddeleteread == 'delete_read_1week' ? ' selected' : '') . '>' . get_string('delete_read_1week_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_1month"' . ($saveddeleteread == 'delete_read_1month' ? ' selected' : '') . '>' . get_string('delete_read_1month_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_3months"' . ($saveddeleteread == 'delete_read_3months' ? ' selected' : '') . '>' . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_read_6months"' . ($saveddeleteread == 'delete_read_6months' ? ' selected' : '') . '>' . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_read"' . ($saveddeleteread == 'delete_all_read' ? ' selected' : '') . '>' . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
 echo '</select>';
 
 echo '<span class="text-muted">' . get_string('delete_read_time_label', 'enrol_sepay') . '</span>';
@@ -322,12 +322,12 @@ echo '</label>';
 echo '<div class="col-md-9">';
 
 echo '<select name="delete_all_config" class="custom-select mr-2 sepay-select-auto" id="delete_all_select">';
-echo '<option value="delete_all_1day"' . ($saved_delete_all == 'delete_all_1day' ? ' selected' : '') . '>' . get_string('delete_read_1day_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_1week"' . ($saved_delete_all == 'delete_all_1week' ? ' selected' : '') . '>' . get_string('delete_read_1week_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_1month"' . ($saved_delete_all == 'delete_all_1month' ? ' selected' : '') . '>' . get_string('delete_read_1month_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_3months"' . ($saved_delete_all == 'delete_all_3months' ? ' selected' : '') . '>' . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_6months"' . ($saved_delete_all == 'delete_all_6months' ? ' selected' : '') . '>' . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all"' . ($saved_delete_all == 'delete_all' ? ' selected' : '') . '>' . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_1day"' . ($saveddeleteall == 'delete_all_1day' ? ' selected' : '') . '>' . get_string('delete_read_1day_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_1week"' . ($saveddeleteall == 'delete_all_1week' ? ' selected' : '') . '>' . get_string('delete_read_1week_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_1month"' . ($saveddeleteall == 'delete_all_1month' ? ' selected' : '') . '>' . get_string('delete_read_1month_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_3months"' . ($saveddeleteall == 'delete_all_3months' ? ' selected' : '') . '>' . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all_6months"' . ($saveddeleteall == 'delete_all_6months' ? ' selected' : '') . '>' . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
+echo '<option value="delete_all"' . ($saveddeleteall == 'delete_all' ? ' selected' : '') . '>' . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
 echo '</select>';
 
 echo '<span class="text-muted">' . get_string('delete_all_time_label', 'enrol_sepay') . '</span>';
@@ -372,16 +372,16 @@ if ($total > 0) {
 
     $totalcount = $DB->count_records_sql(
         "SELECT COUNT(*) FROM {notifications} WHERE component = :component AND eventtype = :eventtype",
-        $stats_params
+        $statsparams
     );
 
-    $notifications = $DB->get_records_sql($sql, $stats_params, $page * $perpage, $perpage);
+    $notifications = $DB->get_records_sql($sql, $statsparams, $page * $perpage, $perpage);
 
     // Batch-load recipients thay vì N queries trong loop.
-    $recipient_ids = array_unique(array_column((array)$notifications, 'useridto'));
-    $recipients_map = [];
-    if (!empty($recipient_ids)) {
-        $recipients_map = $DB->get_records_list('user', 'id', $recipient_ids, '', '*');
+    $recipientids = array_unique(array_column((array)$notifications, 'useridto'));
+    $recipientsmap = [];
+    if (!empty($recipientids)) {
+        $recipientsmap = $DB->get_records_list('user', 'id', $recipientids, '', '*');
     }
 
     if ($notifications) {
@@ -399,7 +399,7 @@ if ($total > 0) {
             // Sender data already available from the JOIN — no extra query needed.
             $sendername = trim(($notification->firstname ?? '') . ' ' . ($notification->lastname ?? '')) ?: 'N/A';
 
-            $recipient = $recipients_map[$notification->useridto] ?? null;
+            $recipient = $recipientsmap[$notification->useridto] ?? null;
             $recipientname = $recipient ? fullname($recipient) : 'N/A';
 
             $status = $notification->timeread
