@@ -126,24 +126,9 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci behat --profile chrome
 
-      # ---- ADVISORY (continue-on-error: chưa siết vì plugin còn style cũ) ----
-      - name: Moodle Code Checker (phpcs)
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-        run: moodle-plugin-ci phpcs
-
-      - name: PHP Mess Detector
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-        run: moodle-plugin-ci phpmd
-
-      - name: PHPDoc Checker
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-        run: moodle-plugin-ci phpdoc
-
-      # PHPStan GATING chỉ trên 1 combo (Moodle 4.2 + PHP 8.2): residual khác nhau theo
-      # Moodle version nên không gate được cả matrix; gate 1 version + baseline là đủ.
+      # PHPStan GATING đặt ngay sau hard gates, TRƯỚC advisory: verdict gating tới sớm,
+      # không phải đợi phpcs/phpmd/phpdoc (chậm). Chỉ chạy combo 8.2×4.2 vì residual phpstan
+      # khác nhau theo Moodle version nên gate 1 version + baseline là đủ.
       - name: PHPStan (gating, Moodle 4.2)
         if: ${{ !cancelled() && matrix.php == '8.2' && matrix.moodle-branch == 'MOODLE_402_STABLE' }}
         run: |
@@ -160,6 +145,22 @@ jobs:
             echo "    excludePaths: { analyse: ['$M/enrol/sepay/phpstan-bootstrap.php', '$M/enrol/sepay/phpstan-stubs.php', '$M/enrol/sepay/amd'] }"
           } > "$M/phpstan-ci.neon"
           phpstan analyse -c "$M/phpstan-ci.neon" --no-progress --memory-limit=1G
+
+      # ---- ADVISORY (continue-on-error: chưa siết vì plugin còn style cũ) ----
+      - name: Moodle Code Checker (phpcs)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: moodle-plugin-ci phpcs
+
+      - name: PHP Mess Detector
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: moodle-plugin-ci phpmd
+
+      - name: PHPDoc Checker
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: moodle-plugin-ci phpdoc
 
       - name: Grunt
         if: ${{ !cancelled() }}
