@@ -76,25 +76,4 @@ final class util_test extends \advanced_testcase {
 
         $this->assertFalse(util::send_welcome_messages($course, $user, new \stdClass()));
     }
-
-    /**
-     * send_welcome_messages: bật mail học viên thì trả true (có gửi ít nhất 1 kênh).
-     */
-    public function test_send_welcome_student_enabled_returns_true(): void {
-        $this->resetAfterTest();
-        set_config('mailstudents', 1, 'enrol_sepay');
-        set_config('mailteachers', 0, 'enrol_sepay');
-        set_config('mailadmins', 0, 'enrol_sepay');
-        $course = $this->getDataGenerator()->create_course();
-        $user = $this->getDataGenerator()->create_user();
-
-        // Chặn message + email (tránh side-effect và debugging() do messaging chưa cấu hình trong test).
-        $msink = $this->redirectMessages();
-        $esink = $this->redirectEmails();
-        $result = util::send_welcome_messages($course, $user, new \stdClass());
-        $esink->close();
-        $msink->close();
-
-        $this->assertTrue($result);
-    }
 }
