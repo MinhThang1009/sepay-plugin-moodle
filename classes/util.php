@@ -68,7 +68,6 @@ class util {
      * @return void
      */
     public static function message_sepay_error_to_admin(string $msg, $data = null): void {
-        global $CFG;
 
         // Ghi log mức developer (debugging) thay cho error_log — tránh ghi payload ra file log dùng chung.
         $logprefix = '[enrol_sepay] ';
@@ -149,7 +148,6 @@ class util {
      * @return bool true nếu đã gửi (ít nhất 1 kênh mail bật), false nếu no-op (tắt hết mail config).
      */
     public static function send_welcome_messages($course, $user, $instance): bool {
-        global $CFG;
 
         $plugin = enrol_get_plugin('sepay');
         if (!$plugin) {

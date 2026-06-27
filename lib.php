@@ -229,36 +229,6 @@ class enrol_sepay_plugin extends enrol_plugin {
         if (!$course) {
             return ob_get_clean();
         }
-        // Lấy context khóa học.
-        $context = context_course::instance($course->id);
-
-        // Định dạng tên ngắn khóa học để hiển thị.
-        $shortname = format_string($course->shortname, true, ['context' => $context]);
-        // Lấy chuỗi ngôn ngữ cho đăng nhập và danh sách khóa học.
-        $strloginto = get_string("loginto", "", $shortname);
-        $strcourses = get_string("courses");
-
-        // Lấy danh sách user có quyền cập nhật khóa học.
-        if (
-            $users = get_users_by_capability(
-                $context,
-                'moodle/course:update',
-                'u.*',
-                'u.id ASC',
-                '',
-                '',
-                '',
-                '',
-                false,
-                true
-            )
-        ) {
-            // Sắp xếp user theo quyền role.
-            $users = sort_by_roleassignment_authority($users, $context);
-            $teacher = array_shift($users); // Lấy user đầu tiên (thường là giáo viên).
-        } else {
-            $teacher = false; // Không tìm thấy giáo viên.
-        }
 
         // Xác định giá ghi danh.
         if ((float)$instance->cost <= 0) {
@@ -293,14 +263,6 @@ class enrol_sepay_plugin extends enrol_plugin {
                 echo '</div>';
             } else {
                 // Chuẩn bị dữ liệu cho form SePay.
-                $coursefullname  = format_string($course->fullname, true, ['context' => $context]);
-                $courseshortname = $shortname;
-                $userfullname    = fullname($USER);
-                $userfirstname   = $USER->firstname;
-                $userlastname    = $USER->lastname;
-                $useraddress     = $USER->address;
-                $usercity        = $USER->city;
-                $instancename    = $this->get_instance_name($instance);
 
                 $qraccount = $this->get_config('account');
                 $qrbank = $this->get_config('bank');
