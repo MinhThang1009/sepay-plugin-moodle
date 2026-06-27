@@ -90,6 +90,7 @@ jobs:
           php-version: ${{ matrix.php }}
           ini-values: max_input_vars=5000
           coverage: none
+          tools: phpstan
 
       - name: Cache Composer
         uses: actions/cache@v4
@@ -158,8 +159,6 @@ jobs:
       - name: PHPStan (gating, Moodle 4.2)
         if: ${{ !cancelled() && matrix.php == '8.2' && matrix.moodle-branch == 'MOODLE_402_STABLE' }}
         run: |
-          composer global require phpstan/phpstan:^2 --no-interaction 2>&1 | tail -1
-          PHPSTAN="$(composer global config bin-dir --absolute)/phpstan"
           M="$(cd moodle && pwd)"
           {
             echo "includes:"
@@ -172,7 +171,7 @@ jobs:
             echo "    stubFiles: ['$M/enrol/sepay/phpstan-stubs.php']"
             echo "    excludePaths: { analyse: ['$M/enrol/sepay/phpstan-bootstrap.php', '$M/enrol/sepay/phpstan-stubs.php', '$M/enrol/sepay/amd'] }"
           } > "$M/phpstan-ci.neon"
-          php "$PHPSTAN" analyse -c "$M/phpstan-ci.neon" --no-progress --memory-limit=1G
+          phpstan analyse -c "$M/phpstan-ci.neon" --no-progress --memory-limit=1G
 
       - name: Grunt
         if: ${{ !cancelled() }}
