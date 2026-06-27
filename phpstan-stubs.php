@@ -1,4 +1,6 @@
 <?php
+// phpcs:ignoreFile
+// File stub CHỈ dùng cho PHPStan, không nạp lúc chạy; cú pháp namespace{} làm phpcs treo nên bỏ qua.
 // Stub các lớp Moodle core mà plugin kế thừa nhưng PHPStan không tự resolve được
 // trong môi trường phân tích (vd core_external\external_api ở lib/external/classes/,
 // table_sql ở lib/tablelib.php). Khai báo rỗng để hết lỗi "extends unknown class"
