@@ -159,7 +159,9 @@ jobs:
         if: ${{ !cancelled() }}
         continue-on-error: true
         timeout-minutes: 5
-        run: moodle-plugin-ci phpmd
+        run: |
+          M="$(cd moodle && pwd)"
+          moodle-plugin-ci phpmd --rules "$M/enrol/sepay/.phpmd.xml"
 
       - name: PHPDoc Checker
         if: ${{ !cancelled() }}
