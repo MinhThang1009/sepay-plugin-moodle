@@ -593,6 +593,9 @@ class enrol_sepay_plugin extends enrol_plugin {
         $cost = str_replace(get_string('decsep', 'langconfig'), '.', $data['cost']);
         if (!is_numeric($cost)) {
             $errors['cost'] = get_string('costerror', 'enrol_sepay');
+        } else if ((float)$cost < 0) {
+            // Giá âm không hợp lệ (tránh bị coi là miễn phí ở enrol_page_hook).
+            $errors['cost'] = get_string('costerror', 'enrol_sepay');
         }
 
         $validstatus = array_keys($this->get_status_options());
@@ -601,6 +604,7 @@ class enrol_sepay_plugin extends enrol_plugin {
             'name' => PARAM_TEXT,
             'status' => $validstatus,
             'roleid' => $validroles,
+            'customint1' => [0, 1, 2],
             'enrolperiod' => PARAM_INT,
             'enrolstartdate' => PARAM_INT,
             'enrolenddate' => PARAM_INT,

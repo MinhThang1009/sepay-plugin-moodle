@@ -220,9 +220,6 @@ if (!$user || !$course) {
     exit;
 }
 
-// Lấy context khóa học, dùng khi check enrol và cấp quyền.
-$context = context_course::instance($course->id, IGNORE_MISSING);
-
 // 6. Tìm instance của enrol_sepay trong khóa học này.
 $instances = enrol_get_instances($course->id, true);
 $instance = null;
@@ -275,6 +272,15 @@ if (!empty($instance->enrolperiod)) {
 
 // Role mặc định lấy từ instance, fallback về config plugin.
 $roleid = !empty($instance->roleid) ? (int)$instance->roleid : (int)$plugin->get_config('roleid');
+// Nếu chưa cấu hình role (cả instance lẫn config global rỗng) → dùng role học viên mặc định,
+// tránh ghi danh mà không gán role (user đã trả tiền nhưng không vào được khóa học).
+if ($roleid <= 0) {
+    $studentroles = get_archetype_roles('student');
+    $roleid = $studentroles ? (int)reset($studentroles)->id : 0;
+    if ($roleid <= 0) {
+        debugging('enrol_sepay: không xác định được role để ghi danh (config roleid trống).', DEBUG_NORMAL);
+    }
+}
 
 // 9. Thực hiện ghi danh hoặc lưu trạng thái chờ xử lý.
 // Lấy config 'manual_enrol' từ instance (customint1) hoặc global.

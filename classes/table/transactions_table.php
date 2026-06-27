@@ -236,7 +236,7 @@ class transactions_table extends table_sql {
      * @return string
      */
     public function col_amount($row) {
-        return number_format($row->amount) . ' ' . $row->currency;
+        return number_format($row->amount) . ' ' . s($row->currency);
     }
 
     /**
