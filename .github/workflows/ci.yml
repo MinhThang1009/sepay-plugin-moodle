@@ -147,22 +147,28 @@ jobs:
           phpstan analyse -c "$M/phpstan-ci.neon" --no-progress --memory-limit=1G
 
       # ---- ADVISORY (continue-on-error: chưa siết vì plugin còn style cũ) ----
+      # timeout-minutes: chặn hang. phpcs khỏe ~2s; nếu vượt 5 phút là treo (đã thấy
+      # 40-68 phút) -> cho timeout, continue-on-error trung hòa để job vẫn chạy tiếp.
       - name: Moodle Code Checker (phpcs)
         if: ${{ !cancelled() }}
         continue-on-error: true
+        timeout-minutes: 5
         run: moodle-plugin-ci phpcs
 
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
         continue-on-error: true
+        timeout-minutes: 5
         run: moodle-plugin-ci phpmd
 
       - name: PHPDoc Checker
         if: ${{ !cancelled() }}
         continue-on-error: true
+        timeout-minutes: 5
         run: moodle-plugin-ci phpdoc
 
       - name: Grunt
         if: ${{ !cancelled() }}
         continue-on-error: true
+        timeout-minutes: 5
         run: moodle-plugin-ci grunt
