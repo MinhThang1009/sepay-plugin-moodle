@@ -271,16 +271,10 @@ if (!empty($instance->enrolperiod)) {
 }
 
 // Role mặc định lấy từ instance, fallback về config plugin.
+// Nếu roleid <= 0 (chưa cấu hình): nhánh auto-enrol bên dưới (if (!$manualenrol) → if ($roleid <= 0))
+// giữ giao dịch ở 'pending' + báo admin, nhất quán với complete_enrol/process_enrolments — KHÔNG
+// auto-enrol với role đoán. Đừng thêm fallback role ở đây (sẽ preempt nhánh pending đó).
 $roleid = !empty($instance->roleid) ? (int)$instance->roleid : (int)$plugin->get_config('roleid');
-// Nếu chưa cấu hình role (cả instance lẫn config global rỗng) → dùng role học viên mặc định,
-// tránh ghi danh mà không gán role (user đã trả tiền nhưng không vào được khóa học).
-if ($roleid <= 0) {
-    $studentroles = get_archetype_roles('student');
-    $roleid = $studentroles ? (int)reset($studentroles)->id : 0;
-    if ($roleid <= 0) {
-        debugging('enrol_sepay: không xác định được role để ghi danh (config roleid trống).', DEBUG_NORMAL);
-    }
-}
 
 // 9. Thực hiện ghi danh hoặc lưu trạng thái chờ xử lý.
 // Lấy config 'manual_enrol' từ instance (customint1) hoặc global.
