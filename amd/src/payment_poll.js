@@ -20,13 +20,18 @@
  * @copyright  2026 Quiz Van Lang <quizvanlang@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/ajax'], function($, ajax) {
+define(['jquery', 'core/ajax', 'core/log'], function($, ajax, Log) {
     return {
         init: function(courseId, currentState) {
             let isChecking = false;
 
+            /**
+             * Gọi webservice kiểm tra trạng thái giao dịch; reload trang khi trạng thái đổi.
+             */
             function checkStatusChange() {
-                if (isChecking) return;
+                if (isChecking) {
+                    return;
+                }
                 isChecking = true;
 
                 ajax.call([{
@@ -34,17 +39,22 @@ define(['jquery', 'core/ajax'], function($, ajax) {
                     args: { courseid: courseId }
                 }])[0].done(function(data) {
                     let newState = 'none';
-                    if (data.enrolled) newState = 'enrolled';
-                    else if (data.processed) newState = 'processed';
-                    else if (data.rejected) newState = 'rejected';
-                    else if (data.pending) newState = 'pending';
+                    if (data.enrolled) {
+                        newState = 'enrolled';
+                    } else if (data.processed) {
+                        newState = 'processed';
+                    } else if (data.rejected) {
+                        newState = 'rejected';
+                    } else if (data.pending) {
+                        newState = 'pending';
+                    }
 
                     if (newState !== currentState) {
                         window.location.reload();
                     }
                     isChecking = false;
                 }).fail(function(ex) {
-                    console.error('Lỗi khi tải trạng thái sepay:', ex);
+                    Log.error('Lỗi khi tải trạng thái sepay: ' + ex);
                     isChecking = false;
                 });
             }

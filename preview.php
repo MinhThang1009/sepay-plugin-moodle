@@ -52,9 +52,18 @@ if ($type === 'admin') {
 }
 
 echo $OUTPUT->header();
-echo html_writer::tag('div',
-    html_writer::link(new moodle_url('/enrol/sepay/preview.php', ['type' => 'student']), 'Student Email', ['class' => 'btn btn-sm btn-outline-primary mr-2']) .
-    html_writer::link(new moodle_url('/enrol/sepay/preview.php', ['type' => 'admin']),   'Admin Email',   ['class' => 'btn btn-sm btn-outline-secondary']),
+echo html_writer::tag(
+    'div',
+    html_writer::link(
+        new moodle_url('/enrol/sepay/preview.php', ['type' => 'student']),
+        'Student Email',
+        ['class' => 'btn btn-sm btn-outline-primary mr-2']
+    ) .
+    html_writer::link(
+        new moodle_url('/enrol/sepay/preview.php', ['type' => 'admin']),
+        'Admin Email',
+        ['class' => 'btn btn-sm btn-outline-secondary']
+    ),
     ['class' => 'mb-3']
 );
 echo $html;

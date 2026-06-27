@@ -1,0 +1,21 @@
+# PHPStan config base cho enrol_sepay (level + bỏ qua FP framework Moodle).
+# paths/scanDirectories/bootstrapFiles được CI cấp dạng TUYỆT ĐỐI, vì plugin được
+# symlink vào cây Moodle (moodle/enrol/sepay -> plugin) nên path tương đối resolve sai.
+parameters:
+    level: 4
+    # Không coi type từ PHPDoc là chắc chắn (core Moodle có @return/@var không chính xác,
+    # gây false-positive "always true/false" và "missing return").
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
+    # Bỏ qua identifier là false-positive do PHPStan không hiểu hết magic Moodle.
+    ignoreErrors:
+        - identifier: variable.undefined
+        - identifier: class.notFound
+        - identifier: property.private
+        - identifier: property.notFound
+        - identifier: method.notFound
+        - identifier: staticMethod.notFound
+        - identifier: constant.notFound
+        - identifier: assign.propertyType
+        # Stub Moodle parent rỗng (phpstan-stubs.php) không có constructor/method thật.
+        - identifier: new.noConstructor

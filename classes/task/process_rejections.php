@@ -24,14 +24,24 @@
 
 namespace enrol_sepay\task;
 
-defined('MOODLE_INTERNAL') || die();
-
+/**
+ * Scheduled task: gửi thông báo cho các giao dịch bị từ chối chưa được báo.
+ */
 class process_rejections extends \core\task\scheduled_task {
-
+    /**
+     * Tên hiển thị của tác vụ.
+     *
+     * @return string
+     */
     public function get_name() {
         return get_string('task_process_rejections', 'enrol_sepay');
     }
 
+    /**
+     * Gửi rejection notification cho các giao dịch bị từ chối chưa được thông báo.
+     *
+     * @return void
+     */
     public function execute() {
         global $CFG, $DB;
 
@@ -60,7 +70,7 @@ class process_rejections extends \core\task\scheduled_task {
         $fail = 0;
 
         foreach ($transactions as $txn) {
-            $user   = $DB->get_record('user',   ['id' => $txn->userid]);
+            $user   = $DB->get_record('user', ['id' => $txn->userid]);
             $course = $DB->get_record('course', ['id' => $txn->courseid]);
 
             if (!$user || !$course) {

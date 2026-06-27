@@ -17,7 +17,7 @@
 /**
  * Trang cho phép người dùng tự hủy ghi danh khỏi các khóa học SePay.
  *
- * Mô phỏng pattern của enrol_paypal/unenrolself.php 
+ * Mô phỏng pattern của enrol_paypal/unenrolself.php
  * nhưng áp dụng cho plugin enrol_sepay.
  *
  * @package    enrol_sepay
@@ -35,7 +35,7 @@ $instance = $DB->get_record('enrol', ['id' => $enrolid, 'enrol' => 'sepay'], '*'
 $course   = $DB->get_record('course', ['id' => $instance->courseid], '*', MUST_EXIST);
 $context  = context_course::instance($course->id, MUST_EXIST);
 
-// require_login($course) theo đúng chuẩn Moodle — phải gọi sau khi có $course.
+// Require_login($course) theo đúng chuẩn Moodle — phải gọi sau khi có $course.
 require_login($course);
 
 if (!is_enrolled($context)) {
@@ -64,7 +64,7 @@ if ($confirm && confirm_sesskey()) {
 
 echo $OUTPUT->header();
 
-// Dùng cùng chuỗi confirm SePay
+// Dùng cùng chuỗi confirm SePay.
 $yesurl = new moodle_url($PAGE->url, ['confirm' => 1, 'sesskey' => sesskey()]);
 $nourl  = new moodle_url('/course/view.php', ['id' => $course->id]);
 $message = get_string('unenrolselfconfirm', 'enrol_sepay', format_string($course->fullname, true));

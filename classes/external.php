@@ -43,14 +43,13 @@ if (!class_exists('core_external\\external_api')) {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class external extends external_api {
-
     /**
      * Trả về chi tiết các tham số đầu vào của API
      * @return external_function_parameters
      */
     public static function check_transaction_status_parameters() {
         return new external_function_parameters([
-            'courseid' => new external_value(PARAM_INT, 'ID của khoá học cần kiểm tra trạng thái', VALUE_REQUIRED)
+            'courseid' => new external_value(PARAM_INT, 'ID của khoá học cần kiểm tra trạng thái', VALUE_REQUIRED),
         ]);
     }
 
@@ -62,20 +61,20 @@ class external extends external_api {
      */
     public static function check_transaction_status($courseid) {
         global $DB, $USER;
-        
+
         $params = self::validate_parameters(self::check_transaction_status_parameters(), ['courseid' => $courseid]);
         $courseid = $params['courseid'];
-        
+
         $context = context_course::instance($courseid);
-        
-        // Sử dụng context hệ thống cho WebService này, vì học viên chưa được ghi danh 
+
+        // Sử dụng context hệ thống cho WebService này, vì học viên chưa được ghi danh
         // nên nếu dùng context khoá học sẽ bị dính lỗi 'require_login_exception'.
         self::validate_context(\context_system::instance());
-        
+
         $userid = $USER->id;
 
         // Gộp thành 1 query để giảm số lần truy vấn DB.
-        $all_txns = $DB->get_records_select(
+        $alltxns = $DB->get_records_select(
             'enrol_sepay_transactions',
             'userid = :uid AND courseid = :cid',
             ['uid' => $userid, 'cid' => $courseid],
@@ -83,11 +82,19 @@ class external extends external_api {
         );
 
         $pending = $processed = $rejected = $unenrolled = null;
-        foreach ($all_txns as $txn) {
-            if (!$pending    && $txn->status === 'pending')    { $pending    = $txn; }
-            if (!$processed  && $txn->status === 'processed')  { $processed  = $txn; }
-            if (!$rejected   && $txn->status === 'rejected')   { $rejected   = $txn; }
-            if (!$unenrolled && $txn->status === 'unenrolled') { $unenrolled = $txn; }
+        foreach ($alltxns as $txn) {
+            if (!$pending    && $txn->status === 'pending') {
+                $pending    = $txn;
+            }
+            if (!$processed  && $txn->status === 'processed') {
+                $processed  = $txn;
+            }
+            if (!$rejected   && $txn->status === 'rejected') {
+                $rejected   = $txn;
+            }
+            if (!$unenrolled && $txn->status === 'unenrolled') {
+                $unenrolled = $txn;
+            }
         }
 
         $enrolled = is_enrolled($context, $USER);

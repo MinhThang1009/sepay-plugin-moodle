@@ -24,10 +24,10 @@
 
 namespace enrol_sepay\task;
 
-defined('MOODLE_INTERNAL') || die();
-
+/**
+ * Scheduled task: xử lý các ghi danh SePay đã hết hạn.
+ */
 class process_expirations extends \core\task\scheduled_task {
-
     /**
      * Tên tác vụ.
      *

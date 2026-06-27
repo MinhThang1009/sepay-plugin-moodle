@@ -24,39 +24,39 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
+$capabilities = [
 
-    'enrol/sepay:config' => array(
+    'enrol/sepay:config' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'manager' => CAP_ALLOW,
-        )
-    ),
+        ],
+    ],
 
     // Capability quản lý giao dịch toàn hệ thống — phải dùng CONTEXT_SYSTEM
     // vì webhook.php, manage.php, transactions.php đều check capability này
     // tại context_system::instance(), không phải course context.
-    'enrol/sepay:manage' => array(
+    'enrol/sepay:manage' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
+        'archetypes' => [
             'manager' => CAP_ALLOW,
-        )
-    ),
+        ],
+    ],
 
-    'enrol/sepay:unenrol' => array(
+    'enrol/sepay:unenrol' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'manager' => CAP_ALLOW,
-        )
-    ),
+        ],
+    ],
 
-    'enrol/sepay:unenrolself' => array(
+    'enrol/sepay:unenrolself' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array()
-    ),
+        'archetypes' => [],
+    ],
 
-);
+];

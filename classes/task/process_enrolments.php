@@ -17,7 +17,7 @@
 /**
  * Tác vụ tự động xử lý các giao dịch SePay đã được phê duyệt nhưng thẻ trình duyệt bị đóng.
  *
- * Mặc định quét các giao dịch có trạng thái "processed" (đã xử lý/được phê duyệt) 
+ * Mặc định quét các giao dịch có trạng thái "processed" (đã xử lý/được phê duyệt)
  * nhưng người học trong bảng chưa có trạng thái is_enrolled thực tế.
  * Tác vụ này chạy mỗi 1 phút để bảo vệ dữ liệu chống mất mát khi rớt mạng.
  *
@@ -28,10 +28,10 @@
 
 namespace enrol_sepay\task;
 
-defined('MOODLE_INTERNAL') || die();
-
+/**
+ * Scheduled task: ghi danh các giao dịch đã duyệt nhưng chưa enrol (vd user đóng tab).
+ */
 class process_enrolments extends \core\task\scheduled_task {
-
     /**
      * Lấy tên mô tả của khối tác vụ này.
      *
@@ -47,7 +47,7 @@ class process_enrolments extends \core\task\scheduled_task {
     public function execute() {
         global $DB, $CFG;
 
-        // Bắt buộc nạp thư viện plugin
+        // Bắt buộc nạp thư viện plugin.
         require_once($CFG->dirroot . '/enrol/sepay/lib.php');
         $plugin = enrol_get_plugin('sepay');
 
@@ -89,7 +89,7 @@ class process_enrolments extends \core\task\scheduled_task {
                 continue;
             }
 
-            // Tính toán thời gian ghi danh
+            // Tính toán thời gian ghi danh.
             if (!empty($instance->enrolperiod)) {
                 $timestart = time();
                 $timeend = $timestart + (int)$instance->enrolperiod;
@@ -108,7 +108,7 @@ class process_enrolments extends \core\task\scheduled_task {
             }
 
             try {
-                // Ghi danh chính thức
+                // Ghi danh chính thức.
                 $plugin->enrol_user($instance, $user->id, $roleid, $timestart, $timeend);
                 $count++;
                 mtrace("Đã Auto-Enrol học viên ID {$user->id} vào khóa học ID {$t->courseid}.");

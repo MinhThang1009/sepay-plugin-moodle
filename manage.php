@@ -36,27 +36,37 @@ $id     = optional_param('id', 0, PARAM_INT); // Transaction ID.
 
 $plugin = enrol_get_plugin('sepay');
 
-// Handle Process Action
+// Handle Process Action.
 if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
     $transaction = $DB->get_record('enrol_sepay_transactions', ['id' => $id], '*', MUST_EXIST);
     if ($transaction->status !== 'pending') {
-        redirect(new moodle_url('/enrol/sepay/manage.php'), get_string('error_already_processed', 'enrol_sepay'), null, core\output\notification::NOTIFY_ERROR);
+        redirect(
+            new moodle_url('/enrol/sepay/manage.php'),
+            get_string('error_already_processed', 'enrol_sepay'),
+            null,
+            core\output\notification::NOTIFY_ERROR
+        );
     }
 
-    // Validate Instance
+    // Validate Instance.
     $instance = $DB->get_record('enrol', ['id' => $transaction->instanceid], '*', IGNORE_MISSING);
     if (!$instance) {
-        redirect(new moodle_url('/enrol/sepay/manage.php'), get_string('error_instance_deleted', 'enrol_sepay'), null, core\output\notification::NOTIFY_ERROR);
+        redirect(
+            new moodle_url('/enrol/sepay/manage.php'),
+            get_string('error_instance_deleted', 'enrol_sepay'),
+            null,
+            core\output\notification::NOTIFY_ERROR
+        );
     }
 
-    // Course & Context
+    // Course & Context.
     $course = $DB->get_record('course', ['id' => $instance->courseid], '*', MUST_EXIST);
     $context = context_course::instance($course->id);
 
-    // Check User
+    // Check User.
     $user = $DB->get_record('user', ['id' => $transaction->userid], '*', MUST_EXIST);
 
-    // Calculate Timestart/Timeend
+    // Calculate Timestart/Timeend.
     if (!empty($instance->enrolperiod)) {
         $timestart = time();
         $timeend = $timestart + (int)$instance->enrolperiod;
@@ -68,29 +78,29 @@ if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
     $roleid = !empty($instance->roleid) ? (int)$instance->roleid : (int)$plugin->get_config('roleid');
 
     // Enrol user trực tiếp khi admin approve
-    // Đảm bảo user được ghi danh dù họ có rời trang countdown hay không
+    // Đảm bảo user được ghi danh dù họ có rời trang countdown hay không.
     if (!is_enrolled($context, $user)) {
         $plugin->enrol_user($instance, $user->id, $roleid, $timestart, $timeend);
 
-        // Gửi email thông báo cho student, teacher, admin
+        // Gửi email thông báo cho student, teacher, admin.
         $mailstudents = (int)$plugin->get_config('mailstudents');
         $mailteachers = (int)$plugin->get_config('mailteachers');
         $mailadmins   = (int)$plugin->get_config('mailadmins');
 
-        // Gửi email cho student thông báo đã được ghi danh
+        // Gửi email cho student thông báo đã được ghi danh.
         if ($mailstudents) {
             $subject = get_string('paymentthanks', 'enrol_sepay', format_string($course->fullname));
             $message = get_string('paymentthanks_desc', 'enrol_sepay', format_string($course->fullname));
             email_to_user($user, core_user::get_support_user(), $subject, $message);
         }
 
-        // Gửi email cho teacher và admin thông báo có student mới
+        // Gửi email cho teacher và admin thông báo có student mới.
         if ($mailteachers || $mailadmins) {
             $teachers = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC');
             if ($teachers) {
                 $teachers = sort_by_roleassignment_authority($teachers, $context);
             }
-            // Gửi cho từng teacher
+            // Gửi cho từng teacher.
             if ($mailteachers && !empty($teachers)) {
                 foreach ($teachers as $teacher) {
                     $subject = get_string('paymentreceived', 'enrol_sepay', format_string($course->fullname));
@@ -98,7 +108,7 @@ if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
                     email_to_user($teacher, core_user::get_support_user(), $subject, $message);
                 }
             }
-            // Gửi cho từng admin
+            // Gửi cho từng admin.
             if ($mailadmins) {
                 $admins = get_admins();
                 foreach ($admins as $admin) {
@@ -110,21 +120,26 @@ if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
         }
     }
 
-    // Update Transaction Status
+    // Update Transaction Status.
     $transaction->status = 'processed';
     $transaction->timeprocessed = time();
     $DB->update_record('enrol_sepay_transactions', $transaction);
     \enrol_sepay\util::delete_pending_notifications($transaction);
 
-    redirect(new moodle_url('/enrol/sepay/manage.php'), get_string('transaction_approved', 'enrol_sepay'), null, core\output\notification::NOTIFY_SUCCESS);
+    redirect(
+        new moodle_url('/enrol/sepay/manage.php'),
+        get_string('transaction_approved', 'enrol_sepay'),
+        null,
+        core\output\notification::NOTIFY_SUCCESS
+    );
 }
 
-// Display Page
+// Display Page.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('manage_transactions', 'enrol_sepay'));
 
-// Pending Transactions
-$sql = "SELECT t.*, 
+// Pending Transactions.
+$sql = "SELECT t.*,
                u.id as uid, u.firstname, u.lastname, u.email,
                u.firstnamephonetic, u.lastnamephonetic, u.middlename, u.alternatename,
                c.fullname as coursename, c.shortname as courseshortname, c.id as courseid
@@ -147,29 +162,33 @@ if (!$transactions) {
         get_string('timecreated', 'enrol_sepay'),
         get_string('ip_address', 'enrol_sepay'),
         get_string('settings_comparison', 'enrol_sepay'),
-        get_string('action')
+        get_string('action'),
     ];
 
     foreach ($transactions as $t) {
-        $userlink = html_writer::link(new moodle_url('/user/view.php', ['id' => $t->userid, 'course' => $t->courseid]), fullname($t));
+        $userlink = html_writer::link(
+            new moodle_url('/user/view.php', ['id' => $t->userid, 'course' => $t->courseid]),
+            fullname($t)
+        );
         $courselink = html_writer::link(new moodle_url('/course/view.php', ['id' => $t->courseid]), format_string($t->coursename));
-        
+
         $details = get_string('amount', 'enrol_sepay') . ": " . number_format($t->amount) . " " . $t->currency . "<br>";
         $details .= get_string('trans_content', 'enrol_sepay') . ": " . s($t->transaction_content) . "<br>";
         $details .= get_string('manage_gateway', 'enrol_sepay') . ": " . s($t->gateway);
 
-        // Settings Comparison
+        // Settings Comparison.
         $instance = $DB->get_record('enrol', ['id' => $t->instanceid]);
-        $instance_cost = $instance ? (float)$instance->cost : 0;
-        $global_cost = (float)$plugin->get_config('cost');
-        
-        $settings_html = "<small>";
-        $settings_html .= "<b>" . get_string('manage_instance_cost', 'enrol_sepay') . ":</b> " . number_format($instance_cost) . "<br>";
-        $settings_html .= "<b>" . get_string('manage_global_cost', 'enrol_sepay') . ":</b> " . number_format($global_cost) . "<br>";
-        $settings_html .= "</small>";
+        $instancecost = $instance ? (float)$instance->cost : 0;
+        $globalcost = (float)$plugin->get_config('cost');
 
-        $approve_url = new moodle_url('/enrol/sepay/manage.php', ['action' => 'approve', 'id' => $t->id, 'sesskey' => sesskey()]);
-        $action_btn = $OUTPUT->single_button($approve_url, get_string('approve', 'enrol_sepay'));
+        $settingshtml = "<small>";
+        $settingshtml .= "<b>" . get_string('manage_instance_cost', 'enrol_sepay') . ":</b> "
+            . number_format($instancecost) . "<br>";
+        $settingshtml .= "<b>" . get_string('manage_global_cost', 'enrol_sepay') . ":</b> " . number_format($globalcost) . "<br>";
+        $settingshtml .= "</small>";
+
+        $approveurl = new moodle_url('/enrol/sepay/manage.php', ['action' => 'approve', 'id' => $t->id, 'sesskey' => sesskey()]);
+        $actionbtn = $OUTPUT->single_button($approveurl, get_string('approve', 'enrol_sepay'));
 
         $table->data[] = [
             $userlink,
@@ -177,8 +196,8 @@ if (!$transactions) {
             $details,
             userdate($t->timecreated),
             s($t->ip_address),
-            $settings_html,
-            $action_btn
+            $settingshtml,
+            $actionbtn,
         ];
     }
     echo html_writer::table($table);

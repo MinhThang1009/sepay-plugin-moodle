@@ -22,10 +22,12 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+// phpcs:disable moodle.Commenting.InlineComment.NotCapital -- Comment tiếng Việt; sniff chỉ chấp nhận chữ hoa ASCII (Đ/Ư... bị coi là thường).
 
+/**
+ * Plugin ghi danh khóa học qua thanh toán chuyển khoản QR SePay.
+ */
 class enrol_sepay_plugin extends enrol_plugin {
-
     /**
      * Trả về icon hiển thị trong danh sách khóa học.
      *
@@ -47,26 +49,49 @@ class enrol_sepay_plugin extends enrol_plugin {
             break;
         }
         if ($found) {
-            return array(new pix_icon('icon', get_string('pluginname', 'enrol_sepay'), 'enrol_sepay'));
+            return [new pix_icon('icon', get_string('pluginname', 'enrol_sepay'), 'enrol_sepay')];
         }
-        return array();
+        return [];
     }
 
+    /**
+     * Trả về true nếu các role do plugin gán được bảo vệ khỏi chỉnh sửa thủ công.
+     *
+     * @return bool false vì user có quyền gán role có thể thay đổi role sau
+     */
     public function roles_protected() {
         // User có quyền gán role có thể thay đổi role sau.
         return false;
     }
 
+    /**
+     * Trả về true nếu cho phép gỡ ghi danh thủ công cho instance này.
+     *
+     * @param stdClass $instance instance ghi danh cần kiểm tra
+     * @return bool true nếu cho phép gỡ ghi danh
+     */
     public function allow_unenrol(stdClass $instance) {
         // User có quyền unenrol có thể gỡ ghi danh thủ công - cần enrol/sepay:unenrol.
         return true;
     }
 
+    /**
+     * Trả về true nếu cho phép quản lý ghi danh thủ công cho instance này.
+     *
+     * @param stdClass $instance instance ghi danh cần kiểm tra
+     * @return bool true nếu cho phép quản lý
+     */
     public function allow_manage(stdClass $instance) {
         // User có quyền manage có thể thay đổi thời hạn và trạng thái - cần enrol/sepay:manage.
         return true;
     }
 
+    /**
+     * Trả về true nếu nên hiển thị link tự ghi danh cho instance này.
+     *
+     * @param stdClass $instance instance ghi danh cần kiểm tra
+     * @return bool true nếu instance đang được bật
+     */
     public function show_enrolme_link(stdClass $instance) {
         return ($instance->status == ENROL_INSTANCE_ENABLED);
     }
@@ -84,8 +109,10 @@ class enrol_sepay_plugin extends enrol_plugin {
         $context = context_course::instance($instance->courseid, MUST_EXIST);
 
         // Nếu user không có quyền unenrolself hoặc không đang được ghi danh thì không hiển thị link.
-        if (!has_capability('enrol/sepay:unenrolself', $context, $USER) ||
-            !is_enrolled($context, $USER)) {
+        if (
+            !has_capability('enrol/sepay:unenrolself', $context, $USER) ||
+            !is_enrolled($context, $USER)
+        ) {
             return null;
         }
 
@@ -132,7 +159,7 @@ class enrol_sepay_plugin extends enrol_plugin {
         global $CFG;
         require_once($CFG->dirroot . '/enrol/sepay/locallib.php');
         $context = $manager->get_context();
-        $bulkoperations = array();
+        $bulkoperations = [];
         if (has_capability("enrol/sepay:manage", $context)) {
             $bulkoperations['editselectedusers'] = new enrol_sepay_editselectedusers_operation($manager, $this);
         }
@@ -144,8 +171,9 @@ class enrol_sepay_plugin extends enrol_plugin {
 
     /**
      * Thêm instance mới của plugin enrol.
+     *
      * @param object $course
-     * @param array $fields các trường của instance
+     * @param array|null $fields các trường của instance
      * @return int id của instance mới, null nếu không tạo được
      */
     public function add_instance($course, ?array $fields = null) {
@@ -182,8 +210,8 @@ class enrol_sepay_plugin extends enrol_plugin {
         ob_start();
 
         // Kiểm tra user đã ghi danh chưa.
-        if ($DB->record_exists('user_enrolments', array('userid' => $USER->id, 'enrolid' => $instance->id))) {
-            return ob_get_clean(); // Đã ghi danh, dọn buffer và trả về.
+        if ($DB->record_exists('user_enrolments', ['userid' => $USER->id, 'enrolid' => $instance->id])) {
+            return ob_get_clean(); // User đã ghi danh, dọn buffer và trả về.
         }
 
         // Kiểm tra ngày bắt đầu ghi danh đã đến chưa.
@@ -193,11 +221,11 @@ class enrol_sepay_plugin extends enrol_plugin {
 
         // Kiểm tra ngày kết thúc ghi danh đã qua chưa.
         if ($instance->enrolenddate != 0 && $instance->enrolenddate < time()) {
-            return ob_get_clean(); // Đã hết hạn ghi danh.
+            return ob_get_clean(); // Hết hạn ghi danh.
         }
 
         // Lấy thông tin khóa học từ database.
-        $course = $DB->get_record('course', array('id' => $instance->courseid), '*', IGNORE_MISSING);
+        $course = $DB->get_record('course', ['id' => $instance->courseid], '*', IGNORE_MISSING);
         if (!$course) {
             return ob_get_clean();
         }
@@ -205,24 +233,26 @@ class enrol_sepay_plugin extends enrol_plugin {
         $context = context_course::instance($course->id);
 
         // Định dạng tên ngắn khóa học để hiển thị.
-        $shortname = format_string($course->shortname, true, array('context' => $context));
+        $shortname = format_string($course->shortname, true, ['context' => $context]);
         // Lấy chuỗi ngôn ngữ cho đăng nhập và danh sách khóa học.
         $strloginto = get_string("loginto", "", $shortname);
         $strcourses = get_string("courses");
 
         // Lấy danh sách user có quyền cập nhật khóa học.
-        if ($users = get_users_by_capability(
-            $context,
-            'moodle/course:update',
-            'u.*',
-            'u.id ASC',
-            '',
-            '',
-            '',
-            '',
-            false,
-            true
-        )) {
+        if (
+            $users = get_users_by_capability(
+                $context,
+                'moodle/course:update',
+                'u.*',
+                'u.id ASC',
+                '',
+                '',
+                '',
+                '',
+                false,
+                true
+            )
+        ) {
             // Sắp xếp user theo quyền role.
             $users = sort_by_roleassignment_authority($users, $context);
             $teacher = array_shift($users); // Lấy user đầu tiên (thường là giáo viên).
@@ -263,7 +293,7 @@ class enrol_sepay_plugin extends enrol_plugin {
                 echo '</div>';
             } else {
                 // Chuẩn bị dữ liệu cho form SePay.
-                $coursefullname  = format_string($course->fullname, true, array('context' => $context));
+                $coursefullname  = format_string($course->fullname, true, ['context' => $context]);
                 $courseshortname = $shortname;
                 $userfullname    = fullname($USER);
                 $userfirstname   = $USER->firstname;
@@ -272,123 +302,128 @@ class enrol_sepay_plugin extends enrol_plugin {
                 $usercity        = $USER->city;
                 $instancename    = $this->get_instance_name($instance);
 
-                $qr_account = $this->get_config('account');
-                $qr_bank = $this->get_config('bank');
-                $qr_template = $this->get_config('template');
+                $qraccount = $this->get_config('account');
+                $qrbank = $this->get_config('bank');
+                $qrtemplate = $this->get_config('template');
                 // Mẫu nội dung do Admin cấu hình: [pattern] + [courseid] + [separator] + [userid].
-                // Lặp lại $qr_pattern ở cuối làm terminator: khi ngân hàng ghép thêm số vào sau
+                // Lặp lại $qrpattern ở cuối làm terminator: khi ngân hàng ghép thêm số vào sau
                 // (ví dụ timestamp "050526 23 03"), regex (\d+) dừng ngay tại chữ cái đầu của
                 // pattern thay vì bắt luôn cả chuỗi số đó.
-                $qr_pattern = trim((string)$this->get_config('pattern', 'sepay'));
-                $qr_separator = trim((string)$this->get_config('separator', 'sepay'));
-                $qr_content = $qr_pattern . $course->id . trim($qr_separator) . $USER->id;
+                $qrpattern = trim((string)$this->get_config('pattern', 'sepay'));
+                $qrseparator = trim((string)$this->get_config('separator', 'sepay'));
+                $qrcontent = $qrpattern . $course->id . trim($qrseparator) . $USER->id;
 
                 // Kiểm tra xem user đã có transaction chưa; lấy mới nhất nếu có nhiều.
-                $txn_pending = $DB->get_records('enrol_sepay_transactions', [
+                $txnpending = $DB->get_records('enrol_sepay_transactions', [
                     'userid' => $USER->id, 'courseid' => $course->id, 'status' => 'pending',
                 ], 'timecreated DESC', '*', 0, 1);
-                $pending_transaction = $txn_pending ? reset($txn_pending) : null;
+                $pendingtransaction = $txnpending ? reset($txnpending) : null;
 
-                $txn_processed = $DB->get_records('enrol_sepay_transactions', [
+                $txnprocessed = $DB->get_records('enrol_sepay_transactions', [
                     'userid' => $USER->id, 'courseid' => $course->id, 'status' => 'processed',
                 ], 'timecreated DESC', '*', 0, 1);
-                $processed_transaction = $txn_processed ? reset($txn_processed) : null;
+                $processedtransaction = $txnprocessed ? reset($txnprocessed) : null;
 
-                $txn_rejected = $DB->get_records('enrol_sepay_transactions', [
+                $txnrejected = $DB->get_records('enrol_sepay_transactions', [
                     'userid' => $USER->id, 'courseid' => $course->id, 'status' => 'rejected',
                 ], 'timecreated DESC', '*', 0, 1);
-                $rejected_transaction = $txn_rejected ? reset($txn_rejected) : null;
+                $rejectedtransaction = $txnrejected ? reset($txnrejected) : null;
 
-                // Nếu đã có transaction pending hoặc processed, hiển thị thông báo thay vì QR code
-                if ($pending_transaction) {
+                // Nếu đã có transaction pending hoặc processed, hiển thị thông báo thay vì QR code.
+                if ($pendingtransaction) {
                     echo '<div class="alert alert-info sepay-alert-center">';
                     echo '<i class="fa-regular fa-clock sepay-status-icon sepay-icon-info"></i><br>';
                     echo '<strong>' . get_string('payment_pending_title', 'enrol_sepay') . '</strong><br>';
                     echo get_string('payment_pending_message', 'enrol_sepay');
                     echo '</div>';
-                    
-                    // Thêm JavaScript để kiểm tra liên tục và reload lại trang khi admin phê duyệt/từ chối thông qua AMD
+
+                    // Thêm JavaScript để kiểm tra liên tục và reload lại trang khi admin phê duyệt/từ chối thông qua AMD.
                     $PAGE->requires->js_call_amd('enrol_sepay/payment_poll', 'init', [$course->id, 'pending']);
-                } elseif ($processed_transaction) {
-                    // Kiểm tra xem instance có bật manual enrollment không
-                    $instance_manual = $instance->customint1; // 0 = default, 1 = yes (manual), 2 = no (auto)
-                    $global_manual = $this->get_config('manual_enrol');
-                    
-                    // Xác định xem có phải manual enrollment không
-                    $is_manual_enrollment = false;
-                    if ($instance_manual == 1) {
-                        // Instance bật manual
-                        $is_manual_enrollment = true;
-                    } elseif ($instance_manual == 2) {
-                        // Instance tắt manual (auto)
-                        $is_manual_enrollment = false;
+                } else if ($processedtransaction) {
+                    // Kiểm tra xem instance có bật manual enrollment không.
+                    // Giá trị customint1: 0 là default, 1 là manual, 2 là auto.
+                    $instancemanual = $instance->customint1;
+                    $globalmanual = $this->get_config('manual_enrol');
+
+                    // Xác định xem có phải manual enrollment không.
+                    $ismanualenrollment = false;
+                    if ($instancemanual == 1) {
+                        // Instance bật manual.
+                        $ismanualenrollment = true;
+                    } else if ($instancemanual == 2) {
+                        // Instance tắt manual (auto).
+                        $ismanualenrollment = false;
                     } else {
-                        // Instance theo default → check global setting
-                        $is_manual_enrollment = (bool)$global_manual;
+                        // Instance theo default → check global setting.
+                        $ismanualenrollment = (bool)$globalmanual;
                     }
-                    
+
                     // Chọn string phù hợp
                     // Nếu là manual enrollment → "Xác nhận phê duyệt thành công!"
-                    // Nếu là auto enrollment → "Xác nhận thanh toán thành công!"
-                    $title_string = $is_manual_enrollment ? 'payment_approved_title' : 'payment_auto_approved_title';
-                    $message_string = $is_manual_enrollment ? 'payment_approved_message' : 'payment_auto_approved_message';
-                    
+                    // Nếu là auto enrollment → "Xác nhận thanh toán thành công!".
+                    $titlestring = $ismanualenrollment ? 'payment_approved_title' : 'payment_auto_approved_title';
+                    $messagestring = $ismanualenrollment ? 'payment_approved_message' : 'payment_auto_approved_message';
+
                     echo '<div class="alert alert-success sepay-alert-center">';
                     echo '<i class="fa-regular fa-circle-check sepay-status-icon sepay-icon-success"></i><br>';
-                    echo '<strong>' . get_string($title_string, 'enrol_sepay') . '</strong><br>';
-                    echo get_string($message_string, 'enrol_sepay');
-                    echo '<br><small class="text-muted">' . get_string('redirecting_in', 'enrol_sepay') . ' <span id="countdown">5</span> ' . get_string('seconds', 'enrol_sepay') . '...</small>';
+                    echo '<strong>' . get_string($titlestring, 'enrol_sepay') . '</strong><br>';
+                    echo get_string($messagestring, 'enrol_sepay');
+                    echo '<br><small class="text-muted">'
+                        . get_string('redirecting_in', 'enrol_sepay')
+                        . ' <span id="countdown">5</span> '
+                        . get_string('seconds', 'enrol_sepay')
+                        . '...</small>';
                     echo '</div>';
-                    
-                    // Tự động chuyển hướng kèm đếm ngược - Chuyển sang complete_enrol.php để ghi danh user
-                    $enrol_url = new moodle_url('/enrol/sepay/complete_enrol.php', ['id' => $course->id, 'sesskey' => sesskey()]);
-                    $PAGE->requires->js_call_amd('enrol_sepay/payment_countdown', 'init', [$course->id, $enrol_url->out(false)]);
-                } elseif ($rejected_transaction) {
+
+                    // Tự động chuyển hướng kèm đếm ngược - Chuyển sang complete_enrol.php để ghi danh user.
+                    $enrolurl = new moodle_url('/enrol/sepay/complete_enrol.php', ['id' => $course->id, 'sesskey' => sesskey()]);
+                    $PAGE->requires->js_call_amd('enrol_sepay/payment_countdown', 'init', [$course->id, $enrolurl->out(false)]);
+                } else if ($rejectedtransaction) {
                     echo '<div class="alert alert-danger sepay-alert-center">';
                     echo '<i class="fa-regular fa-circle-xmark sepay-status-icon sepay-icon-danger"></i><br>';
                     echo '<strong>' . get_string('payment_rejected_title', 'enrol_sepay') . '</strong><br>';
                     echo get_string('payment_rejected_message', 'enrol_sepay');
                     echo '<div class="mt-3">';
-                    
-                    // CSS cho nút nguy hiểm đã được định nghĩa trong styles.css (.sepay-danger-btn)
-                    
-                    // Nút Thanh toán lại
-                    $retry_url = new moodle_url('/enrol/sepay/retry.php', [
+
+                    // CSS cho nút nguy hiểm đã được định nghĩa trong styles.css (.sepay-danger-btn).
+
+                    // Nút Thanh toán lại.
+                    $retryurl = new moodle_url('/enrol/sepay/retry.php', [
                         'id' => $course->id,
                         'instance' => $instance->id,
-                        'sesskey' => sesskey()
+                        'sesskey' => sesskey(),
                     ]);
-                    echo '<a href="' . $retry_url . '" class="btn sepay-danger-btn mr-2 mb-2">';
+                    echo '<a href="' . $retryurl . '" class="btn sepay-danger-btn mr-2 mb-2">';
                     echo get_string('retry_payment', 'enrol_sepay');
                     echo '</a>';
-                    
-                    // Nút Liên hệ Admin
-                    $contact_url = (new moodle_url('/message/index.php', ['id' => get_admin()->id]))->out(false);
-                    echo '<a href="' . $contact_url . '" target="_blank" class="btn sepay-danger-btn mr-2 mb-2">';
+
+                    // Nút Liên hệ Admin.
+                    $contacturl = (new moodle_url('/message/index.php', ['id' => get_admin()->id]))->out(false);
+                    echo '<a href="' . $contacturl . '" target="_blank" class="btn sepay-danger-btn mr-2 mb-2">';
                     echo get_string('contact_admin', 'enrol_sepay');
                     echo '</a>';
-                    
-                    // Nút Quay lại
-                    $course_url = new moodle_url('/course/view.php', ['id' => $course->id]);
-                    echo '<a href="' . $course_url . '" class="btn sepay-danger-btn mb-2">';
+
+                    // Nút Quay lại.
+                    $courseurl = new moodle_url('/course/view.php', ['id' => $course->id]);
+                    echo '<a href="' . $courseurl . '" class="btn sepay-danger-btn mb-2">';
                     echo get_string('back_to_course', 'enrol_sepay');
                     echo '</a>';
-                    
+
                     echo '</div>';
                     echo '</div>';
                 } else {
-                    // Chỉ hiển thị QR code khi chưa có giao dịch
+                    // Chỉ hiển thị QR code khi chưa có giao dịch.
                     $data = [
-                        'qr_account' => $qr_account,
-                        'qr_bank' => $qr_bank,
+                        'qr_account' => $qraccount,
+                        'qr_bank' => $qrbank,
                         'cost' => $cost,
-                        'qr_content' => $qr_content,
-                        'qr_template' => $qr_template,
-                        'localisedcost' => $localisedcost
+                        'qr_content' => $qrcontent,
+                        'qr_template' => $qrtemplate,
+                        'localisedcost' => $localisedcost,
                     ];
                     echo $OUTPUT->render_from_template('enrol_sepay/enrol', $data);
-                    
-                    // Kích hoạt chuẩn AMD JS xử lý front-end giao diện QR
+
+                    // Kích hoạt chuẩn AMD JS xử lý front-end giao diện QR.
                     $PAGE->requires->js_call_amd('enrol_sepay/payment_actions', 'init', [$course->id, $CFG->wwwroot]);
                     $PAGE->requires->js_call_amd('enrol_sepay/payment_poll', 'init', [$course->id, 'none']);
                 }
@@ -412,13 +447,13 @@ class enrol_sepay_plugin extends enrol_plugin {
         if ($step->get_task()->get_target() == backup::TARGET_NEW_COURSE) {
             $merge = false;
         } else {
-            $merge = array(
+            $merge = [
                 'courseid'   => $data->courseid,
                 'enrol'      => $this->get_name(),
                 'roleid'     => $data->roleid,
                 'cost'       => $data->cost,
                 'currency'   => $data->currency,
-            );
+            ];
         }
         if ($merge && $instances = $DB->get_records('enrol', $merge, 'id')) {
             $instance = reset($instances);
@@ -435,8 +470,8 @@ class enrol_sepay_plugin extends enrol_plugin {
      * @param restore_enrolments_structure_step $step
      * @param stdClass $data
      * @param stdClass $instance
-     * @param int $oldinstancestatus
      * @param int $userid
+     * @param int $oldinstancestatus
      */
     public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance, $userid, $oldinstancestatus) {
         $this->enrol_user($instance, $userid, null, $data->timestart, $data->timeend, $data->status);
@@ -448,10 +483,10 @@ class enrol_sepay_plugin extends enrol_plugin {
      * @return array
      */
     protected function get_status_options() {
-        $options = array(
+        $options = [
             ENROL_INSTANCE_ENABLED  => get_string('yes'),
-            ENROL_INSTANCE_DISABLED => get_string('no')
-        );
+            ENROL_INSTANCE_DISABLED => get_string('no'),
+        ];
         return $options;
     }
 
@@ -478,7 +513,7 @@ class enrol_sepay_plugin extends enrol_plugin {
      * @param stdClass $instance
      * @param MoodleQuickForm $mform
      * @param context $context
-     * @return bool
+     * @return void
      */
     public function edit_instance_form($instance, MoodleQuickForm $mform, $context) {
         // Tên instance có chỉnh sửa (giống PayPal).
@@ -490,23 +525,23 @@ class enrol_sepay_plugin extends enrol_plugin {
         $mform->addElement('select', 'status', get_string('status', 'enrol_sepay'), $options);
         $mform->setDefault('status', $this->get_config('status'));
 
-        // Duyệt thủ công cấp instance (customint1)
-        $manualoptions = array(
+        // Duyệt thủ công cấp instance (customint1).
+        $manualoptions = [
             0 => get_string('manual_enrol_default', 'enrol_sepay'),
             1 => get_string('manual_enrol_yes', 'enrol_sepay'),
             2 => get_string('manual_enrol_no', 'enrol_sepay'),
-        );
+        ];
         $mform->addElement('select', 'customint1', get_string('manual_enrol_instance', 'enrol_sepay'), $manualoptions);
         $mform->setDefault('customint1', 0);
         $mform->addHelpButton('customint1', 'manual_enrol_instance', 'enrol_sepay');
 
         // Đăng kí giá (Enrol cost) với kích thước input giống PayPal.
-        $mform->addElement('text', 'cost', get_string('cost', 'enrol_sepay'), array('size' => 4));
+        $mform->addElement('text', 'cost', get_string('cost', 'enrol_sepay'), ['size' => 4]);
         $mform->setType('cost', PARAM_RAW);
         $mform->setDefault('cost', $this->get_config('cost'));
 
-        // Đơn vị tiền tệ (Currency) – chọn từ danh sách, mặc định theo cấu hình plugin.
-        $currencyoptions = array('VND' => 'VND');
+        // Đơn vị tiền tệ (Currency) - chọn từ danh sách, mặc định theo cấu hình plugin.
+        $currencyoptions = ['VND' => 'VND'];
         $mform->addElement('select', 'currency', get_string('currency', 'enrol_sepay'), $currencyoptions);
         $mform->setDefault('currency', $this->get_config('currency'));
 
@@ -516,18 +551,18 @@ class enrol_sepay_plugin extends enrol_plugin {
         $mform->setDefault('roleid', $this->get_config('roleid'));
 
         // Thời hạn ghi danh.
-        $options = array('optional' => true, 'defaultunit' => 86400);
+        $options = ['optional' => true, 'defaultunit' => 86400];
         $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_sepay'), $options);
         $mform->setDefault('enrolperiod', $this->get_config('enrolperiod'));
         $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_sepay');
 
         // Ngày bắt đầu và kết thúc thời gian ghi danh.
-        $options = array('optional' => true);
+        $options = ['optional' => true];
         $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_sepay'), $options);
         $mform->setDefault('enrolstartdate', 0);
         $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_sepay');
 
-        $options = array('optional' => true);
+        $options = ['optional' => true];
         $mform->addElement('date_time_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_sepay'), $options);
         $mform->setDefault('enrolenddate', 0);
         $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_sepay');
@@ -549,7 +584,7 @@ class enrol_sepay_plugin extends enrol_plugin {
      *         hoặc mảng rỗng nếu không có lỗi.
      */
     public function edit_instance_validation($data, $files, $instance, $context) {
-        $errors = array();
+        $errors = [];
 
         if (!empty($data['enrolenddate']) && $data['enrolenddate'] < $data['enrolstartdate']) {
             $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_sepay');
@@ -562,14 +597,14 @@ class enrol_sepay_plugin extends enrol_plugin {
 
         $validstatus = array_keys($this->get_status_options());
         $validroles = array_keys($this->get_roleid_options($instance, $context));
-        $tovalidate = array(
+        $tovalidate = [
             'name' => PARAM_TEXT,
             'status' => $validstatus,
             'roleid' => $validroles,
             'enrolperiod' => PARAM_INT,
             'enrolstartdate' => PARAM_INT,
-            'enrolenddate' => PARAM_INT
-        );
+            'enrolenddate' => PARAM_INT,
+        ];
 
         $typeerrors = $this->validate_param_types($data, $tovalidate);
         $errors = array_merge($errors, $typeerrors);
@@ -617,8 +652,13 @@ class enrol_sepay_plugin extends enrol_plugin {
     public function delete_instance($instance) {
         global $DB;
         // Mark pending transactions as rejected.
-        $DB->set_field_select('enrol_sepay_transactions', 'status', 'rejected',
-            "instanceid = ? AND status = 'pending'", [$instance->id]);
+        $DB->set_field_select(
+            'enrol_sepay_transactions',
+            'status',
+            'rejected',
+            "instanceid = ? AND status = 'pending'",
+            [$instance->id]
+        );
         // Mark processed-but-not-enrolled transactions as rejected.
         $DB->execute(
             "UPDATE {enrol_sepay_transactions}
@@ -631,9 +671,13 @@ class enrol_sepay_plugin extends enrol_plugin {
             [$instance->id, $instance->id]
         );
         // Suppress rejection notifications for all records — course is being deleted.
-        $DB->set_field_select('enrol_sepay_transactions', 'rejection_notified', 1,
-            "instanceid = ? AND status = 'rejected' AND rejection_notified = 0", [$instance->id]);
+        $DB->set_field_select(
+            'enrol_sepay_transactions',
+            'rejection_notified',
+            1,
+            "instanceid = ? AND status = 'rejected' AND rejection_notified = 0",
+            [$instance->id]
+        );
         parent::delete_instance($instance);
     }
 }
-
