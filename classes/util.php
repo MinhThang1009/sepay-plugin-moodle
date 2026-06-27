@@ -251,6 +251,9 @@ class util {
     /**
      * Lọc và trích xuất đúng phần Tên học viên từ các định dạng phức tạp
      * VD: "2273401210132 - Võ Lê Thu Phương - 71K28KDTM02" -> "Võ Lê Thu Phương"
+     *
+     * @param string $rawname Tên thô, có thể kèm mã SV và lớp
+     * @return string Tên học viên đã tách
      */
     public static function clean_student_name($rawname) {
         $rawname = trim($rawname);
@@ -301,6 +304,9 @@ class util {
 
     /**
      * Dò tìm nền tảng Email (Gmail / Outlook) và trả về label với logo hosted URL.
+     *
+     * @param string $email Địa chỉ email của người nhận
+     * @return string Label kèm logo (HTML) tương ứng nền tảng
      */
     public static function get_email_platform_label($email) {
         if (stripos($email, '@vanlanguni.vn') !== false || stripos($email, '@outlook.') !== false || stripos($email, '@hotmail.') !== false) {
@@ -316,7 +322,10 @@ class util {
     }
 
     /**
-     * BẢN VẼ HTML UI SENIOR UX DÀNH CHO HỌC VIÊN
+     * Dựng HTML email gửi cho học viên sau khi ghi danh thành công.
+     *
+     * @param \stdClass $a Dữ liệu email (username, coursename, useremail, courseurl)
+     * @return string Nội dung HTML của email
      */
     public static function get_student_email_html($a) {
         $cleanname     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
@@ -524,7 +533,10 @@ class util {
     }
 
     /**
-     * BẢN VẼ HTML UI SENIOR UX DÀNH CHO ADMIN
+     * Dựng HTML email thông báo cho admin khi có giao dịch/ghi danh mới.
+     *
+     * @param \stdClass $a Dữ liệu email (username, coursename, useremail, profileurl)
+     * @return string Nội dung HTML của email
      */
     public static function get_admin_email_html($a) {
         $cleanname     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
@@ -758,6 +770,9 @@ class util {
 
     /**
      * HTML email template cho rejection notification — màu cam, cùng chuẩn với enrollment template.
+     *
+     * @param \stdClass $a Dữ liệu email (username, coursename, useremail, courseurl)
+     * @return string Nội dung HTML của email
      */
     public static function get_rejection_email_html($a): string {
         $cleanname     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');
@@ -986,6 +1001,9 @@ class util {
 
     /**
      * HTML email template cho unenrolment notification — màu slate, cùng chuẩn với enrollment template.
+     *
+     * @param \stdClass $a Dữ liệu email (username, coursename, useremail, courseurl)
+     * @return string Nội dung HTML của email
      */
     public static function get_unenrolment_email_html($a): string {
         $cleanname     = htmlspecialchars(self::clean_student_name($a->username), ENT_QUOTES, 'UTF-8');

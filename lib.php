@@ -145,8 +145,9 @@ class enrol_sepay_plugin extends enrol_plugin {
 
     /**
      * Thêm instance mới của plugin enrol.
+     *
      * @param object $course
-     * @param array $fields các trường của instance
+     * @param array|null $fields các trường của instance
      * @return int id của instance mới, null nếu không tạo được
      */
     public function add_instance($course, ?array $fields = null) {
@@ -438,8 +439,8 @@ class enrol_sepay_plugin extends enrol_plugin {
      * @param restore_enrolments_structure_step $step
      * @param stdClass $data
      * @param stdClass $instance
-     * @param int $oldinstancestatus
      * @param int $userid
+     * @param int $oldinstancestatus
      */
     public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance, $userid, $oldinstancestatus) {
         $this->enrol_user($instance, $userid, null, $data->timestart, $data->timeend, $data->status);

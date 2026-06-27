@@ -107,6 +107,9 @@ class transactions_table extends table_sql {
 
     /**
      * Chạy query để setup dữ liệu IP trùng trước khi render các hàng
+     *
+     * @param int $pagesize Số bản ghi mỗi trang
+     * @param bool $useinitialsbar Có hiển thị thanh lọc theo chữ cái hay không
      */
     public function query_db($pagesize, $useinitialsbar = true) {
         global $DB;
