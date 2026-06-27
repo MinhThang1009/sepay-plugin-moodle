@@ -55,5 +55,41 @@ function xmldb_enrol_sepay_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026010100, 'enrol', 'sepay');
     }
 
+    if ($oldversion < 2026062700) {
+        // Bổ sung các cột được thêm vào install.xml sau bản 2026010100 nhưng thiếu
+        // bước upgrade tương ứng. Site cài mới đã có sẵn (field_exists -> no-op),
+        // site nâng cấp từ bản cũ được thêm để tránh lỗi "Unknown column".
+        $table = new \xmldb_table('enrol_sepay_transactions');
+        $newfields = [
+            new \xmldb_field('gateway', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'transaction_ref'),
+            new \xmldb_field('ip_address', XMLDB_TYPE_CHAR, '45', null, null, null, null, 'status'),
+            new \xmldb_field('email_sent', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timeprocessed'),
+            new \xmldb_field('rejection_notified', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'email_sent'),
+        ];
+        foreach ($newfields as $field) {
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        // Bảng archive: bổ sung các cột tương ứng (nếu bảng đã tồn tại).
+        $tablearchive = new \xmldb_table('enrol_sepay_archive');
+        if ($dbman->table_exists($tablearchive)) {
+            $archivefields = [
+                new \xmldb_field('gateway', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'transaction_ref'),
+                new \xmldb_field('ip_address', XMLDB_TYPE_CHAR, '45', null, null, null, null, 'status'),
+                new \xmldb_field('email_sent', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timearchived'),
+                new \xmldb_field('rejection_notified', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'email_sent'),
+            ];
+            foreach ($archivefields as $field) {
+                if (!$dbman->field_exists($tablearchive, $field)) {
+                    $dbman->add_field($tablearchive, $field);
+                }
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2026062700, 'enrol', 'sepay');
+    }
+
     return true;
 }

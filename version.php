@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026010100;        // Phiên bản plugin hiện tại.
+$plugin->version   = 2026062700;        // Phiên bản plugin hiện tại.
 $plugin->requires  = 2022041900;        // Moodle 4.0 tối thiểu (hỗ trợ 4.0+).
 $plugin->supported = [400, 502];        // Dải Moodle đã verify trên CI: 4.0 → 5.2.
 $plugin->component = 'enrol_sepay';     // Tên đầy đủ của plugin (dùng cho chẩn đoán).
