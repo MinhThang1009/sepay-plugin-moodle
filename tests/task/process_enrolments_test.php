@@ -127,7 +127,7 @@ final class process_enrolments_test extends \advanced_testcase {
     public function test_missing_user_marks_rejected(): void {
         global $DB;
         $this->resetAfterTest();
-        [$course, $user, $instance] = $this->setup_fixture();
+        [$course, , $instance] = $this->setup_fixture();
         $this->insert_processed(99999, $course, $instance);
 
         $this->run_task();

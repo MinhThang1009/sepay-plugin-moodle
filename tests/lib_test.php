@@ -75,7 +75,7 @@ final class lib_test extends \advanced_testcase {
      */
     public function test_hook_enrolled_returns_empty(): void {
         $this->resetAfterTest();
-        [$course, $user, $instance, $plugin] = $this->setup_fixture();
+        [, $user, $instance, $plugin] = $this->setup_fixture();
         $plugin->enrol_user($instance, $user->id, $instance->roleid);
         $this->setUser($user);
 
@@ -136,7 +136,7 @@ final class lib_test extends \advanced_testcase {
      */
     public function test_hook_qr_form(): void {
         $this->resetAfterTest();
-        [$course, $user, $instance, $plugin] = $this->setup_fixture();
+        [, $user, $instance, $plugin] = $this->setup_fixture();
         $this->setUser($user);
 
         $out = $plugin->enrol_page_hook($instance);
