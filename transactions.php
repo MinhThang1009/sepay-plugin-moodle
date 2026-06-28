@@ -261,6 +261,16 @@ if ($action === 'bulk_approve' && confirm_sesskey()) {
             'letter_fn'     => $letterfn,
             'perpage'       => $perpage,
         ]);
+        if ($failedcount > 0) {
+            // Báo rõ có giao dịch lỗi thay vì im lặng chỉ hiện số thành công.
+            redirect(
+                $redirecturl,
+                get_string('bulk_approved_partial', 'enrol_sepay',
+                    (object)['ok' => $approvedcount, 'failed' => $failedcount]),
+                null,
+                core\output\notification::NOTIFY_WARNING
+            );
+        }
         redirect($redirecturl, get_string('bulk_approved', 'enrol_sepay', $approvedcount));
     } else {
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
@@ -393,6 +403,15 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
             'letter_fn'     => $letterfn,
             'perpage'       => $perpage,
         ]);
+        if ($failedcount > 0) {
+            redirect(
+                $redirecturl,
+                get_string('bulk_rejected_partial', 'enrol_sepay',
+                    (object)['ok' => $rejectedcount, 'failed' => $failedcount]),
+                null,
+                core\output\notification::NOTIFY_WARNING
+            );
+        }
         redirect($redirecturl, get_string('bulk_rejected', 'enrol_sepay', $rejectedcount));
     } else {
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
