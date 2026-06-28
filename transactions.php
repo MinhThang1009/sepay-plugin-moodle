@@ -689,12 +689,18 @@ if ($searchcourse !== '') {
     $params['search_course'] = '%' . $DB->sql_like_escape($searchcourse) . '%';
 }
 if ($datefrom !== '') {
-    $whereparts[] = "t.timecreated >= :date_from";
-    $params['date_from'] = strtotime($datefrom . ' 00:00:00');
+    $ts = strtotime($datefrom . ' 00:00:00');
+    if ($ts !== false) {
+        $whereparts[] = "t.timecreated >= :date_from";
+        $params['date_from'] = $ts;
+    }
 }
 if ($dateto !== '') {
-    $whereparts[] = "t.timecreated <= :date_to";
-    $params['date_to'] = strtotime($dateto . ' 23:59:59');
+    $ts = strtotime($dateto . ' 23:59:59');
+    if ($ts !== false) {
+        $whereparts[] = "t.timecreated <= :date_to";
+        $params['date_to'] = $ts;
+    }
 }
 if ($letter !== '') {
     $whereparts[] = $DB->sql_like('u.lastname', ':letter', false);
