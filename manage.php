@@ -77,6 +77,16 @@ if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
 
     $roleid = !empty($instance->roleid) ? (int)$instance->roleid : (int)$plugin->get_config('roleid');
 
+    // Không ghi danh nếu role chưa cấu hình hợp lệ (tránh enrol_user với roleid=0 → ghi danh không gán role).
+    if ($roleid <= 0) {
+        redirect(
+            new moodle_url('/enrol/sepay/manage.php'),
+            get_string('error_enrol_failed', 'enrol_sepay'),
+            null,
+            core\output\notification::NOTIFY_ERROR
+        );
+    }
+
     // Enrol user trực tiếp khi admin approve
     // Đảm bảo user được ghi danh dù họ có rời trang countdown hay không.
     if (!is_enrolled($context, $user)) {
@@ -118,6 +128,9 @@ if ($action === 'approve' && $id > 0 && confirm_sesskey()) {
                 }
             }
         }
+
+        // Đã gửi welcome ở đây → đánh dấu email_sent để complete_enrol/cron không gửi đúp.
+        $transaction->email_sent = 1;
     }
 
     // Update Transaction Status.
