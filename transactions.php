@@ -427,8 +427,6 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('manage_transactions', 'enrol_sepay'));
 
-    // Gỡ bỏ tùy chỉnh CSS rác để Moodle table layout hiển thị nguyên bản.
-
 // Lấy số liệu thống kê giao dịch.
 $countpending    = $DB->count_records('enrol_sepay_transactions', ['status' => 'pending']);
 $countprocessed  = $DB->count_records('enrol_sepay_transactions', ['status' => 'processed']);
