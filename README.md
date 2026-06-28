@@ -2,8 +2,8 @@
 
 [![Moodle Plugin CI](https://github.com/MinhThang1009/sepay-plugin-moodle/actions/workflows/ci.yml/badge.svg)](https://github.com/MinhThang1009/sepay-plugin-moodle/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![Moodle](https://img.shields.io/badge/Moodle-4.2%2B-orange)
-![PHP](https://img.shields.io/badge/PHP-8.2-777bb4)
+![Moodle](https://img.shields.io/badge/Moodle-4.0--5.2-orange)
+![PHP](https://img.shields.io/badge/PHP-7.4--8.3-777bb4)
 
 Plugin ghi danh (enrolment method) cho Moodle, tự động mở khóa học cho học viên ngay khi nhận
 được chuyển khoản qua **SePay** — phù hợp với trường học, trung tâm bán khóa học và thu học phí
@@ -24,6 +24,8 @@ tự động qua chuyển khoản ngân hàng.
 - [Ví dụ webhook](#ví-dụ-webhook)
 - [Cấu trúc thư mục](#cấu-trúc-thư-mục)
 - [Phát triển & CI](#phát-triển--ci)
+- [Đóng góp](#đóng-góp)
+- [Hỗ trợ và Bảo mật](#hỗ-trợ-và-bảo-mật)
 - [Giấy phép](#giấy-phép)
 
 ## Tính năng
@@ -40,8 +42,8 @@ tự động qua chuyển khoản ngân hàng.
 
 | Thành phần | Phiên bản |
 |---|---|
-| Moodle | 4.2 trở lên (`requires` = 2023042400) |
-| PHP | 8.2+ |
+| Moodle | 4.0 – 5.2 (`requires` = 2022041900) |
+| PHP | 7.4 – 8.3 |
 | Database | MySQL / MariaDB / PostgreSQL (qua XMLDB của Moodle) |
 | Dịch vụ ngoài | Tài khoản [SePay](https://sepay.vn) + webhook |
 
@@ -159,7 +161,7 @@ enrol/sepay/
 ## Phát triển & CI
 
 Repo dùng **GitHub Actions** với [`moodle-plugin-ci`](https://moodlehq.github.io/moodle-plugin-ci/)
-(Moodle 4.2 + PHP 8.2 + MariaDB) — xem [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+(ma trận Moodle 4.0–5.2 × PHP 7.4–8.3 trên MariaDB) — xem [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 Mỗi push/PR tự chạy: `phplint`, `validate`, `savepoints`, `mustache`, `phpunit`, `behat`
 (gate cứng) và `phpcs`, `phpmd`, `phpstan`, `grunt` (advisory).
@@ -171,6 +173,15 @@ moodle-plugin-ci phplint
 moodle-plugin-ci phpcs
 moodle-plugin-ci phpstan
 ```
+
+## Đóng góp
+
+Hoan nghênh đóng góp! Đọc [CONTRIBUTING.md](CONTRIBUTING.md) (quy ước commit, branch, PR) và [Quy tắc ứng xử](CODE_OF_CONDUCT.md) trước khi mở PR. Mọi PR chạy qua CI `moodle-plugin-ci` (xem mục [Phát triển & CI](#phát-triển--ci)); `main` được bảo vệ, merge qua PR sau khi CI xanh.
+
+## Hỗ trợ và Bảo mật
+
+- **Cần trợ giúp / báo lỗi / đề xuất tính năng**: xem [SUPPORT.md](SUPPORT.md) hoặc mở [issue](https://github.com/MinhThang1009/sepay-plugin-moodle/issues).
+- **Lỗ hổng bảo mật**: KHÔNG mở issue công khai — xem [SECURITY.md](SECURITY.md).
 
 ## Giấy phép
 
