@@ -172,8 +172,8 @@ final class cleanup_transactions_test extends \advanced_testcase {
         set_config('auto_cleanup_enabled', 0, 'enrol_sepay');
         set_config('delete_read_notifications_delay', 'delete_read_1day', 'enrol_sepay');
         set_config('delete_all_notifications_delay', 'never', 'enrol_sepay');
-        $this->insert_notification(2, true);  // đã đọc, 2 ngày → xóa.
-        $this->insert_notification(2, false); // chưa đọc → giữ (chỉ xóa "read").
+        $this->insert_notification(2, true);  // Notification đã đọc 2 ngày → bị xóa.
+        $this->insert_notification(2, false); // Notification chưa đọc → giữ (chỉ xóa loại đã đọc).
 
         $this->run_task();
 

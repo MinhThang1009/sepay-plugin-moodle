@@ -317,6 +317,6 @@ class cleanup_transactions extends \core\task\scheduled_task {
                 return time() - ($days * 86400);
             }
         }
-        return null; // 'never', rỗng, hoặc giá trị legacy (delete_all/delete_all_read) → không xóa.
+        return null; // Trả null cho 'never'/rỗng/giá trị legacy (delete_all, delete_all_read) — không xóa.
     }
 }

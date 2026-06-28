@@ -265,8 +265,7 @@ if ($action === 'bulk_approve' && confirm_sesskey()) {
             // Báo rõ có giao dịch lỗi thay vì im lặng chỉ hiện số thành công.
             redirect(
                 $redirecturl,
-                get_string('bulk_approved_partial', 'enrol_sepay',
-                    (object)['ok' => $approvedcount, 'failed' => $failedcount]),
+                get_string('bulk_approved_partial', 'enrol_sepay', (object)['ok' => $approvedcount, 'failed' => $failedcount]),
                 null,
                 core\output\notification::NOTIFY_WARNING
             );
@@ -406,8 +405,7 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
         if ($failedcount > 0) {
             redirect(
                 $redirecturl,
-                get_string('bulk_rejected_partial', 'enrol_sepay',
-                    (object)['ok' => $rejectedcount, 'failed' => $failedcount]),
+                get_string('bulk_rejected_partial', 'enrol_sepay', (object)['ok' => $rejectedcount, 'failed' => $failedcount]),
                 null,
                 core\output\notification::NOTIFY_WARNING
             );
