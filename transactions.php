@@ -140,8 +140,11 @@ if ($action === 'reject' && $id > 0 && confirm_sesskey()) {
         $course = $DB->get_record('course', ['id' => $transaction->courseid]);
         if ($user && $course) {
             try {
-                \enrol_sepay\util::send_rejection_notification($course, $user);
-                $DB->set_field('enrol_sepay_transactions', 'rejection_notified', 1, ['id' => $transaction->id]);
+                // Chỉ đánh dấu đã thông báo khi gửi thực sự thành công (send trả false, không throw,
+                // khi mailstudents tắt / thiếu provider) — để bật config lại còn gửi được, khớp process_rejections.
+                if (\enrol_sepay\util::send_rejection_notification($course, $user)) {
+                    $DB->set_field('enrol_sepay_transactions', 'rejection_notified', 1, ['id' => $transaction->id]);
+                }
             } catch (\Exception $e) {
                 debugging('enrol_sepay reject: send_rejection_notification failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
             }
@@ -362,8 +365,10 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
                     $rcourse = $DB->get_record('course', ['id' => $txn->courseid]);
                     if ($ruser && $rcourse) {
                         try {
-                            \enrol_sepay\util::send_rejection_notification($rcourse, $ruser);
-                            $DB->set_field('enrol_sepay_transactions', 'rejection_notified', 1, ['id' => $txn->id]);
+                            // Chỉ đánh dấu khi gửi thành công — khớp process_rejections (cho phép gửi lại khi bật config).
+                            if (\enrol_sepay\util::send_rejection_notification($rcourse, $ruser)) {
+                                $DB->set_field('enrol_sepay_transactions', 'rejection_notified', 1, ['id' => $txn->id]);
+                            }
                         } catch (\Exception $e) {
                             debugging('enrol_sepay bulk_reject: notification failed for id=' . $txnid . ': '
                                 . $e->getMessage(), DEBUG_DEVELOPER);
