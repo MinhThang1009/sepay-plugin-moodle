@@ -1,0 +1,16 @@
+name: Labeler
+
+# Tự gán nhãn PR theo file thay đổi, dùng rule trong .github/labeler.yml.
+# Dùng pull_request_target để chạy được cho PR từ fork; an toàn vì actions/labeler đọc
+# config từ base ref, không checkout code PR — KHÔNG thêm checkout PR head vào workflow này.
+on: [pull_request_target]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v6

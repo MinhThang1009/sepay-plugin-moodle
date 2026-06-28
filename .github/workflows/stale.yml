@@ -1,0 +1,23 @@
+name: Close stale issues and PRs
+
+# Đánh dấu rồi đóng issue/PR không hoạt động lâu (housekeeping).
+on:
+  schedule:
+    - cron: '0 1 * * *'
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v10
+        with:
+          days-before-stale: 60
+          days-before-close: 14
+          stale-issue-message: "Không hoạt động 60 ngày; sẽ đóng sau 14 ngày nếu không có hoạt động tiếp."
+          stale-pr-message: "Không hoạt động 60 ngày; sẽ đóng sau 14 ngày nếu không có hoạt động tiếp."
+          exempt-issue-labels: "pinned,security"
+          exempt-pr-labels: "pinned,security"

@@ -1,0 +1,16 @@
+# Cấu hình actions/labeler v6 (nhãn -> glob file thay đổi).
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ['*.md', 'docs/**']
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/workflows/**'
+tests:
+  - changed-files:
+      - any-glob-to-any-file: 'tests/**'
+javascript:
+  - changed-files:
+      - any-glob-to-any-file: 'amd/src/**'
+language:
+  - changed-files:
+      - any-glob-to-any-file: 'lang/**'
