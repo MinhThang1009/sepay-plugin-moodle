@@ -58,14 +58,16 @@ class process_enrolments extends \core\task\scheduled_task {
         // LIMIT 100 tránh timeout khi có nhiều record tích tụ.
         // Dùng tham số phân trang của get_records_sql() thay vì LIMIT trong raw SQL
         // vì LIMIT với named param không hoạt động trên mọi DB driver (PostgreSQL, MSSQL).
+        // JOIN có thêm ue.status = ACTIVE: giao dịch processed mà user CHƯA ghi danh ACTIVE
+        // (chưa enrol, hoặc đã hết hạn/suspend và vừa gia hạn) đều được bắt để (re-)enrol.
         $sql = "SELECT t.*
                   FROM {enrol_sepay_transactions} t
              LEFT JOIN {user_enrolments} ue
-                    ON t.userid = ue.userid AND t.instanceid = ue.enrolid
+                    ON t.userid = ue.userid AND t.instanceid = ue.enrolid AND ue.status = :active
                  WHERE t.status = 'processed'
                    AND ue.id IS NULL";
 
-        $rs = $DB->get_records_sql($sql, [], 0, 100);
+        $rs = $DB->get_records_sql($sql, ['active' => ENROL_USER_ACTIVE], 0, 100);
 
         if (!$rs) {
             mtrace('Không có giao dịch nào đang bị kẹt. Hệ thống sạch sẽ.');
@@ -126,8 +128,8 @@ class process_enrolments extends \core\task\scheduled_task {
         }
 
         try {
-            // Ghi danh chính thức.
-            $plugin->enrol_user($instance, $user->id, $roleid, $timestart, $timeend);
+            // Ghi danh chính thức. ENROL_USER_ACTIVE để re-activate ue đang suspended (gia hạn).
+            $plugin->enrol_user($instance, $user->id, $roleid, $timestart, $timeend, ENROL_USER_ACTIVE);
             mtrace("Đã Auto-Enrol học viên ID {$user->id} vào khóa học ID {$t->courseid}.");
         } catch (\Exception $e) {
             mtrace("Lỗi khi enrol giao dịch ID {$t->id} (user {$t->userid}, course {$t->courseid}): " . $e->getMessage());

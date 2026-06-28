@@ -87,4 +87,44 @@ class observer {
             debugging('enrol_sepay observer: send_unenrolment_notification failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
+
+    /**
+     * Xử lý khi một ghi danh được cập nhật.
+     *
+     * Khi ghi danh sepay chuyển sang SUSPENDED (vd hết hạn enrolperiod với expiredaction
+     * SUSPEND/SUSPENDNOROLES — Moodle chỉ bắn event này, KHÔNG bắn user_enrolment_deleted),
+     * đánh dấu các giao dịch 'processed' của user trong instance đó sang 'unenrolled'. Nhờ đó
+     * trang ghi danh hiển thị lại form QR để user trả tiền gia hạn, và không cho gia hạn miễn
+     * phí (chỉ giao dịch 'processed' MỚI mới kích hoạt enrol lại). KHÔNG gửi email (suspend
+     * khác với hủy ghi danh). Bulk-edit admin suspend cũng vào đây — nhất quán: suspended ⇒ renew được.
+     *
+     * @param \core\event\user_enrolment_updated $event
+     * @return void
+     */
+    public static function user_enrolment_updated(\core\event\user_enrolment_updated $event): void {
+        global $DB;
+
+        // Chỉ xử lý enrolment của plugin sepay.
+        if (($event->other['enrol'] ?? '') !== 'sepay') {
+            return;
+        }
+
+        // Event _updated KHÔNG mang enrolid/status trong 'other' (khác _deleted) → lấy lại ue.
+        $ue = $DB->get_record('user_enrolments', ['id' => $event->objectid]);
+        if (!$ue || (int)$ue->status !== ENROL_USER_SUSPENDED) {
+            return;
+        }
+
+        // Chỉ đụng giao dịch 'processed' (đã tiêu thụ) → 'unenrolled'; KHÔNG đụng pending/rejected.
+        try {
+            $DB->set_field('enrol_sepay_transactions', 'status', 'unenrolled', [
+                'userid'     => $event->relateduserid,
+                'courseid'   => $event->courseid,
+                'instanceid' => $ue->enrolid,
+                'status'     => 'processed',
+            ]);
+        } catch (\dml_exception $e) {
+            debugging('enrol_sepay observer: set_field (suspend) failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
+    }
 }

@@ -29,4 +29,10 @@ $observers = [
         'eventname'    => '\core\event\user_enrolment_deleted',
         'callback'     => '\enrol_sepay\observer::user_enrolment_deleted',
     ],
+    [
+        // Bắt suspend (hết hạn với expiredaction SUSPEND/SUSPENDNOROLES) — chỉ bắn _updated,
+        // không bắn _deleted — để mở lại form QR gia hạn.
+        'eventname'    => '\core\event\user_enrolment_updated',
+        'callback'     => '\enrol_sepay\observer::user_enrolment_updated',
+    ],
 ];
