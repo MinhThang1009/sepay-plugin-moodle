@@ -162,4 +162,18 @@ final class external_test extends \advanced_testcase {
         $this->assertTrue($result['pending']);
         $this->assertTrue($result['processed']);
     }
+
+    /**
+     * User bị SUSPEND (hết hạn): poll trả enrolled=false để renew có thể reload trang.
+     */
+    public function test_suspended_not_enrolled(): void {
+        $this->resetAfterTest();
+        [$course, $user, $instance, $plugin] = $this->setup_fixture();
+        $plugin->enrol_user($instance, $user->id, $instance->roleid, 0, 0, ENROL_USER_SUSPENDED);
+        $this->setUser($user);
+
+        $result = external::check_transaction_status($course->id);
+
+        $this->assertFalse($result['enrolled']);
+    }
 }
