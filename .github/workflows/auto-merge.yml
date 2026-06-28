@@ -1,0 +1,26 @@
+name: Auto-merge (label-gated)
+
+# PR gắn label 'automerge' (và không phải draft) → bật auto-merge (squash). GitHub tự
+# squash-merge khi required check 'ci-success' xanh. Opt-in từng PR bằng label; PR KHÔNG
+# gắn label thì không tự merge (tránh lỡ merge PR nháp/WIP).
+#
+# Dùng PAT RELEASE_PLEASE_TOKEN (fallback GITHUB_TOKEN) để lần merge tự động còn KÍCH HOẠT
+# được release-please — push do GITHUB_TOKEN tạo KHÔNG trigger workflow khác.
+on:
+  pull_request:
+    types: [labeled, opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'automerge') && !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bật auto-merge (squash)
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR_URL"

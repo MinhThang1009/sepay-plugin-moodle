@@ -179,19 +179,53 @@ jobs:
         timeout-minutes: 5
         run: moodle-plugin-ci grunt
 
-  # Cổng tổng hợp cho branch protection: chỉ cần require đúng check 'ci-success' thay vì
-  # liệt kê từng combo (dễ vỡ khi matrix đổi). needs.test.result = 'success' CHỈ KHI mọi
-  # combo trong matrix đều xanh; nếu một combo đỏ thì job này đỏ → chặn merge.
+  # Ép bump $plugin->version (Moodle integer date-based) khi có file .php (ngoài version.php)
+  # thay đổi — chống quên bump. Bỏ qua PR của release-please (chỉ bump $plugin->release SemVer).
+  version-guard:
+    if: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please--') }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Kiểm tra version.php đã bump khi code .php đổi
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          CHANGED=$(git diff --name-only "$BASE_SHA" HEAD | grep '\.php$' | grep -vx 'version.php' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "Không có file .php (ngoài version.php) thay đổi → bỏ qua guard."
+            exit 0
+          fi
+          NEW=$(grep -oP '\$plugin->version\s*=\s*\K[0-9]+' version.php)
+          OLD=$(git show "$BASE_SHA:version.php" | grep -oP '\$plugin->version\s*=\s*\K[0-9]+')
+          echo "version.php: base=$OLD → head=$NEW"
+          if [ -z "$NEW" ] || [ -z "$OLD" ]; then
+            echo "::error::Không đọc được \$plugin->version."
+            exit 1
+          fi
+          if [ "$NEW" -le "$OLD" ]; then
+            echo "::error::Có file .php thay đổi nhưng \$plugin->version chưa tăng ($OLD → $NEW). Hãy bump version.php."
+            exit 1
+          fi
+          echo "OK: \$plugin->version tăng $OLD → $NEW."
+
+  # Cổng tổng hợp cho branch protection: require đúng check 'ci-success'. needs gồm test +
+  # version-guard. test.result='success' CHỈ KHI mọi combo xanh; version-guard 'skipped'
+  # (push, hoặc PR release-please) được chấp nhận.
   ci-success:
     name: ci-success
-    needs: [test]
+    needs: [test, version-guard]
     if: ${{ always() }}
     runs-on: ubuntu-22.04
     steps:
-      - name: Kiểm tra mọi combo test đã xanh
+      - name: Kiểm tra test + version-guard
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
             echo "Có combo test thất bại (kết quả: ${{ needs.test.result }})."
             exit 1
           fi
-          echo "Tất cả combo test xanh."
+          if [ "${{ needs.version-guard.result }}" != "success" ] && [ "${{ needs.version-guard.result }}" != "skipped" ]; then
+            echo "version-guard thất bại (kết quả: ${{ needs.version-guard.result }})."
+            exit 1
+          fi
+          echo "Tất cả combo test xanh + version-guard OK."

@@ -31,11 +31,17 @@ jobs:
             ./ build/sepay/
           (cd build && zip -rq "../enrol_sepay-${GITHUB_REF_NAME}.zip" sepay)
 
-      - name: Create GitHub Release
+      - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" \
-            "enrol_sepay-${GITHUB_REF_NAME}.zip" \
-            --title "${GITHUB_REF_NAME}" \
-            --generate-notes
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            # Release đã tồn tại (release-please tạo) → chỉ đính kèm zip, dùng notes của release-please.
+            gh release upload "${GITHUB_REF_NAME}" "enrol_sepay-${GITHUB_REF_NAME}.zip" --clobber
+          else
+            # Tag đẩy tay → tạo release mới + auto notes.
+            gh release create "${GITHUB_REF_NAME}" \
+              "enrol_sepay-${GITHUB_REF_NAME}.zip" \
+              --title "${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi
