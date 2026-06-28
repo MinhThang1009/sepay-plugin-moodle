@@ -72,7 +72,9 @@ class external extends external_api {
         self::validate_context(\context_system::instance());
 
         $found = self::find_latest_transactions($USER->id, $courseid);
-        $enrolled = is_enrolled($context, $USER);
+        // Dùng onlyactive=true: user bị suspend/hết hạn coi như CHƯA enrolled → khi họ gia hạn
+        // (active trở lại) poll phát hiện đổi state và reload sang nội dung khóa học.
+        $enrolled = is_enrolled($context, $USER, '', true);
 
         return self::build_status_response($enrolled, $found);
     }

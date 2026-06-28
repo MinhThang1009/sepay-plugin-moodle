@@ -206,6 +206,24 @@ class enrol_sepay_plugin extends enrol_plugin {
     }
 
     /**
+     * Kiểm tra user có đang ghi danh ACTIVE trong đúng instance sepay này không.
+     *
+     * Khác record_exists: loại trừ ghi danh đã bị suspend (hết hạn enrolperiod với
+     * expiredaction = SUSPEND) hoặc đã quá timeend → cho phép hiển thị lại form QR để
+     * gia hạn. Vẫn instance-specific (KHÔNG dùng is_enrolled context-wide) để không bị
+     * ghi danh qua method khác làm sai lệch — xem ràng buộc BUG-P1-01.
+     *
+     * @param stdClass $instance instance ghi danh sepay
+     * @param int $userid
+     * @return bool true nếu đang ghi danh ACTIVE và chưa hết hạn
+     */
+    public static function is_actively_enrolled($instance, int $userid): bool {
+        global $DB;
+        $ue = $DB->get_record('user_enrolments', ['enrolid' => $instance->id, 'userid' => $userid]);
+        return $ue && (int)$ue->status == ENROL_USER_ACTIVE && ((int)$ue->timeend == 0 || $ue->timeend > time());
+    }
+
+    /**
      * Tạo form ghi danh, kiểm tra form đã gửi chưa,
      * và ghi danh user nếu cần. Có thể chuyển hướng.
      *
@@ -218,9 +236,10 @@ class enrol_sepay_plugin extends enrol_plugin {
         // Bắt đầu output buffering để lưu nội dung xuất ra.
         ob_start();
 
-        // Kiểm tra user đã ghi danh chưa.
-        if ($DB->record_exists('user_enrolments', ['userid' => $USER->id, 'enrolid' => $instance->id])) {
-            return ob_get_clean(); // User đã ghi danh, dọn buffer và trả về.
+        // Đã ghi danh ACTIVE (chưa hết hạn) → không hiển thị gì. User suspended/hết hạn
+        // đi tiếp để thấy lại QR gia hạn (xem is_actively_enrolled + observer suspend).
+        if (self::is_actively_enrolled($instance, $USER->id)) {
+            return ob_get_clean();
         }
 
         // Ngoài cửa sổ ghi danh (chưa tới ngày bắt đầu hoặc đã quá ngày kết thúc).

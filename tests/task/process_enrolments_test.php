@@ -152,4 +152,21 @@ final class process_enrolments_test extends \advanced_testcase {
         $txn = $DB->get_record('enrol_sepay_transactions', ['userid' => $user->id]);
         $this->assertSame('processed', $txn->status);
     }
+
+    /**
+     * User đang SUSPENDED (hết hạn) + giao dịch processed mới (đã gia hạn) → cron re-enrol ACTIVE.
+     */
+    public function test_suspended_reenrolled_on_processed(): void {
+        global $DB;
+        $this->resetAfterTest();
+        [$course, $user, $instance] = $this->setup_fixture();
+        $plugin = enrol_get_plugin('sepay');
+        $plugin->enrol_user($instance, $user->id, $instance->roleid, 0, 0, ENROL_USER_SUSPENDED);
+        $this->insert_processed($user->id, $course, $instance);
+
+        $this->run_task();
+
+        $ue = $DB->get_record('user_enrolments', ['enrolid' => $instance->id, 'userid' => $user->id]);
+        $this->assertEquals(ENROL_USER_ACTIVE, (int)$ue->status);
+    }
 }

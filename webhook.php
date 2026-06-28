@@ -424,8 +424,10 @@ if (!$manualenrol) {
 
     // Ghi danh user (bắt buộc).
     // Nếu enrol_user() thất bại → báo admin + return 200 (tránh SePay retry vô tận).
+    // Truyền ENROL_USER_ACTIVE: với user đang SUSPENDED (hết hạn rồi gia hạn), enrol_user
+    // chỉ đổi status khi $status non-null — không truyền sẽ giữ nguyên suspended.
     try {
-        $plugin->enrol_user($instance, $user->id, $roleid, $timestart, $timeend);
+        $plugin->enrol_user($instance, $user->id, $roleid, $timestart, $timeend, ENROL_USER_ACTIVE);
     } catch (\Exception $e) {
         \enrol_sepay\util::message_sepay_error_to_admin(
             "Lỗi enrol_user() — user {$user->id}, course {$course->id}: " . $e->getMessage(),

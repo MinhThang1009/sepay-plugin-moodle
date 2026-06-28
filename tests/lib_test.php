@@ -182,4 +182,40 @@ final class lib_test extends \advanced_testcase {
         // Đã có 1 instance sepay → chặn thêm instance thứ 2.
         $this->assertFalse($plugin->can_add_instance($course->id));
     }
+
+    /**
+     * Ghi danh ACTIVE (chưa hết hạn): hook trả rỗng (đã học, không hiện gì).
+     */
+    public function test_hook_active_returns_empty(): void {
+        $this->resetAfterTest();
+        [, $user, $instance, $plugin] = $this->setup_fixture();
+        $plugin->enrol_user($instance, $user->id, $instance->roleid, 0, 0, ENROL_USER_ACTIVE);
+        $this->setUser($user);
+
+        $this->assertSame('', $plugin->enrol_page_hook($instance));
+    }
+
+    /**
+     * Ghi danh bị SUSPEND (hết hạn với expiredaction suspend): hook KHÔNG rỗng → hiện lại form gia hạn.
+     */
+    public function test_hook_suspended_shows_renewal(): void {
+        $this->resetAfterTest();
+        [, $user, $instance, $plugin] = $this->setup_fixture();
+        $plugin->enrol_user($instance, $user->id, $instance->roleid, 0, 0, ENROL_USER_SUSPENDED);
+        $this->setUser($user);
+
+        $this->assertNotSame('', $plugin->enrol_page_hook($instance));
+    }
+
+    /**
+     * Ghi danh ACTIVE nhưng đã quá timeend (hết hạn): hook KHÔNG rỗng → cho gia hạn.
+     */
+    public function test_hook_expired_timeend_shows_renewal(): void {
+        $this->resetAfterTest();
+        [, $user, $instance, $plugin] = $this->setup_fixture();
+        $plugin->enrol_user($instance, $user->id, $instance->roleid, time() - 100000, time() - 1, ENROL_USER_ACTIVE);
+        $this->setUser($user);
+
+        $this->assertNotSame('', $plugin->enrol_page_hook($instance));
+    }
 }

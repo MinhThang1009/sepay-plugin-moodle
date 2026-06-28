@@ -91,10 +91,12 @@ if ($roleid <= 0) {
     );
 }
 
-// Kiểm tra xem đã ghi danh chưa (chống gửi email đúp khi reload trang).
-if (!$DB->record_exists('user_enrolments', ['enrolid' => $instance->id, 'userid' => $USER->id])) {
+// Ghi danh nếu chưa ACTIVE (chống đúp khi reload; đồng thời re-activate user đã hết hạn/suspend
+// khi họ trả tiền gia hạn). Vẫn instance-specific như record_exists cũ — không vi phạm BUG-P1-01.
+if (!\enrol_sepay_plugin::is_actively_enrolled($instance, $USER->id)) {
     try {
-        $plugin->enrol_user($instance, $USER->id, $roleid, $timestart, $timeend);
+        // ENROL_USER_ACTIVE: cần thiết để re-activate ue đang SUSPENDED khi gia hạn.
+        $plugin->enrol_user($instance, $USER->id, $roleid, $timestart, $timeend, ENROL_USER_ACTIVE);
     } catch (\Exception $e) {
         debugging('enrol_sepay complete_enrol: enrol_user failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         \enrol_sepay\util::message_sepay_error_to_admin(
