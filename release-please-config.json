@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        { "type": "generic", "path": "version.php" }
+      ]
+    }
+  },
+  "changelog-sections": [
+    { "type": "feat", "section": "Tính năng" },
+    { "type": "fix", "section": "Sửa lỗi" },
+    { "type": "perf", "section": "Hiệu năng" }
+  ]
+}

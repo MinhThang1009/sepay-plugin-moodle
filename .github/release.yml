@@ -1,0 +1,12 @@
+# Phân loại auto release-notes (dùng bởi "Generate release notes" / gh release --generate-notes).
+# Áp cho nhánh tag đẩy tay; nhánh release-please dùng notes riêng của nó.
+changelog:
+  exclude:
+    labels: [ignore-for-release]
+  categories:
+    - title: Tính năng
+      labels: [enhancement, feature]
+    - title: Sửa lỗi
+      labels: [bug, fix]
+    - title: Thay đổi khác
+      labels: ['*']
