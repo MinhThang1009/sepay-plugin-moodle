@@ -14,8 +14,9 @@ name: Moodle Plugin CI
 on:
   push:
     paths-ignore: ['**.md', '.github/ISSUE_TEMPLATE/**', '.github/PULL_REQUEST_TEMPLATE.md']
+  # KHÔNG paths-ignore cho pull_request: required check 'ci-success' phải báo cáo trên
+  # MỌI PR (kể cả docs-only) — nếu skip vì paths-ignore, branch protection kẹt PR vĩnh viễn.
   pull_request:
-    paths-ignore: ['**.md']
 
 # Hủy run cũ còn chạy khi push mới cùng branch/PR (đỡ tốn runner, feedback nhanh hơn).
 concurrency:
