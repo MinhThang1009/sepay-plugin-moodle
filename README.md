@@ -1,9 +1,15 @@
+<div align="center">
+
 # SePay Enrolment Plugin cho Moodle (`enrol_sepay`)
+
+**Ghi danh Moodle tự động qua chuyển khoản QR SePay**
 
 [![Moodle Plugin CI](https://github.com/MinhThang1009/sepay-plugin-moodle/actions/workflows/ci.yml/badge.svg)](https://github.com/MinhThang1009/sepay-plugin-moodle/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Moodle](https://img.shields.io/badge/Moodle-4.0--5.2-orange)
 ![PHP](https://img.shields.io/badge/PHP-7.4--8.3-777bb4)
+
+</div>
 
 Plugin ghi danh (enrolment method) cho Moodle, tự động mở khóa học cho học viên ngay khi nhận
 được chuyển khoản qua **SePay** — phù hợp với trường học, trung tâm bán khóa học và thu học phí
@@ -16,19 +22,19 @@ tự động qua chuyển khoản ngân hàng.
 
 ## Mục lục
 
-- [Tính năng](#tính-năng)
-- [Yêu cầu](#yêu-cầu)
-- [Cài đặt](#cài-đặt)
-- [Cấu hình](#cấu-hình)
-- [Luồng xử lý](#luồng-xử-lý)
-- [Ví dụ webhook](#ví-dụ-webhook)
-- [Cấu trúc thư mục](#cấu-trúc-thư-mục)
-- [Phát triển & CI](#phát-triển--ci)
-- [Đóng góp](#đóng-góp)
-- [Hỗ trợ và Bảo mật](#hỗ-trợ-và-bảo-mật)
-- [Giấy phép](#giấy-phép)
+- [1. Tính năng](#1-tính-năng)
+- [2. Yêu cầu](#2-yêu-cầu)
+- [3. Cài đặt](#3-cài-đặt)
+- [4. Cấu hình](#4-cấu-hình)
+- [5. Luồng xử lý](#5-luồng-xử-lý)
+- [6. Ví dụ webhook](#6-ví-dụ-webhook)
+- [7. Cấu trúc thư mục](#7-cấu-trúc-thư-mục)
+- [8. Phát triển & CI](#8-phát-triển--ci)
+- [9. Đóng góp](#9-đóng-góp)
+- [10. Hỗ trợ và Bảo mật](#10-hỗ-trợ-và-bảo-mật)
+- [11. Giấy phép](#11-giấy-phép)
 
-## Tính năng
+## 1. Tính năng
 
 - 💳 **Ghi danh tự động** qua webhook SePay — không cần thao tác thủ công.
 - ✅ **Chế độ duyệt thủ công** (tùy chọn theo từng instance hoặc toàn cục): admin xem & duyệt giao dịch.
@@ -38,7 +44,7 @@ tự động qua chuyển khoản ngân hàng.
 - 🔔 **Thông báo** qua chuông Moodle + email (chào mừng, từ chối, hủy ghi danh).
 - 🌐 **Đa ngôn ngữ**: tiếng Việt + tiếng Anh.
 
-## Yêu cầu
+## 2. Yêu cầu
 
 | Thành phần | Phiên bản |
 |---|---|
@@ -47,7 +53,7 @@ tự động qua chuyển khoản ngân hàng.
 | Database | MySQL / MariaDB / PostgreSQL (qua XMLDB của Moodle) |
 | Dịch vụ ngoài | Tài khoản [SePay](https://sepay.vn) + webhook |
 
-## Cài đặt
+## 3. Cài đặt
 
 1. Đăng nhập Moodle bằng tài khoản `admin`.
 2. Vào `Site administration` → `Plugins` → `Install plugins`.
@@ -61,9 +67,9 @@ Hoặc cài bằng Git (đặt vào thư mục `enrol/`):
 git clone https://github.com/MinhThang1009/sepay-plugin-moodle.git enrol/sepay
 ```
 
-## Cấu hình
+## 4. Cấu hình
 
-### Thiết lập chung
+### 4.1 Thiết lập chung
 `Site administration` → `Plugins` → `Enrolments` → `SePay`:
 
 | Cài đặt | Mô tả |
@@ -74,16 +80,16 @@ git clone https://github.com/MinhThang1009/sepay-plugin-moodle.git enrol/sepay
 | **API Key** | Khóa đối chiếu Moodle ↔ SePay (admin tự tạo, dán giống nhau ở cả 2 nơi) |
 | **Manual Enrol** | Bật/tắt chế độ duyệt thủ công mặc định |
 
-### Thiết lập webhook trên SePay
+### 4.2 Thiết lập webhook trên SePay
 1. Vào https://my.sepay.vn/webhooks.
 2. Thêm webhook URL: `https://<domain-moodle>/enrol/sepay/webhook.php`.
 3. Kiểu xác thực: **API Key** (nhập đúng chuỗi đã đặt trong cấu hình plugin).
 
-### Gán phương thức ghi danh vào khóa học
+### 4.3 Gán phương thức ghi danh vào khóa học
 1. Vào tab `Participants` của khóa học → `Enrolment methods` → thêm **SePay**.
 2. Nhập giá tại `Enrol cost`, chọn role, lưu.
 
-### Cron
+### 4.4 Cron
 Plugin dựa vào cron của Moodle (chạy mỗi phút là lý tưởng):
 
 ```bash
@@ -91,7 +97,7 @@ Plugin dựa vào cron của Moodle (chạy mỗi phút là lý tưởng):
 sudo -u www-data php admin/cli/cron.php
 ```
 
-## Luồng xử lý
+## 5. Luồng xử lý
 
 ```mermaid
 flowchart TD
@@ -108,7 +114,7 @@ flowchart TD
     G --> K[Ghi danh học viên + gửi thông báo]
 ```
 
-## Ví dụ webhook
+## 6. Ví dụ webhook
 
 Khóa học `id=10`, học viên `id=55`, pattern `SP` → nội dung chuyển khoản: **`SP10U55`**.
 
@@ -131,7 +137,7 @@ Plugin xử lý:
 3. Đối chiếu `transferAmount` với học phí của instance.
 4. Khớp → lưu `processed` và ghi danh (auto), hoặc `pending` (chờ duyệt); sai → `rejected`.
 
-## Cấu trúc thư mục
+## 7. Cấu trúc thư mục
 
 ```text
 enrol/sepay/
@@ -158,7 +164,7 @@ enrol/sepay/
 └── cli/sync.php             # CLI đồng bộ
 ```
 
-## Phát triển & CI
+## 8. Phát triển & CI
 
 Repo dùng **GitHub Actions** với [`moodle-plugin-ci`](https://moodlehq.github.io/moodle-plugin-ci/)
 (ma trận Moodle 4.0–5.2 × PHP 7.4–8.3 trên MariaDB) — xem [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
@@ -174,15 +180,19 @@ moodle-plugin-ci phpcs
 moodle-plugin-ci phpstan
 ```
 
-## Đóng góp
+Lịch sử thay đổi: xem [CHANGELOG.md](CHANGELOG.md).
 
-Hoan nghênh đóng góp! Đọc [CONTRIBUTING.md](CONTRIBUTING.md) (quy ước commit, branch, PR) và [Quy tắc ứng xử](CODE_OF_CONDUCT.md) trước khi mở PR. Mọi PR chạy qua CI `moodle-plugin-ci` (xem mục [Phát triển & CI](#phát-triển--ci)); `main` được bảo vệ, merge qua PR sau khi CI xanh.
+## 9. Đóng góp
 
-## Hỗ trợ và Bảo mật
+Hoan nghênh đóng góp! Đọc [CONTRIBUTING.md](CONTRIBUTING.md) (quy ước commit, branch, PR) và [Quy tắc ứng xử](CODE_OF_CONDUCT.md) trước khi mở PR. Mọi PR chạy qua CI `moodle-plugin-ci` (xem mục [8. Phát triển & CI](#8-phát-triển--ci)); `main` được bảo vệ, merge qua PR sau khi CI xanh.
+
+## 10. Hỗ trợ và Bảo mật
 
 - **Cần trợ giúp / báo lỗi / đề xuất tính năng**: xem [SUPPORT.md](SUPPORT.md) hoặc mở [issue](https://github.com/MinhThang1009/sepay-plugin-moodle/issues).
 - **Lỗ hổng bảo mật**: KHÔNG mở issue công khai — xem [SECURITY.md](SECURITY.md).
 
-## Giấy phép
+## 11. Giấy phép
 
 [GNU GPL v3 or later](https://www.gnu.org/licenses/gpl-3.0) — theo chuẩn plugin Moodle.
+
+Phát triển & duy trì bởi **Quiz Văn Lang** (<quizvanlang@gmail.com>).
