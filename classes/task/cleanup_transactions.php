@@ -43,6 +43,10 @@ class cleanup_transactions extends \core\task\scheduled_task {
     public function execute() {
         global $DB;
 
+        // Dọn bell notification theo cấu hình admin — chạy độc lập với toggle dọn
+        // giao dịch (notification có 2 config delay riêng ở notification_settings.php).
+        $this->cleanup_notifications();
+
         $config = $this->resolve_cleanup_config();
         if ($config === null) {
             return;
@@ -249,5 +253,70 @@ class cleanup_transactions extends \core\task\scheduled_task {
         }
 
         mtrace('Hoàn thành dọn dẹp bảng lưu trữ.');
+    }
+
+    /**
+     * Dọn các bell notification 'pending_transaction' của admin theo cấu hình delay.
+     *
+     * Đọc 2 config (delete_read_notifications_delay / delete_all_notifications_delay) lưu ở
+     * notification_settings.php và xóa notification tương ứng. Mặc định 'never' (không xóa) —
+     * trước đây cấu hình này được lưu nhưng KHÔNG có tiến trình nào thực thi.
+     *
+     * @return void
+     */
+    private function cleanup_notifications(): void {
+        global $DB;
+
+        $base = ['component' => 'enrol_sepay', 'eventtype' => 'pending_transaction'];
+
+        // Xóa notification ĐÃ ĐỌC cũ hơn ngưỡng.
+        $readcutoff = $this->resolve_notification_cutoff(
+            (string)get_config('enrol_sepay', 'delete_read_notifications_delay')
+        );
+        if ($readcutoff !== null) {
+            $DB->execute(
+                "DELETE FROM {notifications}
+                  WHERE component = :component AND eventtype = :eventtype
+                    AND timeread IS NOT NULL AND timeread < :cutoff",
+                $base + ['cutoff' => $readcutoff]
+            );
+            mtrace('Đã dọn notification đã đọc cũ hơn ngưỡng cấu hình.');
+        }
+
+        // Xóa TẤT CẢ notification (đã đọc + chưa đọc) cũ hơn ngưỡng.
+        $allcutoff = $this->resolve_notification_cutoff(
+            (string)get_config('enrol_sepay', 'delete_all_notifications_delay')
+        );
+        if ($allcutoff !== null) {
+            $DB->execute(
+                "DELETE FROM {notifications}
+                  WHERE component = :component AND eventtype = :eventtype
+                    AND timecreated < :cutoff",
+                $base + ['cutoff' => $allcutoff]
+            );
+            mtrace('Đã dọn toàn bộ notification cũ hơn ngưỡng cấu hình.');
+        }
+    }
+
+    /**
+     * Ánh xạ giá trị config delay (vd 'delete_read_1week') sang mốc thời gian cutoff.
+     *
+     * @param string $value Giá trị config
+     * @return int|null Timestamp cutoff; null nếu 'never'/rỗng/giá trị lạ (không xóa)
+     */
+    private function resolve_notification_cutoff(string $value): ?int {
+        $daysbysuffix = [
+            '6months' => 180,
+            '3months' => 90,
+            '1month'  => 30,
+            '1week'   => 7,
+            '1day'    => 1,
+        ];
+        foreach ($daysbysuffix as $suffix => $days) {
+            if (substr($value, -strlen($suffix)) === $suffix) {
+                return time() - ($days * 86400);
+            }
+        }
+        return null; // 'never', rỗng, hoặc giá trị legacy (delete_all/delete_all_read) → không xóa.
     }
 }
