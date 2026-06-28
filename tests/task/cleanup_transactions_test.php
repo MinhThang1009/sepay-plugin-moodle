@@ -121,4 +121,62 @@ final class cleanup_transactions_test extends \advanced_testcase {
         $this->assertEquals(0, $DB->count_records('enrol_sepay_transactions'));
         $this->assertEquals(0, $DB->count_records('enrol_sepay_archive'));
     }
+
+    /**
+     * Chèn một bell notification pending_transaction với tuổi cho trước.
+     *
+     * @param int $daysago số ngày trước hiện tại của timecreated/timeread
+     * @param bool $read đã đọc chưa (set timeread)
+     * @return void
+     */
+    protected function insert_notification(int $daysago, bool $read): void {
+        global $DB;
+        $when = time() - ($daysago * 86400);
+        $DB->insert_record('notifications', (object)[
+            'useridfrom' => 1,
+            'useridto' => 2,
+            'subject' => 'test',
+            'fullmessage' => '',
+            'fullmessageformat' => FORMAT_PLAIN,
+            'fullmessagehtml' => '',
+            'smallmessage' => '',
+            'component' => 'enrol_sepay',
+            'eventtype' => 'pending_transaction',
+            'timecreated' => $when,
+            'timeread' => $read ? $when : null,
+        ]);
+    }
+
+    /**
+     * Config 'never' (mặc định): không xóa notification dù cũ.
+     */
+    public function test_notification_cleanup_never_keeps(): void {
+        global $DB;
+        $this->resetAfterTest();
+        set_config('auto_cleanup_enabled', 0, 'enrol_sepay');
+        set_config('delete_read_notifications_delay', 'never', 'enrol_sepay');
+        set_config('delete_all_notifications_delay', 'never', 'enrol_sepay');
+        $this->insert_notification(10, true);
+
+        $this->run_task();
+
+        $this->assertEquals(1, $DB->count_records('notifications', ['component' => 'enrol_sepay']));
+    }
+
+    /**
+     * Config delete_read_1day: notification đã đọc cũ hơn 1 ngày bị xóa, chưa đọc thì giữ.
+     */
+    public function test_notification_cleanup_read_enforced(): void {
+        global $DB;
+        $this->resetAfterTest();
+        set_config('auto_cleanup_enabled', 0, 'enrol_sepay');
+        set_config('delete_read_notifications_delay', 'delete_read_1day', 'enrol_sepay');
+        set_config('delete_all_notifications_delay', 'never', 'enrol_sepay');
+        $this->insert_notification(2, true);  // Notification đã đọc 2 ngày → bị xóa.
+        $this->insert_notification(2, false); // Notification chưa đọc → giữ (chỉ xóa loại đã đọc).
+
+        $this->run_task();
+
+        $this->assertEquals(1, $DB->count_records('notifications', ['component' => 'enrol_sepay']));
+    }
 }

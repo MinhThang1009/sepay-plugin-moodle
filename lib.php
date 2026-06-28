@@ -126,13 +126,22 @@ class enrol_sepay_plugin extends enrol_plugin {
      * @return boolean
      */
     public function can_add_instance($courseid) {
+        global $DB;
         $context = context_course::instance($courseid, MUST_EXIST);
 
         if (!has_capability('moodle/course:enrolconfig', $context) || !has_capability('enrol/sepay:config', $context)) {
             return false;
         }
 
-        // Hỗ trợ nhiều instance - giá khác nhau cho các role khác nhau.
+        // Chỉ cho phép MỘT instance sepay mỗi khóa học. Nội dung QR đối soát chỉ mã hóa
+        // courseid + userid (không có instanceid), nên webhook không phân biệt được nhiều
+        // instance và sẽ luôn enrol vào instance sepay đầu tiên → sai cost/role/enrolperiod.
+        // Giới hạn 1 instance để chặn footgun này (muốn hỗ trợ nhiều instance phải nhúng
+        // instanceid vào QR + scope toàn bộ query theo instanceid).
+        if ($DB->record_exists('enrol', ['courseid' => $courseid, 'enrol' => 'sepay'])) {
+            return false;
+        }
+
         return true;
     }
 

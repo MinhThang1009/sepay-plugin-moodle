@@ -140,8 +140,11 @@ if ($action === 'reject' && $id > 0 && confirm_sesskey()) {
         $course = $DB->get_record('course', ['id' => $transaction->courseid]);
         if ($user && $course) {
             try {
-                \enrol_sepay\util::send_rejection_notification($course, $user);
-                $DB->set_field('enrol_sepay_transactions', 'rejection_notified', 1, ['id' => $transaction->id]);
+                // Chỉ đánh dấu đã thông báo khi gửi thực sự thành công (send trả false, không throw,
+                // khi mailstudents tắt / thiếu provider) — để bật config lại còn gửi được, khớp process_rejections.
+                if (\enrol_sepay\util::send_rejection_notification($course, $user)) {
+                    $DB->set_field('enrol_sepay_transactions', 'rejection_notified', 1, ['id' => $transaction->id]);
+                }
             } catch (\Exception $e) {
                 debugging('enrol_sepay reject: send_rejection_notification failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
             }
@@ -258,6 +261,15 @@ if ($action === 'bulk_approve' && confirm_sesskey()) {
             'letter_fn'     => $letterfn,
             'perpage'       => $perpage,
         ]);
+        if ($failedcount > 0) {
+            // Báo rõ có giao dịch lỗi thay vì im lặng chỉ hiện số thành công.
+            redirect(
+                $redirecturl,
+                get_string('bulk_approved_partial', 'enrol_sepay', (object)['ok' => $approvedcount, 'failed' => $failedcount]),
+                null,
+                core\output\notification::NOTIFY_WARNING
+            );
+        }
         redirect($redirecturl, get_string('bulk_approved', 'enrol_sepay', $approvedcount));
     } else {
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
@@ -362,8 +374,10 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
                     $rcourse = $DB->get_record('course', ['id' => $txn->courseid]);
                     if ($ruser && $rcourse) {
                         try {
-                            \enrol_sepay\util::send_rejection_notification($rcourse, $ruser);
-                            $DB->set_field('enrol_sepay_transactions', 'rejection_notified', 1, ['id' => $txn->id]);
+                            // Chỉ đánh dấu khi gửi thành công — khớp process_rejections (cho phép gửi lại khi bật config).
+                            if (\enrol_sepay\util::send_rejection_notification($rcourse, $ruser)) {
+                                $DB->set_field('enrol_sepay_transactions', 'rejection_notified', 1, ['id' => $txn->id]);
+                            }
                         } catch (\Exception $e) {
                             debugging('enrol_sepay bulk_reject: notification failed for id=' . $txnid . ': '
                                 . $e->getMessage(), DEBUG_DEVELOPER);
@@ -388,6 +402,14 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
             'letter_fn'     => $letterfn,
             'perpage'       => $perpage,
         ]);
+        if ($failedcount > 0) {
+            redirect(
+                $redirecturl,
+                get_string('bulk_rejected_partial', 'enrol_sepay', (object)['ok' => $rejectedcount, 'failed' => $failedcount]),
+                null,
+                core\output\notification::NOTIFY_WARNING
+            );
+        }
         redirect($redirecturl, get_string('bulk_rejected', 'enrol_sepay', $rejectedcount));
     } else {
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
@@ -402,8 +424,6 @@ if ($action === 'bulk_reject' && confirm_sesskey()) {
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('manage_transactions', 'enrol_sepay'));
-
-    // Gỡ bỏ tùy chỉnh CSS rác để Moodle table layout hiển thị nguyên bản.
 
 // Lấy số liệu thống kê giao dịch.
 $countpending    = $DB->count_records('enrol_sepay_transactions', ['status' => 'pending']);
@@ -684,12 +704,18 @@ if ($searchcourse !== '') {
     $params['search_course'] = '%' . $DB->sql_like_escape($searchcourse) . '%';
 }
 if ($datefrom !== '') {
-    $whereparts[] = "t.timecreated >= :date_from";
-    $params['date_from'] = strtotime($datefrom . ' 00:00:00');
+    $ts = strtotime($datefrom . ' 00:00:00');
+    if ($ts !== false) {
+        $whereparts[] = "t.timecreated >= :date_from";
+        $params['date_from'] = $ts;
+    }
 }
 if ($dateto !== '') {
-    $whereparts[] = "t.timecreated <= :date_to";
-    $params['date_to'] = strtotime($dateto . ' 23:59:59');
+    $ts = strtotime($dateto . ' 23:59:59');
+    if ($ts !== false) {
+        $whereparts[] = "t.timecreated <= :date_to";
+        $params['date_to'] = $ts;
+    }
 }
 if ($letter !== '') {
     $whereparts[] = $DB->sql_like('u.lastname', ':letter', false);

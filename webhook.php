@@ -122,6 +122,14 @@ $transactionref  = (string)($sepaydata['referenceCode'] ?? $sepaydata['id'] ?? '
 $bankaccount = (string)$plugin->get_config('account');
 $configbank  = (string)$plugin->get_config('bank');
 
+// Từ chối nếu chưa cấu hình tài khoản nhận — nếu rỗng, điều kiện so khớp số tài khoản
+// bên dưới sẽ vô tình chấp nhận thanh toán vào BẤT KỲ tài khoản nào. Fail-closed.
+if ($bankaccount === '') {
+    http_response_code(503);
+    echo json_encode(['error' => 'Webhook chưa được cấu hình tài khoản nhận']);
+    exit;
+}
+
 // 3. Lọc những giao dịch không phải chuyển "vào" tài khoản này hoặc sai ngân hàng.
 if ($transfertype !== 'in') {
     http_response_code(200);

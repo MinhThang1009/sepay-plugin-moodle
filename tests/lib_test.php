@@ -157,4 +157,29 @@ final class lib_test extends \advanced_testcase {
 
         $this->assertSame('', $plugin->enrol_page_hook($instance));
     }
+
+    /**
+     * can_add_instance: chỉ cho phép 1 instance sepay mỗi khóa học.
+     */
+    public function test_can_add_instance_limited_to_one(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $plugin = enrol_get_plugin('sepay');
+
+        // Chưa có instance nào → cho phép thêm.
+        $this->assertTrue($plugin->can_add_instance($course->id));
+
+        $studentrole = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
+        $plugin->add_instance($course, [
+            'status' => ENROL_INSTANCE_ENABLED,
+            'cost' => 100,
+            'currency' => 'VND',
+            'roleid' => $studentrole->id,
+        ]);
+
+        // Đã có 1 instance sepay → chặn thêm instance thứ 2.
+        $this->assertFalse($plugin->can_add_instance($course->id));
+    }
 }

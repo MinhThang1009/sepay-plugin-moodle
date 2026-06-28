@@ -51,9 +51,10 @@ if ($deleteallconfig && confirm_sesskey()) {
     set_config('delete_all_notifications_delay', $deleteallconfig, 'enrol_sepay');
 }
 
-// Đọc cấu hình đã lưu.
-$saveddeleteread = get_config('enrol_sepay', 'delete_read_notifications_delay') ?: 'delete_read_1day';
-$saveddeleteall = get_config('enrol_sepay', 'delete_all_notifications_delay') ?: 'delete_all_1day';
+// Đọc cấu hình đã lưu. Mặc định 'never' (không tự xóa) để không bất ngờ dọn notification
+// trên site chưa cấu hình — scheduled task cleanup_transactions sẽ thực thi theo giá trị này.
+$saveddeleteread = get_config('enrol_sepay', 'delete_read_notifications_delay') ?: 'never';
+$saveddeleteall = get_config('enrol_sepay', 'delete_all_notifications_delay') ?: 'never';
 
 // Xử lý các hành động.
 if ($action && confirm_sesskey()) {
@@ -309,7 +310,7 @@ echo '<option value="delete_read_3months"' . ($saveddeleteread == 'delete_read_3
     . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
 echo '<option value="delete_read_6months"' . ($saveddeleteread == 'delete_read_6months' ? ' selected' : '') . '>'
     . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all_read"' . ($saveddeleteread == 'delete_all_read' ? ' selected' : '') . '>'
+echo '<option value="never"' . ($saveddeleteread == 'never' ? ' selected' : '') . '>'
     . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
 echo '</select>';
 
@@ -340,7 +341,7 @@ echo '<option value="delete_all_3months"' . ($saveddeleteall == 'delete_all_3mon
     . get_string('delete_read_3months_option', 'enrol_sepay') . '</option>';
 echo '<option value="delete_all_6months"' . ($saveddeleteall == 'delete_all_6months' ? ' selected' : '') . '>'
     . get_string('delete_read_6months_option', 'enrol_sepay') . '</option>';
-echo '<option value="delete_all"' . ($saveddeleteall == 'delete_all' ? ' selected' : '') . '>'
+echo '<option value="never"' . ($saveddeleteall == 'never' ? ' selected' : '') . '>'
     . get_string('delete_read_never_option', 'enrol_sepay') . '</option>';
 echo '</select>';
 
