@@ -4,7 +4,7 @@ name: Auto-merge (label-gated)
 # squash-merge khi required check 'ci-success' xanh. Opt-in từng PR bằng label; PR KHÔNG
 # gắn label thì không tự merge (tránh lỡ merge PR nháp/WIP).
 #
-# Dùng PAT RELEASE_PLEASE_TOKEN (fallback GITHUB_TOKEN) để lần merge tự động còn KÍCH HOẠT
+# Dùng PAT SEPAY_RELEASE_PLEASE (fallback GITHUB_TOKEN) để lần merge tự động còn KÍCH HOẠT
 # được release-please — push do GITHUB_TOKEN tạo KHÔNG trigger workflow khác.
 on:
   pull_request:
@@ -21,6 +21,6 @@ jobs:
     steps:
       - name: Bật auto-merge (squash)
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SEPAY_RELEASE_PLEASE || secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: gh pr merge --auto --squash "$PR_URL"
