@@ -26,10 +26,10 @@ tự động qua chuyển khoản ngân hàng.
 - [2. Yêu cầu](#2-yêu-cầu)
 - [3. Cài đặt](#3-cài-đặt)
 - [4. Cấu hình](#4-cấu-hình)
-  - [4.1 Thiết lập chung](#41-thiết-lập-chung)
-  - [4.2 Thiết lập webhook trên SePay](#42-thiết-lập-webhook-trên-sepay)
-  - [4.3 Gán phương thức ghi danh vào khóa học](#43-gán-phương-thức-ghi-danh-vào-khóa-học)
-  - [4.4 Cron](#44-cron)
+  - [4.1. Thiết lập chung](#41-thiết-lập-chung)
+  - [4.2. Thiết lập webhook trên SePay](#42-thiết-lập-webhook-trên-sepay)
+  - [4.3. Gán phương thức ghi danh vào khóa học](#43-gán-phương-thức-ghi-danh-vào-khóa-học)
+  - [4.4. Cron](#44-cron)
 - [5. Luồng xử lý](#5-luồng-xử-lý)
 - [6. Ví dụ webhook](#6-ví-dụ-webhook)
 - [7. Cấu trúc thư mục](#7-cấu-trúc-thư-mục)
@@ -73,7 +73,7 @@ git clone https://github.com/MinhThang1009/sepay-plugin-moodle.git enrol/sepay
 
 ## 4. Cấu hình
 
-### 4.1 Thiết lập chung
+### 4.1. Thiết lập chung
 `Site administration` → `Plugins` → `Enrolments` → `SePay`:
 
 | Cài đặt | Mô tả |
@@ -84,16 +84,16 @@ git clone https://github.com/MinhThang1009/sepay-plugin-moodle.git enrol/sepay
 | **API Key** | Khóa đối chiếu Moodle ↔ SePay (admin tự tạo, dán giống nhau ở cả 2 nơi) |
 | **Manual Enrol** | Bật/tắt chế độ duyệt thủ công mặc định |
 
-### 4.2 Thiết lập webhook trên SePay
+### 4.2. Thiết lập webhook trên SePay
 1. Vào https://my.sepay.vn/webhooks.
 2. Thêm webhook URL: `https://<domain-moodle>/enrol/sepay/webhook.php`.
 3. Kiểu xác thực: **API Key** (nhập đúng chuỗi đã đặt trong cấu hình plugin).
 
-### 4.3 Gán phương thức ghi danh vào khóa học
+### 4.3. Gán phương thức ghi danh vào khóa học
 1. Vào tab `Participants` của khóa học → `Enrolment methods` → thêm **SePay**.
 2. Nhập giá tại `Enrol cost`, chọn role, lưu.
 
-### 4.4 Cron
+### 4.4. Cron
 Plugin dựa vào cron của Moodle (chạy mỗi phút là lý tưởng):
 
 ```bash
