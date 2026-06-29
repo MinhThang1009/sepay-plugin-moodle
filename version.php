@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2026062901;        // Phiên bản plugin hiện tại.
-$plugin->release   = '1.1.1';           // phpcs:ignore moodle.Commenting.InlineComment.NotCapital -- x-release-please-version
+$plugin->release   = '1.2.0';           // phpcs:ignore moodle.Commenting.InlineComment.NotCapital -- x-release-please-version
 $plugin->requires  = 2022041900;        // Moodle 4.0 tối thiểu (hỗ trợ 4.0+).
 $plugin->supported = [400, 502];        // Dải Moodle đã verify trên CI: 4.0 → 5.2.
 $plugin->maturity  = MATURITY_STABLE;   // Mức độ ổn định: bản phát hành chính thức.
