@@ -313,6 +313,7 @@ $string['bulk_rejected_partial'] = 'Đã từ chối {$a->ok} giao dịch, {$a->
 $string['bulk_unenrol'] = 'Hủy ghi danh nhiều';
 $string['confirm_bulk_unenrol'] = 'Bạn có chắc chắn muốn hủy ghi danh các học viên của các giao dịch đã chọn?';
 $string['bulk_unenrolled'] = 'Đã hủy ghi danh {$a} học viên thành công.';
+$string['bulk_unenrolled_partial'] = 'Đã hủy ghi danh {$a->ok} học viên, {$a->failed} giao dịch lỗi.';
 
 // Chuỗi bổ sung.
 $string['error_instance_deleted'] = 'Instance ghi danh đã bị xóa.';

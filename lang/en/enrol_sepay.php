@@ -313,6 +313,7 @@ $string['bulk_rejected_partial'] = '{$a->ok} transactions rejected, {$a->failed}
 $string['bulk_unenrol'] = 'Unenrol selected';
 $string['confirm_bulk_unenrol'] = 'Are you sure you want to unenrol the users of the selected transactions?';
 $string['bulk_unenrolled'] = '{$a} users unenrolled successfully.';
+$string['bulk_unenrolled_partial'] = '{$a->ok} users unenrolled, {$a->failed} failed.';
 
 // Additional strings.
 $string['error_instance_deleted'] = 'Enrolment instance has been deleted.';
