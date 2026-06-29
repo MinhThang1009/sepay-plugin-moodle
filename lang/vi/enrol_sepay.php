@@ -362,3 +362,22 @@ $string['editselectedusers'] = 'Sửa đăng kí của những người dùng đ
 $string['deleteselectedusers'] = 'Xóa những đăng kí của những người dùng đã được chọn';
 $string['confirmbulkdeleteenrolment'] = 'Bạn có chắc chắn muốn xóa các đăng kí này không?';
 $string['unenrolusers'] = 'Hủy ghi danh';
+
+// Metadata Privacy API (GDPR).
+$string['privacy:metadata:enrol_sepay_transactions'] = 'Thông tin về các giao dịch chuyển khoản SePay dùng để ghi danh người dùng vào khóa học.';
+$string['privacy:metadata:enrol_sepay_transactions:userid'] = 'ID của người dùng sở hữu giao dịch.';
+$string['privacy:metadata:enrol_sepay_transactions:courseid'] = 'ID của khóa học mà giao dịch thanh toán cho.';
+$string['privacy:metadata:enrol_sepay_transactions:amount'] = 'Số tiền của giao dịch.';
+$string['privacy:metadata:enrol_sepay_transactions:currency'] = 'Đơn vị tiền tệ của giao dịch.';
+$string['privacy:metadata:enrol_sepay_transactions:transaction_content'] = 'Nội dung chuyển khoản, có thể chứa tên người chuyển.';
+$string['privacy:metadata:enrol_sepay_transactions:transaction_ref'] = 'Mã tham chiếu giao dịch do SePay trả về.';
+$string['privacy:metadata:enrol_sepay_transactions:gateway'] = 'Ngân hàng hoặc cổng xử lý chuyển khoản.';
+$string['privacy:metadata:enrol_sepay_transactions:status'] = 'Trạng thái xử lý của giao dịch.';
+$string['privacy:metadata:enrol_sepay_transactions:ip_address'] = 'Địa chỉ IP được ghi lại khi tạo giao dịch.';
+$string['privacy:metadata:enrol_sepay_transactions:timecreated'] = 'Thời điểm tạo giao dịch.';
+$string['privacy:metadata:enrol_sepay_archive'] = 'Các giao dịch chuyển khoản SePay đã lưu trữ để đối chiếu về sau.';
+$string['privacy:metadata:enrol_sepay_pending_ips'] = 'Địa chỉ IP ghi lại cho các lần ghi danh SePay đang chờ.';
+$string['privacy:metadata:enrol_sepay_pending_ips:userid'] = 'ID của người dùng thực hiện lần chờ.';
+$string['privacy:metadata:enrol_sepay_pending_ips:courseid'] = 'ID của khóa học cho lần chờ.';
+$string['privacy:metadata:enrol_sepay_pending_ips:ip_address'] = 'Địa chỉ IP ghi lại cho lần chờ.';
+$string['privacy:metadata:enrol_sepay_pending_ips:timecreated'] = 'Thời điểm ghi lại lần chờ.';
