@@ -124,8 +124,10 @@ define([
                         if (selectAll) {
                             selectAll.checked = true;
                         }
-                        updateDropdownState(newContainer);
                     }
+                    // Đồng bộ trạng thái nút/dropdown sau khi thay container, kể cả khi đổi
+                    // perpage (không chỉ khi "chọn tất cả") để không giữ trạng thái cũ.
+                    updateDropdownState(newContainer);
 
                     var newToggle = newContainer.querySelector('a[data-perpage-toggle]');
                     if (newToggle) {
@@ -256,13 +258,16 @@ define([
                     fetchAndReplaceTable(fetchUrl, shouldCheckAll);
                 });
 
-                // Dropdown "With selected...".
-                var dropdown = document.getElementById('formactionid');
-                if (dropdown) {
-                    dropdown.addEventListener('change', function() {
-                        runBulkAction(dropdown, confirmStrings, noSelectionStr);
-                    });
-                }
+                // Dropdown "With selected...". Dùng event delegation trên document để listener
+                // vẫn hoạt động sau khi #sepay-table-container (chứa dropdown) bị thay mới bởi
+                // fetchAndReplaceTable — bind trực tiếp vào node sẽ mất khi node bị replaceWith.
+                document.addEventListener('change', function(e) {
+                    var dropdown = e.target.closest('#formactionid');
+                    if (!dropdown) {
+                        return;
+                    }
+                    runBulkAction(dropdown, confirmStrings, noSelectionStr);
+                });
 
                 return true;
             }).catch(Notification.exception);
