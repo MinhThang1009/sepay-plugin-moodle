@@ -5,6 +5,13 @@ Tất cả thay đổi đáng chú ý của plugin được ghi ở đây.
 phiên bản hiển thị theo [SemVer](https://semver.org/lang/vi/) (khớp git tag `vX.Y.Z`),
 kèm Moodle version (`YYYYMMDDXX`) trong `version.php`.
 
+## [1.2.0](https://github.com/MinhThang1009/sepay-plugin-moodle/compare/v1.1.1...v1.2.0) (2026-06-29)
+
+
+### Tính năng
+
+* **privacy:** thêm Privacy API provider (GDPR) ([#19](https://github.com/MinhThang1009/sepay-plugin-moodle/issues/19)) ([60eaa5a](https://github.com/MinhThang1009/sepay-plugin-moodle/commit/60eaa5aff7fa5e26fa6f1eda004306e0e8e07131))
+
 ## [1.1.1](https://github.com/MinhThang1009/sepay-plugin-moodle/compare/v1.1.0...v1.1.1) (2026-06-29)
 
 
