@@ -36,15 +36,14 @@ final class provider_test extends \advanced_testcase {
      *
      * @param int $userid
      * @param int $courseid
-     * @param int $instanceid
      * @return int ID bản ghi vừa tạo
      */
-    private function create_transaction(int $userid, int $courseid, int $instanceid): int {
+    private function create_transaction(int $userid, int $courseid): int {
         global $DB;
         return $DB->insert_record('enrol_sepay_transactions', (object) [
             'userid'              => $userid,
             'courseid'            => $courseid,
-            'instanceid'          => $instanceid,
+            'instanceid'          => 0,
             'amount'              => 100,
             'currency'            => 'VND',
             'transaction_content' => 'Nguyen Van A ck SP' . $courseid . 'U' . $userid,
@@ -56,6 +55,21 @@ final class provider_test extends \advanced_testcase {
             'timeprocessed'       => time(),
             'email_sent'          => 0,
             'rejection_notified'  => 0,
+        ]);
+    }
+
+    /**
+     * Đếm số giao dịch của một user trong một course.
+     *
+     * @param int $userid
+     * @param int $courseid
+     * @return int
+     */
+    private function count_transactions(int $userid, int $courseid): int {
+        global $DB;
+        return $DB->count_records('enrol_sepay_transactions', [
+            'userid'   => $userid,
+            'courseid' => $courseid,
         ]);
     }
 
@@ -75,12 +89,13 @@ final class provider_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
         $user = $this->getDataGenerator()->create_user();
-        $this->create_transaction($user->id, $course->id, 0);
+        $this->create_transaction($user->id, $course->id);
 
         $contextlist = provider::get_contexts_for_userid($user->id);
         $coursecontext = \context_course::instance($course->id);
+        $contextids = array_map('intval', $contextlist->get_contextids());
 
-        $this->assertContains((int) $coursecontext->id, $contextlist->get_contextids());
+        $this->assertContains((int) $coursecontext->id, $contextids);
     }
 
     /**
@@ -91,13 +106,14 @@ final class provider_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
         $user = $this->getDataGenerator()->create_user();
-        $this->create_transaction($user->id, $course->id, 0);
+        $this->create_transaction($user->id, $course->id);
 
         $coursecontext = \context_course::instance($course->id);
         $userlist = new userlist($coursecontext, 'enrol_sepay');
         provider::get_users_in_context($userlist);
+        $userids = array_map('intval', $userlist->get_userids());
 
-        $this->assertContains((int) $user->id, $userlist->get_userids());
+        $this->assertContains((int) $user->id, $userids);
     }
 
     /**
@@ -108,7 +124,7 @@ final class provider_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
         $user = $this->getDataGenerator()->create_user();
-        $this->create_transaction($user->id, $course->id, 0);
+        $this->create_transaction($user->id, $course->id);
 
         $coursecontext = \context_course::instance($course->id);
         $approved = new approved_contextlist($user, 'enrol_sepay', [$coursecontext->id]);
@@ -121,61 +137,54 @@ final class provider_test extends \advanced_testcase {
      * delete_data_for_all_users_in_context xóa mọi giao dịch của khóa học.
      */
     public function test_delete_data_for_all_users_in_context(): void {
-        global $DB;
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
         $user = $this->getDataGenerator()->create_user();
-        $this->create_transaction($user->id, $course->id, 0);
+        $this->create_transaction($user->id, $course->id);
 
         provider::delete_data_for_all_users_in_context(\context_course::instance($course->id));
 
-        $this->assertEquals(0, $DB->count_records('enrol_sepay_transactions', ['courseid' => $course->id]));
+        $this->assertEquals(0, $this->count_transactions($user->id, $course->id));
     }
 
     /**
      * delete_data_for_user chỉ xóa giao dịch của đúng user trong context.
      */
     public function test_delete_data_for_user(): void {
-        global $DB;
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
-        $this->create_transaction($user1->id, $course->id, 0);
-        $this->create_transaction($user2->id, $course->id, 0);
+        $this->create_transaction($user1->id, $course->id);
+        $this->create_transaction($user2->id, $course->id);
 
         $coursecontext = \context_course::instance($course->id);
         $approved = new approved_contextlist($user1, 'enrol_sepay', [$coursecontext->id]);
         provider::delete_data_for_user($approved);
 
-        $this->assertEquals(0, $DB->count_records('enrol_sepay_transactions',
-            ['userid' => $user1->id, 'courseid' => $course->id]));
-        $this->assertEquals(1, $DB->count_records('enrol_sepay_transactions',
-            ['userid' => $user2->id, 'courseid' => $course->id]));
+        $this->assertEquals(0, $this->count_transactions($user1->id, $course->id));
+        $this->assertEquals(1, $this->count_transactions($user2->id, $course->id));
     }
 
     /**
      * delete_data_for_users chỉ xóa các user được chỉ định trong context.
      */
     public function test_delete_data_for_users(): void {
-        global $DB;
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
-        $this->create_transaction($user1->id, $course->id, 0);
-        $this->create_transaction($user2->id, $course->id, 0);
+        $this->create_transaction($user1->id, $course->id);
+        $this->create_transaction($user2->id, $course->id);
 
         $coursecontext = \context_course::instance($course->id);
         $approved = new approved_userlist($coursecontext, 'enrol_sepay', [$user1->id]);
         provider::delete_data_for_users($approved);
 
-        $this->assertEquals(0, $DB->count_records('enrol_sepay_transactions',
-            ['userid' => $user1->id, 'courseid' => $course->id]));
-        $this->assertEquals(1, $DB->count_records('enrol_sepay_transactions',
-            ['userid' => $user2->id, 'courseid' => $course->id]));
+        $this->assertEquals(0, $this->count_transactions($user1->id, $course->id));
+        $this->assertEquals(1, $this->count_transactions($user2->id, $course->id));
     }
 }
