@@ -362,3 +362,22 @@ $string['editselectedusers'] = 'Edit selected user enrolments';
 $string['deleteselectedusers'] = 'Delete selected user enrolments';
 $string['confirmbulkdeleteenrolment'] = 'Are you sure you want to delete these user enrolments?';
 $string['unenrolusers'] = 'Unenrol users';
+
+// Privacy API (GDPR) metadata.
+$string['privacy:metadata:enrol_sepay_transactions'] = 'Information about SePay bank transfer transactions used to enrol users into courses.';
+$string['privacy:metadata:enrol_sepay_transactions:userid'] = 'The ID of the user the transaction belongs to.';
+$string['privacy:metadata:enrol_sepay_transactions:courseid'] = 'The ID of the course the transaction pays for.';
+$string['privacy:metadata:enrol_sepay_transactions:amount'] = 'The amount of the transaction.';
+$string['privacy:metadata:enrol_sepay_transactions:currency'] = 'The currency of the transaction.';
+$string['privacy:metadata:enrol_sepay_transactions:transaction_content'] = 'The bank transfer description, which may contain the payer name.';
+$string['privacy:metadata:enrol_sepay_transactions:transaction_ref'] = 'The transaction reference code returned by SePay.';
+$string['privacy:metadata:enrol_sepay_transactions:gateway'] = 'The bank or gateway that processed the transfer.';
+$string['privacy:metadata:enrol_sepay_transactions:status'] = 'The processing status of the transaction.';
+$string['privacy:metadata:enrol_sepay_transactions:ip_address'] = 'The IP address recorded when the transaction was created.';
+$string['privacy:metadata:enrol_sepay_transactions:timecreated'] = 'The time the transaction was created.';
+$string['privacy:metadata:enrol_sepay_archive'] = 'Archived SePay bank transfer transactions kept for record-keeping.';
+$string['privacy:metadata:enrol_sepay_pending_ips'] = 'IP addresses recorded for pending SePay enrolment attempts.';
+$string['privacy:metadata:enrol_sepay_pending_ips:userid'] = 'The ID of the user the pending attempt belongs to.';
+$string['privacy:metadata:enrol_sepay_pending_ips:courseid'] = 'The ID of the course the pending attempt is for.';
+$string['privacy:metadata:enrol_sepay_pending_ips:ip_address'] = 'The IP address recorded for the pending attempt.';
+$string['privacy:metadata:enrol_sepay_pending_ips:timecreated'] = 'The time the pending attempt was recorded.';

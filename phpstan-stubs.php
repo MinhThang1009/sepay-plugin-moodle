@@ -14,3 +14,19 @@ namespace core_external {
 namespace {
     class table_sql {}
 }
+namespace core_privacy\local\metadata {
+    interface provider {}
+    class collection {}
+}
+namespace core_privacy\local\request {
+    interface core_userlist_provider {}
+    class contextlist {}
+    class approved_contextlist {}
+    class userlist {}
+    class approved_userlist {}
+    class writer {}
+    class transform {}
+}
+namespace core_privacy\local\request\plugin {
+    interface provider {}
+}
