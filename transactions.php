@@ -214,7 +214,7 @@ if ($action === 'bulk_delete' && confirm_sesskey()) {
             'letter_fn'     => $letterfn,
             'perpage'       => $perpage,
         ]);
-        redirect($redirecturl, get_string('transactions_deleted', 'enrol_sepay', count($deleteids)));
+        redirect($redirecturl, get_string('transactions_deleted', 'enrol_sepay', count($txns)));
     } else {
         $redirecturl = new moodle_url('/enrol/sepay/transactions.php', ['filter' => $filter]);
         redirect(
@@ -289,6 +289,7 @@ if ($action === 'bulk_unenrol' && confirm_sesskey()) {
 
     if (!empty($unenrolids)) {
         $unenrolledcount = 0;
+        $failedcount = 0;
         foreach ($unenrolids as $txnid) {
             $txn = $DB->get_record('enrol_sepay_transactions', ['id' => $txnid]);
             if ($txn && $txn->status === 'processed') {
@@ -297,6 +298,7 @@ if ($action === 'bulk_unenrol' && confirm_sesskey()) {
                 $instance = $DB->get_record('enrol', ['id' => $txn->instanceid, 'enrol' => 'sepay']);
                 if (!$instance) {
                     // Instance đã bị xóa — bỏ qua, không đổi trạng thái.
+                    $failedcount++;
                     continue;
                 }
                 try {
@@ -304,6 +306,7 @@ if ($action === 'bulk_unenrol' && confirm_sesskey()) {
                 } catch (\Exception $e) {
                     // Không crash toàn bộ vòng lặp — tiếp tục với giao dịch tiếp theo.
                     debugging('bulk_unenrol: unenrol_user failed for txn ' . $txnid . ': ' . $e->getMessage(), DEBUG_DEVELOPER);
+                    $failedcount++;
                     continue;
                 }
                 // Chỉ đổi trạng thái khi unenrol_user thành công.
@@ -329,7 +332,15 @@ if ($action === 'bulk_unenrol' && confirm_sesskey()) {
             'letter_fn'     => $letterfn,
             'perpage'       => $perpage,
         ]);
-        if ($unenrolledcount > 0) {
+        if ($unenrolledcount > 0 && $failedcount > 0) {
+            // Báo rõ có giao dịch bị bỏ qua (instance bị xóa / lỗi) thay vì chỉ hiện số thành công.
+            redirect(
+                $redirecturl,
+                get_string('bulk_unenrolled_partial', 'enrol_sepay', (object)['ok' => $unenrolledcount, 'failed' => $failedcount]),
+                null,
+                core\output\notification::NOTIFY_WARNING
+            );
+        } else if ($unenrolledcount > 0) {
             redirect($redirecturl, get_string('bulk_unenrolled', 'enrol_sepay', $unenrolledcount));
         } else {
             // Có ID được chọn nhưng không unenrol được ai (instance bị xóa hoặc lỗi kỹ thuật).
