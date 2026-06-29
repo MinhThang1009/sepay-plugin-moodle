@@ -442,33 +442,11 @@ if (!$manualenrol) {
     // Nếu lỗi ở đây, user vẫn đã được ghi danh — chỉ log, không abort.
     try {
         $now = time();
-        if ($refstored) {
-            $DB->set_field(
-                'enrol_sepay_transactions',
-                'status',
-                'processed',
-                ['transaction_ref' => $transactionref]
-            );
-            $DB->set_field(
-                'enrol_sepay_transactions',
-                'timeprocessed',
-                $now,
-                ['transaction_ref' => $transactionref]
-            );
-        } else {
-            $DB->set_field(
-                'enrol_sepay_transactions',
-                'status',
-                'processed',
-                ['userid' => $user->id, 'courseid' => $course->id, 'instanceid' => $instance->id, 'status' => 'pending']
-            );
-            $DB->set_field(
-                'enrol_sepay_transactions',
-                'timeprocessed',
-                $now,
-                ['userid' => $user->id, 'courseid' => $course->id, 'instanceid' => $instance->id, 'status' => 'processed']
-            );
-        }
+        // Cập nhật đúng bản ghi vừa insert (theo id) thay vì theo transaction_ref / tuple
+        // (user, course, instance) — tránh ghi đè status/timeprocessed của các giao dịch khác
+        // trùng tham chiếu hoặc trùng tuple (vd mua lại sau khi bị từ chối).
+        $DB->set_field('enrol_sepay_transactions', 'status', 'processed', ['id' => $txnid]);
+        $DB->set_field('enrol_sepay_transactions', 'timeprocessed', $now, ['id' => $txnid]);
     } catch (\Exception $e) {
         // Log nhưng không abort (user đã ghi danh ở bước trên).
         debugging('enrol_sepay webhook: set status processed failed — ' . $e->getMessage(), DEBUG_DEVELOPER);
