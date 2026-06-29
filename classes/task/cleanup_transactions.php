@@ -144,9 +144,12 @@ class cleanup_transactions extends \core\task\scheduled_task {
         global $DB;
 
         $pendingcutoff = time() - ($pendingretentiondays * 86400);
+        // Đánh dấu rejection_notified = 1 để process_rejections KHÔNG gửi email "đơn bị từ chối"
+        // cho QR pending tự hết hạn — người dùng có thể chưa từng chuyển khoản. Khác với reject
+        // thủ công của admin (transactions.php) là chủ động thông báo cho học viên.
         $DB->execute(
             "UPDATE {enrol_sepay_transactions}
-                SET status = 'rejected', timeprocessed = :now
+                SET status = 'rejected', timeprocessed = :now, rejection_notified = 1
               WHERE status = 'pending'
                 AND timecreated < :cutoff",
             ['now' => time(), 'cutoff' => $pendingcutoff]
