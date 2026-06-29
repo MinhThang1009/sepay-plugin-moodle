@@ -5,6 +5,13 @@ Tất cả thay đổi đáng chú ý của plugin được ghi ở đây.
 phiên bản hiển thị theo [SemVer](https://semver.org/lang/vi/) (khớp git tag `vX.Y.Z`),
 kèm Moodle version (`YYYYMMDDXX`) trong `version.php`.
 
+## [1.1.1](https://github.com/MinhThang1009/sepay-plugin-moodle/compare/v1.1.0...v1.1.1) (2026-06-29)
+
+
+### Sửa lỗi
+
+* sửa các bug logic từ audit (bulk UI, webhook, cleanup) ([#14](https://github.com/MinhThang1009/sepay-plugin-moodle/issues/14)) ([e16c573](https://github.com/MinhThang1009/sepay-plugin-moodle/commit/e16c5737ad454ad510f2a8b77d8ced58fa717451))
+
 ## [Unreleased]
 
 ## [1.1.0] - 2026-06-28
